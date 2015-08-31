@@ -1,0 +1,6 @@
+Embed Comic Metadata
+===========================
+
+This plugin embeds the calibre metadata into cbz comic files.
+It supports writing to the zip-comment (Comicbook Lover style metadata)
+and writing a ComicInfo.xml file into the cbz (ComicRack style)
