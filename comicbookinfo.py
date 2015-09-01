@@ -23,8 +23,7 @@ import json
 from datetime import datetime
 
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-from calibre_plugins.EmbedComicMetadata.utils import getLanguageDict
-from calibre_plugins.EmbedComicMetadata.utils import getLanguageFromISO
+from calibre_plugins.EmbedComicMetadata.utils import getLanguageDict, getLanguageFromISO
 
 class ComicBookInfo:
 		 
