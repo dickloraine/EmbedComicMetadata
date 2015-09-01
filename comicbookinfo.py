@@ -22,8 +22,9 @@ limitations under the License.
 import json
 from datetime import datetime
 
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, lang_as_iso639_1
+
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-from calibre_plugins.EmbedComicMetadata.utils import getLanguageDict, getLanguageFromISO
 
 class ComicBookInfo:
 		 
@@ -67,15 +68,10 @@ class ComicBookInfo:
 		if metadata.tags is None:
 			metadata.tags = []
 			
-		#need to massage the language string to be ISO
+		#need to massage the language string to be ISO 
+		# modified to use a calibre function
 		if metadata.language is not None:
-			# reverse look-up
-			pattern = metadata.language
-			metadata.language = None
-			for key in getLanguageDict():
-				if getLanguageDict()[ key ] == pattern.encode('utf-8'):
-					metadata.language = key
-					break
+			metadata.language = lang_as_iso639_1(metadata.language)
 		
 		metadata.isEmpty = False
 		
@@ -131,7 +127,7 @@ class ComicBookInfo:
 		assign( 'genre', metadata.genre )
 		assign( 'volume', toInt(metadata.volume) )
 		assign( 'numberOfVolumes', toInt(metadata.volumeCount) )
-		assign( 'language', getLanguageFromISO(metadata.language) )
+		assign( 'language', calibre_langcode_to_name(canonicalize_lang(metadata.language)) )
 		assign( 'country', metadata.country )
 		assign( 'rating', metadata.criticalRating )
 		assign( 'credits', metadata.credits )

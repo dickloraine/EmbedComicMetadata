@@ -7,12 +7,13 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.html2text import html2text
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.localization import lang_as_iso639_1
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-from calibre_plugins.EmbedComicMetadata.utils import getLanguageDict, writeZipComment
+from calibre_plugins.EmbedComicMetadata.utils import writeZipComment
 
 
 def update_metadata(ia, do_embed):	#ia = interface action
@@ -133,12 +134,7 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 		overlay_metadata.month = calibre_metadata.pubdate.month
 		overlay_metadata.day = calibre_metadata.pubdate.day
 	if calibre_metadata.language:
-		# reverse look-up
-		pattern = calibre_metadata.language
-		for key in getLanguageDict():
-			if getLanguageDict()[ key ] == pattern.encode('utf-8'):
-				overlay_metadata.language = key
-				break
+		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
 	
 	# process cix metadata
 	if do_embed == "both" or do_embed == "cix":
