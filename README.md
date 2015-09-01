@@ -1,5 +1,5 @@
-# EmbedComicMetadata
-A Calibre Plugin to embed calibres metadata into cbz comic archieves
+# Embed Comic Metadata
+A Calibre Plugin to embed calibres metadata into cbz comic archives
 
 ##Special Notes
 Requires calibre version 1.0.0 or later.
