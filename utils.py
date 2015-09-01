@@ -19,9 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-from os import stat
-from struct import pack
 	
 	
 def listToString( l ):
@@ -43,6 +40,9 @@ def writeZipComment(filename, comment):
 	easy to manipulate.  See this website for more info:
 	see: http://en.wikipedia.org/wiki/Zip_(file_format)#Structure
 	'''
+	
+	from os import stat
+	from struct import pack
 	
 	#get file size
 	statinfo = stat(filename)
