@@ -23,6 +23,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from calibre_plugins.EmbedComicMetadata.utils import listToString
 
 # These page info classes are exactly the same as the CIX scheme, since it's unique
 class PageType:
@@ -37,26 +38,7 @@ class PageType:
 	BackCover    = "BackCover"
 	Other        = "Other"
 	Deleted      = "Deleted"
-
-"""
-class PageInfo:
-	Image = 0
-	Type = PageType.Story
-	DoublePage = False
-	ImageSize = 0
-	Key = ""
-	ImageWidth = 0
-	ImageHeight = 0
-"""	
-
-def listToString( l ):
-	string = ""
-	if l is not None:
-		for item in l:
-			if len(string) > 0:
-				string += ", "
-			string += item 
-	return string
+	
 	
 class GenericMetadata:
 
