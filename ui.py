@@ -11,12 +11,16 @@ try:
 	from PyQt5.Qt import QToolButton, QMenu
 except ImportError:
 	from PyQt4.Qt import QToolButton, QMenu
+
+from functools import partial	
+	
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
 
 from calibre_plugins.EmbedComicMetadata.calibrecomic import update_metadata
 from calibre_plugins.EmbedComicMetadata.config import prefs
+
 
 class EmbedComicMetadata(InterfaceAction):
 
@@ -38,24 +42,24 @@ class EmbedComicMetadata(InterfaceAction):
 		# above
 		self.qaction.setMenu(self.menu)
 		self.qaction.setIcon(icon)
-		self.qaction.triggered.connect(self.menu_triggered)
+		self.qaction.triggered.connect(self.main_menu_triggered)
 
 	def build_menu(self):
 		m = self.menu
 		m.clear()
 		self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
-							description=None, triggered=self.both_triggered, shortcut_name=None)
+							description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
 		self.create_menu_action(m, "embedcbi", "Only embed Metadata in comment", icon=None, shortcut=None,
-							description=None, triggered=self.cbi_triggered, shortcut_name=None)
+							description=None, triggered=partial(self.sub_menu_triggered, "cbi"), shortcut_name=None)
 		self.create_menu_action(m, "embedcix", "Only embed Metadata in ComicInfo.xml", icon=None, shortcut=None,
-							description=None, triggered=self.cix_triggered, shortcut_name=None)
+							description=None, triggered=partial(self.sub_menu_triggered, "cix"), shortcut_name=None)
 		self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
-							description=None, triggered=self.convert_triggered, shortcut_name=None)
+							description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
 		m.addSeparator()
 		self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
 							description=None, triggered=self.configure_triggered, shortcut_name=None)
 		
-	def menu_triggered(self):
+	def main_menu_triggered(self):
 		# Check the preferences for what should be embedded
 		if prefs['cbi_embed'] and prefs['cix_embed']:
 			do_embed = "both"
@@ -65,21 +69,12 @@ class EmbedComicMetadata(InterfaceAction):
 			do_embed = "cix"
 		else:
 			return error_dialog(self.gui, 'Cannot update metadata',
-						'No embed format selected', show=True)
+						'No embed format selected', show=True)	
 		# embed the metadata
 		update_metadata(self, do_embed)
 		
-	def both_triggered(self):
-		update_metadata(self, "both")
-	
-	def cbi_triggered(self):
-		update_metadata(self, "cbi")
-		
-	def cix_triggered(self):
-		update_metadata(self, "cix")
-	
-	def convert_triggered(self):
-		update_metadata(self, "just_convert")
+	def sub_menu_triggered(self, do_embed):
+		update_metadata(self, do_embed)
 	
 	def configure_triggered(self):
 		self.interface_action_base_plugin.do_user_config(self.gui)
