@@ -107,34 +107,7 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 	ffile = ia.db.format(book_id, "cbz", as_path=True)
 			
 	# now copy the calibre metadata to comictagger compatible metadata
-	overlay_metadata = GenericMetadata()
-	if calibre_metadata.title:
-		overlay_metadata.title = calibre_metadata.title
-	if len(calibre_metadata.authors) > 0:
-		credits = list()
-		for author in calibre_metadata.authors:
-			credit = dict()
-			credit['person'] = author
-			credit['role'] = "Writer"
-			credits.append(credit)			
-		overlay_metadata.credits = credits
-	if calibre_metadata.series:
-		overlay_metadata.series = calibre_metadata.series
-	if calibre_metadata.series_index:
-		overlay_metadata.issue = int(calibre_metadata.series_index)
-	if len(calibre_metadata.tags) > 0:
-		overlay_metadata.tags = calibre_metadata.tags
-	if calibre_metadata.publisher:
-		overlay_metadata.publisher = calibre_metadata.publisher
-	if calibre_metadata.comments:
-		comments = html2text(calibre_metadata.comments)
-		overlay_metadata.comments = comments
-	if calibre_metadata.pubdate != UNDEFINED_DATE:
-		overlay_metadata.year = calibre_metadata.pubdate.year
-		overlay_metadata.month = calibre_metadata.pubdate.month
-		overlay_metadata.day = calibre_metadata.pubdate.day
-	if calibre_metadata.language:
-		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
+	overlay_metadata = get_overlay_metadata(calibre_metadata)
 	
 	# process cix metadata
 	if do_embed == "both" or do_embed == "cix":
@@ -149,18 +122,10 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 				cix_file = zf.getinfo(name)
 				cix_metadata = zf.read(name)
 				break		
-				
-		# transform the string to the generic metadata format
-		if cix_metadata is None:
-			cix_metadata = GenericMetadata()
-		else:
-			cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)	
-			
-		#now overlay the calibre metadata with the original metadata
-		cix_metadata.overlay(overlay_metadata)		
 		
-		# transform the metadata back to save them in the file
-		cix_metadata = ComicInfoXml().stringFromMetadata(cix_metadata)	
+		# get the metadata to embed
+		cix_metadata = get_metadata_string(cix_metadata, overlay_metadata,
+						ComicInfoXml().metadataFromString, ComicInfoXml().stringFromMetadata)	
 		
 		# save the metadata in the file
 		if cix_file is not None:
@@ -178,17 +143,9 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 		cbi_metadata = zf.comment	
 		zf.close()
 		
-		# transform the comment to the generic metadata format
-		if cbi_metadata is None or not ComicBookInfo().validateString(cbi_metadata):
-			cbi_metadata = GenericMetadata()
-		else:
-			cbi_metadata = ComicBookInfo().metadataFromString(cbi_metadata)
-			
-		# now overlay the calibre metadata with the original metadata
-		cbi_metadata.overlay(overlay_metadata)		
-		
-		# transform the metadata back to save them in the file
-		cbi_metadata = ComicBookInfo().stringFromMetadata(cbi_metadata)	
+		# get the metadata to embed
+		cbi_metadata = get_metadata_string(cbi_metadata, overlay_metadata,
+						ComicBookInfo().metadataFromString, ComicBookInfo().stringFromMetadata, ComicBookInfo().validateString)	
 		
 		# save the metadata in the comment
 		writeZipComment(ffile, cbi_metadata)
@@ -197,7 +154,67 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 	ia.db.add_format(book_id, "cbz", ffile)	
 
 	
+def get_overlay_metadata(calibre_metadata):
+	'''
+	Copies calibres metadata to comictagger compatible metadata
+	'''
+	
+	overlay_metadata = GenericMetadata()
+	
+	if calibre_metadata.title:
+		overlay_metadata.title = calibre_metadata.title
+	if len(calibre_metadata.authors) > 0:
+		for author in calibre_metadata.authors:
+			credit = dict()
+			credit['person'] = author
+			credit['role'] = "Writer"
+			overlay_metadata.credits.append(credit)	
+	if calibre_metadata.series:
+		overlay_metadata.series = calibre_metadata.series
+	if calibre_metadata.series_index:
+		overlay_metadata.issue = int(calibre_metadata.series_index)
+	if len(calibre_metadata.tags) > 0:
+		overlay_metadata.tags = calibre_metadata.tags
+	if calibre_metadata.publisher:
+		overlay_metadata.publisher = calibre_metadata.publisher
+	if calibre_metadata.comments:
+		overlay_metadata.comments = html2text(calibre_metadata.comments)
+	if calibre_metadata.pubdate != UNDEFINED_DATE:
+		overlay_metadata.year = calibre_metadata.pubdate.year
+		overlay_metadata.month = calibre_metadata.pubdate.month
+		overlay_metadata.day = calibre_metadata.pubdate.day
+	if calibre_metadata.language:
+		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
+		
+	return overlay_metadata	
+	
+def get_metadata_string(metadata, overlay_metadata, fromString, toString, validate=None):
+	'''
+	Returns the metadata to be embedded as a string
+	'''
+	
+	if validate is None:
+		is_validated = True
+	else:
+		is_validated = validate(metadata)
+		
+	# transform the existing metadata to comictagger compatible metadata
+	if metadata is None or not is_validated:
+		metadata = GenericMetadata()
+	else:
+		metadata = fromString(metadata)
+		
+	# now overlay the calibre metadata with the original metadata
+	metadata.overlay(overlay_metadata)		
+	
+	# transform the metadata back to string
+	return toString(metadata)		
+	
 def convert_cbr_to_cbz(ia, book_id):
+	'''
+	Converts a cbr-comic to a cbz-comic
+	'''
+	
 	from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 	from calibre.utils.unrar import extract
 		
