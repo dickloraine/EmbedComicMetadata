@@ -74,12 +74,29 @@ def update_metadata(ia, do_embed):	#ia = interface action
 			books_converted.append(book_info)
 			is_cbz_comic = True
 			
-		# embed the metadata, if the book is a cbz file
-		if is_cbz_comic:
-			embed_comic_metadata(ia, book_id, calibre_metadata, do_embed)
-			books_processed.append(book_info)
-		else:
+		# if the book is not a cbz file get the next book
+		if not is_cbz_comic:
 			books_not_processed.append(book_info)
+			continue
+		
+		# now embed the metadata in the cbz file		
+		
+		# copy the file to temp folder
+		ffile = ia.db.format(book_id, "cbz", as_path=True)
+				
+		# now copy the calibre metadata to comictagger compatible metadata
+		overlay_metadata = get_overlay_metadata(calibre_metadata)
+		
+		# embed the comicinfo.xml
+		if do_embed == "both" or do_embed == "cix":
+			embed_cix_metadata(ffile, overlay_metadata)
+		# embed the cbi metadata
+		if do_embed == "both" or do_embed == "cbi":
+			embed_cbi_metadata(ffile, overlay_metadata)
+			
+		# add the updated file to calibres library
+		ia.db.add_format(book_id, "cbz", ffile)
+		books_processed.append(book_info)		
 	
 	# Show the completion dialog
 	if do_embed == "just_convert":
@@ -96,62 +113,6 @@ def update_metadata(ia, do_embed):	#ia = interface action
 			msg += '\nThe following books were not updated: {}'.format(books_not_processed)	
 	
 	info_dialog(ia.gui, title, msg, show=True)
-
-
-def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
-	'''
-	Embeds the metadata in the given book
-	'''
-	
-	# copy the file to temp folder
-	ffile = ia.db.format(book_id, "cbz", as_path=True)
-			
-	# now copy the calibre metadata to comictagger compatible metadata
-	overlay_metadata = get_overlay_metadata(calibre_metadata)
-	
-	# process cix metadata
-	if do_embed == "both" or do_embed == "cix":
-		# open the zipfile with append option
-		zf = ZipFile(ffile, "a")
-		
-		# look for an existing comicinfo file
-		cix_file = None
-		cix_metadata = None
-		for name in zf.namelist():
-			if name.lower() == "comicinfo.xml":
-				cix_file = zf.getinfo(name)
-				cix_metadata = zf.read(name)
-				break		
-		
-		# get the metadata to embed
-		cix_metadata = get_metadata_string(cix_metadata, overlay_metadata,
-						ComicInfoXml().metadataFromString, ComicInfoXml().stringFromMetadata)	
-		
-		# save the metadata in the file
-		if cix_file is not None:
-			zf.replacestr(cix_file, cix_metadata)
-		else:
-			zf.writestr("ComicInfo.xml", cix_metadata)
-			
-		# close the zipfile
-		zf.close()
-			
-	# process cbi metadata
-	if do_embed == "both" or do_embed == "cbi":
-		# get cbi metadata from the zip comment
-		zf = ZipFile(ffile)
-		cbi_metadata = zf.comment	
-		zf.close()
-		
-		# get the metadata to embed
-		cbi_metadata = get_metadata_string(cbi_metadata, overlay_metadata,
-						ComicBookInfo().metadataFromString, ComicBookInfo().stringFromMetadata, ComicBookInfo().validateString)	
-		
-		# save the metadata in the comment
-		writeZipComment(ffile, cbi_metadata)
-
-	# add the updated file to calibres library
-	ia.db.add_format(book_id, "cbz", ffile)	
 
 	
 def get_overlay_metadata(calibre_metadata):
@@ -187,6 +148,45 @@ def get_overlay_metadata(calibre_metadata):
 		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
 		
 	return overlay_metadata	
+	
+def embed_cix_metadata(ffile, overlay_metadata):
+	# open the zipfile with append option
+	zf = ZipFile(ffile, "a")
+	
+	# look for an existing comicinfo file
+	cix_file = None
+	cix_metadata = None
+	for name in zf.namelist():
+		if name.lower() == "comicinfo.xml":
+			cix_file = zf.getinfo(name)
+			cix_metadata = zf.read(name)
+			break		
+	
+	# get the metadata to embed
+	cix_metadata = get_metadata_string(cix_metadata, overlay_metadata,
+					ComicInfoXml().metadataFromString, ComicInfoXml().stringFromMetadata)	
+	
+	# save the metadata in the file
+	if cix_file is not None:
+		zf.replacestr(cix_file, cix_metadata)
+	else:
+		zf.writestr("ComicInfo.xml", cix_metadata)
+		
+	# close the zipfile
+	zf.close()
+	
+def embed_cbi_metadata(ffile, overlay_metadata):
+	# get cbi metadata from the zip comment
+	zf = ZipFile(ffile)
+	cbi_metadata = zf.comment	
+	zf.close()
+	
+	# get the metadata to embed
+	cbi_metadata = get_metadata_string(cbi_metadata, overlay_metadata,
+					ComicBookInfo().metadataFromString, ComicBookInfo().stringFromMetadata, ComicBookInfo().validateString)	
+	
+	# save the metadata in the comment
+	writeZipComment(ffile, cbi_metadata)
 	
 def get_metadata_string(metadata, overlay_metadata, fromString, toString, validate=None):
 	'''
