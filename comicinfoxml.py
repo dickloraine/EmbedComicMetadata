@@ -22,7 +22,6 @@ from datetime import datetime
 from pprint import pprint 
 import xml.etree.ElementTree as ET
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-from calibre_plugins.EmbedComicMetadata.utils import listToString
 
 class ComicInfoXml:
 	
@@ -290,3 +289,11 @@ class ComicInfoXml:
 		tree = ET.parse( filename )
 		return self.convertXMLToMetadata( tree )
 
+def listToString( l ):
+	string = ""
+	if l is not None:
+		for item in l:
+			if len(string) > 0:
+				string += ", "
+			string += item 
+	return string
