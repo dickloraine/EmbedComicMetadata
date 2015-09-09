@@ -5,15 +5,9 @@ __docformat__ = 'restructuredtext en'
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2 import error_dialog, info_dialog
-from calibre.utils.html2text import html2text
-from calibre.utils.date import UNDEFINED_DATE
-from calibre.utils.localization import lang_as_iso639_1
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
-from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
-from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-from calibre_plugins.EmbedComicMetadata.utils import writeZipComment
 
 
 def update_metadata(ia, do_embed):	#ia = interface action
@@ -120,6 +114,10 @@ def get_overlay_metadata(calibre_metadata):
 	Copies calibres metadata to comictagger compatible metadata
 	'''
 	
+	from calibre.utils.html2text import html2text
+	from calibre.utils.date import UNDEFINED_DATE
+	from calibre.utils.localization import lang_as_iso639_1
+
 	overlay_metadata = GenericMetadata()
 	
 	if calibre_metadata.title:
@@ -150,6 +148,8 @@ def get_overlay_metadata(calibre_metadata):
 	return overlay_metadata	
 	
 def embed_cix_metadata(ffile, overlay_metadata):
+	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+	
 	# open the zipfile with append option
 	zf = ZipFile(ffile, "a")
 	
@@ -176,6 +176,8 @@ def embed_cix_metadata(ffile, overlay_metadata):
 	zf.close()
 	
 def embed_cbi_metadata(ffile, overlay_metadata):
+	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
+	
 	# get cbi metadata from the zip comment
 	zf = ZipFile(ffile)
 	cbi_metadata = zf.comment	
@@ -230,3 +232,69 @@ def convert_cbr_to_cbz(ia, book_id):
 			zf.close()
 			# add the cbz format to calibres library
 			ia.db.add_format(book_id, "cbz", tf)
+			
+def writeZipComment(filename, comment):
+	'''
+	This is a custom function for writing a comment to a zip file,
+	since the built-in one doesn't seem to work on Windows and Mac OS/X
+
+	Fortunately, the zip comment is at the end of the file, and it's
+	easy to manipulate.  See this website for more info:
+	see: http://en.wikipedia.org/wiki/Zip_(file_format)#Structure
+	'''
+	
+	from os import stat
+	from struct import pack
+	
+	#get file size
+	statinfo = stat(filename)
+	file_length = statinfo.st_size
+
+	try:
+		fo = open(filename, "r+b")
+
+		#the starting position, relative to EOF
+		pos = -4
+
+		found = False
+		value = bytearray()
+	
+		# walk backwards to find the "End of Central Directory" record
+		while ( not found ) and ( -pos != file_length ):
+			# seek, relative to EOF	
+			fo.seek( pos,  2)
+
+			value = fo.read( 4 )
+
+			#look for the end of central directory signature
+			if bytearray(value) == bytearray([ 0x50, 0x4b, 0x05, 0x06 ]):
+				found = True
+			else:
+				# not found, step back another byte
+				pos = pos - 1
+			#print pos,"{1} int: {0:x}".format(bytearray(value)[0], value)
+		
+		if found:
+			
+			# now skip forward 20 bytes to the comment length word
+			pos += 20
+			fo.seek( pos,  2)
+
+			# Pack the length of the comment string
+			format = "H"                   # one 2-byte integer
+			comment_length = pack(format, len(comment)) # pack integer in a binary string
+			
+			# write out the length
+			fo.write( comment_length )
+			fo.seek( pos+2,  2)
+			
+			# write out the comment itself
+			fo.write( comment )
+			fo.truncate()
+			fo.close()
+		else:
+			raise Exception('Failed to write comment to zip file!')
+	except:
+		return False
+	else:
+		return True

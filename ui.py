@@ -18,7 +18,7 @@ from functools import partial
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
 
-from calibre_plugins.EmbedComicMetadata.calibrecomic import update_metadata
+from calibre_plugins.EmbedComicMetadata.main import update_metadata
 from calibre_plugins.EmbedComicMetadata.config import prefs
 
 
