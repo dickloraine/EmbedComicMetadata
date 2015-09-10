@@ -8,7 +8,7 @@ from calibre.gui2 import error_dialog, info_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
-
+#test
 
 def update_metadata(ia, do_embed):	#ia = interface action
 	'''
