@@ -1,4 +1,4 @@
-"""
+﻿"""
  A python class for internal metadata storage
  
  The goal of this class is to handle ALL the data that might come from various
@@ -232,7 +232,7 @@ class GenericMetadata:
 		if not found:
 			self.credits.append(credit)
 
-      		
+
 	def __str__( self ):
 		vals = []
 		if self.isEmpty:
