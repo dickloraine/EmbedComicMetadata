@@ -34,19 +34,19 @@ class ConfigWidget(QWidget):
 		QWidget.__init__(self)
 		self.l = QHBoxLayout()
 		self.setLayout(self.l)
-		
+
 		self.cbi_checkbox = QCheckBox('Write metadata in zip comment', self)
 		self.cbi_checkbox.setChecked(prefs['cbi_embed'])
 		self.l.addWidget(self.cbi_checkbox)
-		
+
 		self.cix_checkbox = QCheckBox('Write metadata in ComicInfo.xml', self)
 		self.cix_checkbox.setChecked(prefs['cix_embed'])
 		self.l.addWidget(self.cix_checkbox)
-		
+
 		self.convert_cbr_checkbox = QCheckBox('Auto convert cbr to cbz', self)
 		self.convert_cbr_checkbox.setChecked(prefs['convert_cbr'])
 		self.l.addWidget(self.convert_cbr_checkbox)
-		
+
 		self.delete_cbr_checkbox = QCheckBox('Delete cbr after conversion', self)
 		self.delete_cbr_checkbox.setChecked(prefs['delete_cbr'])
 		self.l.addWidget(self.delete_cbr_checkbox)
@@ -56,4 +56,3 @@ class ConfigWidget(QWidget):
 		prefs['cix_embed'] = self.cix_checkbox.isChecked()
 		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
-		

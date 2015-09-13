@@ -8,12 +8,12 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QToolButton, QMenu
+	from PyQt5.Qt import QMenu
 except ImportError:
-	from PyQt4.Qt import QToolButton, QMenu
+	from PyQt4.Qt import QMenu
 
-from functools import partial	
-	
+from functools import partial
+
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
@@ -36,7 +36,7 @@ class EmbedComicMetadata(InterfaceAction):
 		self.build_menu()
 
 		# Set the icon for this interface action
-		icon = get_icons('images/icon.png')
+		icon = get_icons('images/icon.png')  # need to import this?
 
 		# The qaction is automatically created from the action_spec defined
 		# above
@@ -58,7 +58,7 @@ class EmbedComicMetadata(InterfaceAction):
 		m.addSeparator()
 		self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
 							description=None, triggered=self.configure_triggered, shortcut_name=None)
-		
+
 	def main_menu_triggered(self):
 		# Check the preferences for what should be embedded
 		if prefs['cbi_embed'] and prefs['cix_embed']:
@@ -69,13 +69,13 @@ class EmbedComicMetadata(InterfaceAction):
 			do_embed = "cix"
 		else:
 			return error_dialog(self.gui, 'Cannot update metadata',
-						'No embed format selected', show=True)	
+						'No embed format selected', show=True)
 		# embed the metadata
 		update_metadata(self, do_embed)
-		
+
 	def sub_menu_triggered(self, do_embed):
 		update_metadata(self, do_embed)
-	
+
 	def configure_triggered(self):
 		self.interface_action_base_plugin.do_user_config(self.gui)
 
