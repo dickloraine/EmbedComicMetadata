@@ -77,7 +77,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 		# read comicinfo metadata and write to calibre
 		if do_embed == "read":
 			has_updated = write_calibre_metadata_from_cix(ia, book_id, calibre_metadata, is_cbz_comic)
-			if has_updated is None:
+			if not has_updated:
 				books_not_processed.append(book_info)
 				continue
 			books_processed.append(book_info)
