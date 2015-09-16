@@ -11,8 +11,8 @@ from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 
 def update_metadata(ia, do_embed): 	# ia = interface action
 	'''
-	Set the metadata in the files in the selected comic's records to
-	match the current metadata in the database.
+	Redirects and handles the action indicated by "do_embed"
+	The main function for the plugin
 	'''
 
 	# get the db from calibre, to get metadata etc
@@ -59,53 +59,37 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			if not is_cbr_comic:
 				books_not_processed.append(book_info)
 				continue
-			convert_cbr_to_cbz(ia, book_id)
-			if delete_cbr:
-				ia.db.remove_formats({book_id: {'cbr'}})
+			convert_cbr_to_cbz(ia, book_id, delete_cbr)
 			books_converted.append(book_info)
+			continue
+
+		# read comic metadata and write to calibre
+		if do_embed == "read_both" or do_embed == "read_cix" or do_embed == "read_cbi":
+			# convert, if option is on
+			if (convert_reading and is_cbr_comic and not is_cbz_comic):
+				convert_cbr_to_cbz(ia, book_id, delete_cbr)
+				books_converted.append(book_info)
+				is_cbz_comic = True
+			# write the metadat to calibres database
+			has_updated = write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic)
+			if not has_updated:
+				books_not_processed.append(book_info)
+			else:
+				books_processed.append(book_info)
 			continue
 
 		# convert to cbz if book has only cbr format and option is on
-		if (convert_cbr and is_cbr_comic and not is_cbz_comic) or (
-			do_embed == "read" and convert_reading and is_cbr_comic and not is_cbz_comic):
-			convert_cbr_to_cbz(ia, book_id)
-			if delete_cbr:
-				ia.db.remove_formats({book_id: {'cbr'}})
+		if (convert_cbr and is_cbr_comic and not is_cbz_comic):
+			convert_cbr_to_cbz(ia, book_id, delete_cbr)
 			books_converted.append(book_info)
 			is_cbz_comic = True
 
-		# read comicinfo metadata and write to calibre
-		if do_embed == "read":
-			has_updated = write_calibre_metadata_from_cix(ia, book_id, calibre_metadata, is_cbz_comic)
-			if not has_updated:
-				books_not_processed.append(book_info)
-				continue
+		# if the book is a cbz, embed the metadata in the cbz file
+		if is_cbz_comic:
+			embed_comic_metadata(ia, book_id, calibre_metadata, do_embed)
 			books_processed.append(book_info)
-			continue
-
-		# if the book is not a cbz file get the next book
-		if not is_cbz_comic:
+		else:
 			books_not_processed.append(book_info)
-			continue
-
-		# now embed the metadata in the cbz file
-
-		# copy the file to temp folder
-		ffile = ia.db.format(book_id, "cbz", as_path=True)
-
-		# now copy the calibre metadata to comictagger compatible metadata
-		overlay_metadata = get_overlay_metadata(calibre_metadata)
-
-		# embed the comicinfo.xml
-		if do_embed == "both" or do_embed == "cix":
-			embed_cix_metadata(ffile, overlay_metadata)
-		# embed the cbi metadata
-		if do_embed == "both" or do_embed == "cbi":
-			embed_cbi_metadata(ffile, overlay_metadata)
-
-		# add the updated file to calibres library
-		ia.db.add_format(book_id, "cbz", ffile)
-		books_processed.append(book_info)
 
 	# Show the completion dialog
 	if do_embed == "just_convert":
@@ -113,6 +97,11 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 		msg = 'Converted {} book(s) to cbz'.format(len(books_converted))
 		if len(books_not_processed) > 0:
 			msg += '\nThe following books were not converted: {}'.format(books_not_processed)
+	elif do_embed == "read_both" or do_embed == "read_cix" or do_embed == "read_cbi":
+		title = 'Updated Calibre Metadata'
+		msg = 'Updated calibre metadata for {} book(s)'.format(len(books_processed))
+		if len(books_not_processed) > 0:
+			msg += '\nThe following books had no metadata: {}'.format(books_not_processed)
 	else:
 		title = 'Updated files'
 		msg = 'Updated the metadata in the files of {} book(s)'.format(len(books_processed))
@@ -122,6 +111,28 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			msg += '\nThe following books were not updated: {}'.format(books_not_processed)
 
 	info_dialog(ia.gui, title, msg, show=True)
+
+
+def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
+	'''
+	Set the metadata in the file to	match the current metadata in the database.
+	'''
+
+	# copy the file to temp folder
+	ffile = ia.db.format(book_id, "cbz", as_path=True)
+
+	# now copy the calibre metadata to comictagger compatible metadata
+	overlay_metadata = get_overlay_metadata(calibre_metadata)
+
+	# embed the comicinfo.xml
+	if do_embed == "both" or do_embed == "cix":
+		embed_cix_metadata(ffile, overlay_metadata)
+	# embed the cbi metadata
+	if do_embed == "both" or do_embed == "cbi":
+		embed_cbi_metadata(ffile, overlay_metadata)
+
+	# add the updated file to calibres library
+	ia.db.add_format(book_id, "cbz", ffile)
 
 
 def get_overlay_metadata(calibre_metadata):
@@ -161,6 +172,71 @@ def get_overlay_metadata(calibre_metadata):
 		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
 
 	return overlay_metadata
+
+
+def write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic):
+	'''
+	Reads the comic metadata from the comic file and then writes the
+	metadata into calibres database
+	'''
+
+	# if there is a cbz, take info from there, otherwise use the cbr
+	if is_cbz_comic:
+		ext = "cbz"
+	else:
+		ext = "cbr"
+	# get the file
+	ffile = ia.db.format(book_id, ext, as_path=True)
+	# get the metadata from the file, depending on "do_embed". if both, prefer
+	# "cix_metadata" (maybe make a preference later)
+	comic_metadata = get_comic_metadata_from_file(ffile, ext, do_embed)
+
+	# if no metadata return
+	if comic_metadata is None:
+		return False
+
+	# update calibres metadata with the comic_metadata
+	calibre_metadata = update_calibre_metadata(calibre_metadata, comic_metadata)
+	# write the metadata to the database
+
+	return True
+
+
+def update_calibre_metadata(calibre_metadata, comic_metadata):
+	'''
+	Maps the entries in the comic_metadata to calibre metadata
+	'''
+
+	# from calibre.utils.html2text import html2text
+	# from calibre.utils.date import UNDEFINED_DATE
+	# from calibre.utils.localization import lang_as_iso639_1
+
+	if comic_metadata.title:
+		calibre_metadata.title = comic_metadata.title
+	# if len(comic_metadata.authors) > 0:
+	# 	for author in comic_metadata.authors:
+	# 		credit = dict()
+	# 		credit['person'] = author
+	# 		credit['role'] = "Writer"
+	# 		calibre_metadata.credits.append(credit)
+	if comic_metadata.series:
+		calibre_metadata.series = comic_metadata.series
+	if comic_metadata.series_index:
+		calibre_metadata.issue = float(comic_metadata.series_index)
+	if len(comic_metadata.tags) > 0:
+		calibre_metadata.tags = comic_metadata.tags
+	if comic_metadata.publisher:
+		calibre_metadata.publisher = comic_metadata.publisher
+	# if comic_metadata.comments:
+	# 	calibre_metadata.comments = html2text(comic_metadata.comments)
+	# if comic_metadata.pubdate != UNDEFINED_DATE:
+	# 	calibre_metadata.year = comic_metadata.pubdate.year
+	# 	calibre_metadata.month = comic_metadata.pubdate.month
+	# 	calibre_metadata.day = comic_metadata.pubdate.day
+	# if comic_metadata.language:
+	# 	calibre_metadata.language = lang_as_iso639_1(comic_metadata.language)
+
+	return calibre_metadata
 
 
 def embed_cix_metadata(ffile, overlay_metadata):
@@ -231,7 +307,7 @@ def get_metadata_string(metadata, overlay_metadata, fromString, toString, valida
 	return toString(metadata)
 
 
-def convert_cbr_to_cbz(ia, book_id):
+def convert_cbr_to_cbz(ia, book_id, delete_cbr):
 	'''
 	Converts a cbr-comic to a cbz-comic
 	'''
@@ -251,38 +327,41 @@ def convert_cbr_to_cbz(ia, book_id):
 			zf.close()
 			# add the cbz format to calibres library
 			ia.db.add_format(book_id, "cbz", tf)
+	if delete_cbr:
+		ia.db.remove_formats({book_id: {'cbr'}})
 
 
-def write_calibre_metadata_from_cix(ia, book_id, calibre_metadata, is_cbz_comic):
+def get_comic_metadata_from_file(ffile, ext, do_embed):
+	'''
+	Reads the comic metadata from the comic file as comictagger metadata
+	and returns the metadata depending on do_embed
+	'''
+
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 	cix_metadata = None
-	if is_cbz_comic:
-		# get the file
-		ffile = ia.db.format(book_id, "cbz", as_path=True)
+	cbi_metadata = None
+	if ext == "cbz":
 		# open the zipfile
 		zf = ZipFile(ffile)
-		# look for an existing comicinfo file
-		for name in zf.namelist():
-			if name.lower() == "comicinfo.xml":
-				cix_metadata = zf.read(name)
+		# get cix metadata
+		if do_embed == "read_both" or do_embed == "read_cix":
+			for name in zf.namelist():
+				if name.lower() == "comicinfo.xml":
+					cix_metadata = zf.read(name)
+		# get the cbi metadata
+		if (do_embed == "read_both" and cix_metadata is None) or do_embed == "read_cbi":
+			cbi_metadata = zf.comment
 		zf.close()
 	else:
 		pass
 
-	if cix_metadata is None:
-		return False
-
 	# get the metadata as comictagger metadata
-	cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)
-	# update the calibre metadata
-	calibre_metadata = update_calibre_metadata_from_cix(calibre_metadata, cix_metadata)
-	# write the updated metadata to the database
-
-	return True
-
-
-def update_calibre_metadata_from_cix(calibre_metadata, cix_metadata):
+	if cix_metadata is not None:
+		return ComicInfoXml().metadataFromString(cix_metadata)
+	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
+		return ComicBookInfo().metadataFromString(cbi_metadata)
 	return None
 
 
