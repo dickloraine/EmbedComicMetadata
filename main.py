@@ -20,6 +20,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 
 	# initialize some variables
 	convert_cbr = prefs['convert_cbr']
+	convert_reading = prefs['convert_reading']
 	delete_cbr = prefs['delete_cbr']
 	books_processed = []
 	books_not_processed = []
@@ -48,6 +49,11 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 		is_cbz_comic = ia.db.has_format(book_id, "cbz")
 		is_cbr_comic = ia.db.has_format(book_id, "cbr")
 
+		# sanity check
+		if not is_cbz_comic and not is_cbr_comic:
+			books_not_processed.append(book_info)
+			continue
+
 		# only convert cbr to cbz
 		if do_embed == "just_convert":
 			if not is_cbr_comic:
@@ -60,12 +66,31 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			continue
 
 		# convert to cbz if book has only cbr format and option is on
-		if convert_cbr and is_cbr_comic and not is_cbz_comic:
+		if (convert_cbr and is_cbr_comic and not is_cbz_comic) or (
+			do_embed == "read" and convert_reading and is_cbr_comic and not is_cbz_comic):
 			convert_cbr_to_cbz(ia, book_id)
 			if delete_cbr:
 				ia.db.remove_formats({book_id: {'cbr'}})
 			books_converted.append(book_info)
 			is_cbz_comic = True
+
+		# read comicinfo metadata and write to calibre
+		if do_embed == "read":
+			# get the metadata
+			if is_cbz_comic:
+				ffile = ia.db.format(book_id, "cbz", as_path=True)
+				cix_metadata = get_cix_metadata(ffile, "cbz")
+			else:
+				ffile = ia.db.format(book_id, "cbr", as_path=True)
+				cix_metadata = get_cix_metadata(ffile, "cbr")
+			# check if comicinfo is there
+			if cix_metadata is None:
+				books_not_processed.append(book_info)
+				continue
+			# update calibres metadata
+			calibre_metadata = update_calibre_metadata(calibre_metadata, cix_metadata)
+			# write calibre_metadata to the database
+			continue
 
 		# if the book is not a cbz file get the next book
 		if not is_cbz_comic:
@@ -235,6 +260,29 @@ def convert_cbr_to_cbz(ia, book_id):
 			zf.close()
 			# add the cbz format to calibres library
 			ia.db.add_format(book_id, "cbz", tf)
+
+
+def get_cix_metadata(ffile, ext):
+	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+
+	cix_metadata = None
+	if ext == "cbz":
+		# open the zipfile
+		zf = ZipFile(ffile)
+		# look for an existing comicinfo file
+		for name in zf.namelist():
+			if name.lower() == "comicinfo.xml":
+				cix_metadata = zf.read(name)
+		zf.close()
+	else:
+		pass
+	if cix_metadata is None:
+		return None
+	return ComicInfoXml().metadataFromString(cix_metadata)
+
+
+def update_calibre_metadata(calibre_metadata, cix_metadata):
+	pass
 
 
 def writeZipComment(filename, comment):
