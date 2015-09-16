@@ -76,20 +76,11 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 
 		# read comicinfo metadata and write to calibre
 		if do_embed == "read":
-			# get the metadata
-			if is_cbz_comic:
-				ffile = ia.db.format(book_id, "cbz", as_path=True)
-				cix_metadata = get_cix_metadata(ffile, "cbz")
-			else:
-				ffile = ia.db.format(book_id, "cbr", as_path=True)
-				cix_metadata = get_cix_metadata(ffile, "cbr")
-			# check if comicinfo is there
-			if cix_metadata is None:
+			has_updated = write_calibre_metadata_from_cix(ia, book_id, calibre_metadata, is_cbz_comic)
+			if has_updated is None:
 				books_not_processed.append(book_info)
 				continue
-			# update calibres metadata
-			calibre_metadata = update_calibre_metadata(calibre_metadata, cix_metadata)
-			# write calibre_metadata to the database
+			books_processed.append(book_info)
 			continue
 
 		# if the book is not a cbz file get the next book
@@ -262,11 +253,13 @@ def convert_cbr_to_cbz(ia, book_id):
 			ia.db.add_format(book_id, "cbz", tf)
 
 
-def get_cix_metadata(ffile, ext):
+def write_calibre_metadata_from_cix(ia, book_id, calibre_metadata, is_cbz_comic):
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 
 	cix_metadata = None
-	if ext == "cbz":
+	if is_cbz_comic:
+		# get the file
+		ffile = ia.db.format(book_id, "cbz", as_path=True)
 		# open the zipfile
 		zf = ZipFile(ffile)
 		# look for an existing comicinfo file
@@ -276,13 +269,21 @@ def get_cix_metadata(ffile, ext):
 		zf.close()
 	else:
 		pass
+
 	if cix_metadata is None:
-		return None
-	return ComicInfoXml().metadataFromString(cix_metadata)
+		return False
+
+	# get the metadata as comictagger metadata
+	cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)
+	# update the calibre metadata
+	calibre_metadata = update_calibre_metadata_from_cix(calibre_metadata, cix_metadata)
+	# write the updated metadata to the database
+
+	return True
 
 
-def update_calibre_metadata(calibre_metadata, cix_metadata):
-	pass
+def update_calibre_metadata_from_cix(calibre_metadata, cix_metadata):
+	return None
 
 
 def writeZipComment(filename, comment):
