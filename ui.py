@@ -47,6 +47,13 @@ class EmbedComicMetadata(InterfaceAction):
 	def build_menu(self):
 		m = self.menu
 		m.clear()
+		self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+							description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
+		self.create_menu_action(m, "read_cix", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+							description=None, triggered=partial(self.sub_menu_triggered, "read_cix"), shortcut_name=None)
+		self.create_menu_action(m, "read_cbi", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+							description=None, triggered=partial(self.sub_menu_triggered, "read_cbi"), shortcut_name=None)
+		m.addSeparator()
 		self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
 							description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
 		self.create_menu_action(m, "embedcbi", "Only embed Metadata in comment", icon=None, shortcut=None,
