@@ -25,6 +25,7 @@ prefs = JSONConfig('plugins/EmbedComicMetadata')
 prefs.defaults['cbi_embed'] = True
 prefs.defaults['cix_embed'] = True
 prefs.defaults['convert_cbr'] = True
+prefs.defaults['convert_reading'] = False
 prefs.defaults['delete_cbr'] = False
 
 
@@ -47,6 +48,10 @@ class ConfigWidget(QWidget):
 		self.convert_cbr_checkbox.setChecked(prefs['convert_cbr'])
 		self.l.addWidget(self.convert_cbr_checkbox)
 
+		self.convert_reading_checkbox = QCheckBox('Auto convert while importing metadata', self)
+		self.convert_reading_checkbox.setChecked(prefs['convert_reading'])
+		self.l.addWidget(self.convert_reading_checkbox)
+
 		self.delete_cbr_checkbox = QCheckBox('Delete cbr after conversion', self)
 		self.delete_cbr_checkbox.setChecked(prefs['delete_cbr'])
 		self.l.addWidget(self.delete_cbr_checkbox)
@@ -55,4 +60,5 @@ class ConfigWidget(QWidget):
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
 		prefs['cix_embed'] = self.cix_checkbox.isChecked()
 		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
+		prefs['convert_reading'] = self.convert_reading_checkbox.isChecked()
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
