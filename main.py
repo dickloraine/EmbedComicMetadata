@@ -198,6 +198,7 @@ def write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic
 	# update calibres metadata with the comic_metadata
 	calibre_metadata = update_calibre_metadata(calibre_metadata, comic_metadata)
 	# write the metadata to the database
+	ia.db.set_metadata(book_id, calibre_metadata)
 
 	return True
 
@@ -355,7 +356,10 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 			cbi_metadata = zf.comment
 		zf.close()
 	else:
-		pass
+		# get the cbi metadata
+		from calibre.utils.unrar import RARFile
+		zr = RARFile(ffile, get_comment=True)
+		cbi_metadata = zr.comment
 
 	# get the metadata as comictagger metadata
 	if cix_metadata is not None:
