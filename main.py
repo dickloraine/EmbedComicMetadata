@@ -71,11 +71,10 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 				books_converted.append(book_info)
 				is_cbz_comic = True
 			# write the metadat to calibres database
-			has_updated = write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic)
+			has_updated = write_calibre_metadata(ia, do_embed, book_id, is_cbz_comic)
 			if not has_updated:
 				books_not_processed.append(book_info)
-			else:
-				books_processed.append(book_info)
+			books_processed.append(book_info)
 			continue
 
 		# convert to cbz if book has only cbr format and option is on
@@ -176,7 +175,7 @@ def get_overlay_metadata(calibre_metadata):
 	return overlay_metadata
 
 
-def write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic):
+def write_calibre_metadata(ia, do_embed, book_id, is_cbz_comic):
 	'''
 	Reads the comic metadata from the comic file and then writes the
 	metadata into calibres database
@@ -199,24 +198,36 @@ def write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic
 		return False
 
 	# update calibres metadata with the comic_metadata
-	calibre_metadata = update_calibre_metadata(calibre_metadata, comic_metadata)
+	calibre_metadata = update_calibre_metadata(comic_metadata)
 	# write the metadata to the database
 	ia.db.set_metadata(book_id, calibre_metadata)
 
 	return True
 
 
-def update_calibre_metadata(calibre_metadata, comic_metadata):
+def update_calibre_metadata(comic_metadata):
 	'''
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
 
+	from calibre.ebooks.metadata import MetaInformation
 	from calibre.utils.date import parse_only_date
 	from datetime import date
 	from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
+	# start with a fresh calibre metadata
+	calibre_metadata = MetaInformation(None, None)
+
 	if comic_metadata.title:
 		calibre_metadata.title = comic_metadata.title
+	if not comic_metadata.title:
+		# try to find a series
+		if comic_metadata.series:
+			calibre_metadata.title = comic_metadata.series
+			if comic_metadata.issue:
+				calibre_metadata.title += " " + str(comic_metadata.issue)
+		else:
+			calibre_metadata.title = "UNKNOWN"
 	if comic_metadata.credits:
 		calibre_metadata.authors = []
 		for credit in comic_metadata.credits:
