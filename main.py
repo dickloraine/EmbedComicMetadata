@@ -214,23 +214,23 @@ def update_calibre_metadata(calibre_metadata, comic_metadata):
 	from datetime import date
 	from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
-	calibre_metadata.title = comic_metadata.title
-
-	calibre_metadata.authors = []
-	for credit in comic_metadata.credits:
-		if credit['role'] == "Writer":
-			calibre_metadata.authors.append(credit['person'])
-
-	calibre_metadata.series = comic_metadata.series
-	calibre_metadata.series_index = float(comic_metadata.issue)
-
-	calibre_metadata.tags = comic_metadata.tags
-
-	calibre_metadata.publisher = comic_metadata.publisher
-
+	if comic_metadata.title:
+		calibre_metadata.title = comic_metadata.title
+	if comic_metadata.credits:
+		calibre_metadata.authors = []
+		for credit in comic_metadata.credits:
+			if credit['role'] == "Writer":
+				calibre_metadata.authors.append(credit['person'])
+	if comic_metadata.series:
+		calibre_metadata.series = comic_metadata.series
+	if comic_metadata.issue:
+		calibre_metadata.series_index = float(comic_metadata.issue)
+	if comic_metadata.tags:
+		calibre_metadata.tags = comic_metadata.tags
+	if comic_metadata.publisher:
+		calibre_metadata.publisher = comic_metadata.publisher
 	if comic_metadata.comments and comic_metadata.comments.strip():
 		calibre_metadata.comments = comic_metadata.comments.strip()
-
 	puby = comic_metadata.pubdate.year
 	pubm = comic_metadata.pubdate.month
 	if puby is not None:
@@ -240,11 +240,10 @@ def update_calibre_metadata(calibre_metadata, comic_metadata):
 			calibre_metadata.pubdate = dt
 		except:
 			pass
-
 	if comic_metadata.language:
 		calibre_metadata.language = calibre_langcode_to_name(canonicalize_lang(comic_metadata.language))
-
-	calibre_metadata.rating = comic_metadata.criticalRating
+	if comic_metadata.criticalRating:
+		calibre_metadata.rating = comic_metadata.criticalRating
 
 	return calibre_metadata
 
