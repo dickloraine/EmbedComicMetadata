@@ -185,8 +185,9 @@ def write_calibre_metadata(ia, do_embed, book_id, calibre_metadata, is_cbz_comic
 	# if there is a cbz, take info from there, otherwise use the cbr
 	if is_cbz_comic:
 		ext = "cbz"
-	else:
+	else:  # remove cbr reading for now, needs tests
 		ext = "cbr"
+		return False
 	# get the file
 	ffile = ia.db.format(book_id, ext, as_path=True)
 	# get the metadata from the file, depending on "do_embed". if both, prefer
@@ -348,7 +349,7 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
-	from calibre.utils.unrar import RARFile, extract_member, names
+	# from calibre.utils.unrar import RARFile, extract_member, names
 
 	cix_metadata = None
 	cbi_metadata = None
@@ -364,16 +365,17 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 		if (do_embed == "read_both" and cix_metadata is None) or do_embed == "read_cbi":
 			cbi_metadata = zf.comment
 		zf.close()
-	else:
-		# get the cbi metadata
-		zr = RARFile(ffile, get_comment=True)
-		cbi_metadata = zr.comment
-		# get the cix metadata
-		with open(ffile, 'rb') as zr:
-			fnames = list(names(zr))
-			for name in fnames:
-				if name.lower() == "comicinfo.xml":
-					cix_metadata = extract_member(zr, match=None, name=name)[1]
+	else:  # remove cbr reading for now, needs tests
+		# # get the cbi metadata
+		# zr = RARFile(ffile, get_comment=True)
+		# cbi_metadata = zr.comment
+		# # get the cix metadata
+		# with open(ffile, 'rb') as zr:
+		# 	fnames = list(names(zr))
+		# 	for name in fnames:
+		# 		if name.lower() == "comicinfo.xml":
+		# 			cix_metadata = extract_member(zr, match=None, name=name)[1]
+		return None
 
 	# get the metadata as comictagger metadata
 	if cix_metadata is not None:
