@@ -27,6 +27,7 @@ prefs.defaults['cix_embed'] = True
 prefs.defaults['convert_cbr'] = True
 prefs.defaults['convert_reading'] = False
 prefs.defaults['delete_cbr'] = False
+prefs.defaults['extended_menu'] = False
 
 
 class ConfigWidget(QWidget):
@@ -56,9 +57,14 @@ class ConfigWidget(QWidget):
 		self.delete_cbr_checkbox.setChecked(prefs['delete_cbr'])
 		self.l.addWidget(self.delete_cbr_checkbox)
 
+		self.extended_menu_checkbox = QCheckBox('Extended Menu', self)
+		self.extended_menu_checkbox.setChecked(prefs['extended_menu'])
+		self.l.addWidget(self.extended_menu_checkbox)
+
 	def save_settings(self):
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
 		prefs['cix_embed'] = self.cix_checkbox.isChecked()
 		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
 		prefs['convert_reading'] = self.convert_reading_checkbox.isChecked()
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
+		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
