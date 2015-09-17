@@ -45,26 +45,39 @@ class EmbedComicMetadata(InterfaceAction):
 		self.qaction.triggered.connect(self.main_menu_triggered)
 
 	def build_menu(self):
+		prefs['extended_menu']
 		m = self.menu
 		m.clear()
-		self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
-		self.create_menu_action(m, "read_cix", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "read_cix"), shortcut_name=None)
-		self.create_menu_action(m, "read_cbi", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "read_cbi"), shortcut_name=None)
-		m.addSeparator()
-		self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
-		self.create_menu_action(m, "embedcbi", "Only embed Metadata in comment", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "cbi"), shortcut_name=None)
-		self.create_menu_action(m, "embedcix", "Only embed Metadata in ComicInfo.xml", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "cix"), shortcut_name=None)
-		self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
-							description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
-		m.addSeparator()
-		self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
-							description=None, triggered=self.configure_triggered, shortcut_name=None)
+
+		if prefs['extended_menu']:
+			self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
+			self.create_menu_action(m, "read_cix", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "read_cix"), shortcut_name=None)
+			self.create_menu_action(m, "read_cbi", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "read_cbi"), shortcut_name=None)
+			m.addSeparator()
+			self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
+			self.create_menu_action(m, "embedcbi", "Only embed Metadata in comment", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "cbi"), shortcut_name=None)
+			self.create_menu_action(m, "embedcix", "Only embed Metadata in ComicInfo.xml", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "cix"), shortcut_name=None)
+			self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
+			m.addSeparator()
+			self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
+								description=None, triggered=self.configure_triggered, shortcut_name=None)
+		else:
+			self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
+			self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
+			self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
+								description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
+			m.addSeparator()
+			self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
+								description=None, triggered=self.configure_triggered, shortcut_name=None)
 
 	def main_menu_triggered(self):
 		# Check the preferences for what should be embedded
