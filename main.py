@@ -231,8 +231,8 @@ def update_calibre_metadata(calibre_metadata, comic_metadata):
 		calibre_metadata.publisher = comic_metadata.publisher
 	if comic_metadata.comments and comic_metadata.comments.strip():
 		calibre_metadata.comments = comic_metadata.comments.strip()
-	puby = comic_metadata.pubdate.year
-	pubm = comic_metadata.pubdate.month
+	puby = comic_metadata.year
+	pubm = comic_metadata.month
 	if puby is not None:
 		try:
 			dt = date(puby, 6 if pubm is None else pubm, 15)
