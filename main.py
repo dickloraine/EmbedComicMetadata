@@ -222,8 +222,8 @@ def update_calibre_metadata(calibre_metadata, comic_metadata):
 	# 		calibre_metadata.credits.append(credit)
 	if comic_metadata.series:
 		calibre_metadata.series = comic_metadata.series
-	if comic_metadata.series_index:
-		calibre_metadata.issue = float(comic_metadata.series_index)
+	if comic_metadata.issue:
+		calibre_metadata.series_index = float(comic_metadata.issue)
 	if len(comic_metadata.tags) > 0:
 		calibre_metadata.tags = comic_metadata.tags
 	if comic_metadata.publisher:
