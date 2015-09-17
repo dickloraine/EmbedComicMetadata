@@ -82,19 +82,19 @@ class EmbedComicMetadata(InterfaceAction):
 	def main_menu_triggered(self):
 		# Check the preferences for what should be embedded
 		if prefs['cbi_embed'] and prefs['cix_embed']:
-			do_embed = "both"
+			do_action = "both"
 		elif prefs['cbi_embed']:
-			do_embed = "cbi"
+			do_action = "cbi"
 		elif prefs['cix_embed']:
-			do_embed = "cix"
+			do_action = "cix"
 		else:
 			return error_dialog(self.gui, 'Cannot update metadata',
 						'No embed format selected', show=True)
 		# embed the metadata
-		update_metadata(self, do_embed)
+		update_metadata(self, do_action)
 
-	def sub_menu_triggered(self, do_embed):
-		update_metadata(self, do_embed)
+	def sub_menu_triggered(self, do_action):
+		update_metadata(self, do_action)
 
 	def configure_triggered(self):
 		self.interface_action_base_plugin.do_user_config(self.gui)

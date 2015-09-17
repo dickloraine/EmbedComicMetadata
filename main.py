@@ -9,9 +9,9 @@ from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 
 
-def update_metadata(ia, do_embed): 	# ia = interface action
+def update_metadata(ia, do_action): 	# ia = interface action
 	'''
-	Redirects and handles the action indicated by "do_embed"
+	Redirects and handles the action indicated by "do_action"
 	The main function for the plugin
 	'''
 
@@ -55,7 +55,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			continue
 
 		# only convert cbr to cbz
-		if do_embed == "just_convert":
+		if do_action == "just_convert":
 			if not is_cbr_comic:
 				books_not_processed.append(book_info)
 				continue
@@ -64,14 +64,14 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			continue
 
 		# read comic metadata and write to calibre
-		if do_embed == "read_both" or do_embed == "read_cix" or do_embed == "read_cbi":
+		if do_action == "read_both" or do_action == "read_cix" or do_action == "read_cbi":
 			# convert, if option is on
 			if convert_reading and is_cbr_comic and not is_cbz_comic:
 				convert_cbr_to_cbz(ia, book_id, delete_cbr)
 				books_converted.append(book_info)
 				is_cbz_comic = True
 			# write the metadat to calibres database
-			has_updated = write_calibre_metadata(ia, do_embed, book_id, is_cbz_comic)
+			has_updated = write_calibre_metadata(ia, do_action, book_id, is_cbz_comic)
 			if not has_updated:
 				books_not_processed.append(book_info)
 			books_processed.append(book_info)
@@ -85,18 +85,18 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 
 		# if the book is a cbz, embed the metadata in the cbz file
 		if is_cbz_comic:
-			embed_comic_metadata(ia, book_id, calibre_metadata, do_embed)
+			embed_comic_metadata(ia, book_id, calibre_metadata, do_action)
 			books_processed.append(book_info)
 		else:
 			books_not_processed.append(book_info)
 
 	# Show the completion dialog
-	if do_embed == "just_convert":
+	if do_action == "just_convert":
 		title = 'Converted files'
 		msg = 'Converted {} book(s) to cbz'.format(len(books_converted))
 		if len(books_not_processed) > 0:
 			msg += '\nThe following books were not converted: {}'.format(books_not_processed)
-	elif do_embed == "read_both" or do_embed == "read_cix" or do_embed == "read_cbi":
+	elif do_action == "read_both" or do_action == "read_cix" or do_action == "read_cbi":
 		title = 'Updated Calibre Metadata'
 		msg = 'Updated calibre metadata for {} book(s)'.format(len(books_processed))
 		if len(books_not_processed) > 0:
@@ -112,7 +112,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 	info_dialog(ia.gui, title, msg, show=True)
 
 
-def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
+def embed_comic_metadata(ia, book_id, calibre_metadata, do_action):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
@@ -124,10 +124,10 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_embed):
 	overlay_metadata = get_overlay_metadata(calibre_metadata)
 
 	# embed the comicinfo.xml
-	if do_embed == "both" or do_embed == "cix":
+	if do_action == "both" or do_action == "cix":
 		embed_cix_metadata(ffile, overlay_metadata)
 	# embed the cbi metadata
-	if do_embed == "both" or do_embed == "cbi":
+	if do_action == "both" or do_action == "cbi":
 		embed_cbi_metadata(ffile, overlay_metadata)
 
 	# add the updated file to calibres library
@@ -175,7 +175,7 @@ def get_overlay_metadata(calibre_metadata):
 	return overlay_metadata
 
 
-def write_calibre_metadata(ia, do_embed, book_id, is_cbz_comic):
+def write_calibre_metadata(ia, do_action, book_id, is_cbz_comic):
 	'''
 	Reads the comic metadata from the comic file and then writes the
 	metadata into calibres database
@@ -189,9 +189,9 @@ def write_calibre_metadata(ia, do_embed, book_id, is_cbz_comic):
 		return False
 	# get the file
 	ffile = ia.db.format(book_id, ext, as_path=True)
-	# get the metadata from the file, depending on "do_embed". if both, prefer
+	# get the metadata from the file, depending on "do_action". if both, prefer
 	# "cix_metadata" (maybe make a preference later)
-	comic_metadata = get_comic_metadata_from_file(ffile, ext, do_embed)
+	comic_metadata = get_comic_metadata_from_file(ffile, ext, do_action)
 
 	# if no metadata return
 	if comic_metadata is None:
@@ -352,10 +352,10 @@ def convert_cbr_to_cbz(ia, book_id, delete_cbr):
 		ia.db.remove_formats({book_id: {'cbr'}})
 
 
-def get_comic_metadata_from_file(ffile, ext, do_embed):
+def get_comic_metadata_from_file(ffile, ext, do_action):
 	'''
 	Reads the comic metadata from the comic file as comictagger metadata
-	and returns the metadata depending on do_embed
+	and returns the metadata depending on do_action
 	'''
 
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
@@ -368,12 +368,12 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 		# open the zipfile
 		zf = ZipFile(ffile)
 		# get cix metadata
-		if do_embed == "read_both" or do_embed == "read_cix":
+		if do_action == "read_both" or do_action == "read_cix":
 			for name in zf.namelist():
 				if name.lower() == "comicinfo.xml":
 					cix_metadata = zf.read(name)
 		# get the cbi metadata
-		if (do_embed == "read_both" and cix_metadata is None) or do_embed == "read_cbi":
+		if (do_action == "read_both" and cix_metadata is None) or do_action == "read_cbi":
 			cbi_metadata = zf.comment
 		zf.close()
 	else:  # remove cbr reading for now, needs tests
