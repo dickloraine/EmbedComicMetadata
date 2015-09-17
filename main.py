@@ -66,7 +66,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 		# read comic metadata and write to calibre
 		if do_embed == "read_both" or do_embed == "read_cix" or do_embed == "read_cbi":
 			# convert, if option is on
-			if (convert_reading and is_cbr_comic and not is_cbz_comic):
+			if convert_reading and is_cbr_comic and not is_cbz_comic:
 				convert_cbr_to_cbz(ia, book_id, delete_cbr)
 				books_converted.append(book_info)
 				is_cbz_comic = True
@@ -79,7 +79,7 @@ def update_metadata(ia, do_embed): 	# ia = interface action
 			continue
 
 		# convert to cbz if book has only cbr format and option is on
-		if (convert_cbr and is_cbr_comic and not is_cbz_comic):
+		if convert_cbr and is_cbr_comic and not is_cbz_comic:
 			convert_cbr_to_cbz(ia, book_id, delete_cbr)
 			books_converted.append(book_info)
 			is_cbz_comic = True
@@ -170,6 +170,8 @@ def get_overlay_metadata(calibre_metadata):
 		overlay_metadata.day = calibre_metadata.pubdate.day
 	if calibre_metadata.language:
 		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
+	if calibre_metadata.rating:
+		overlay_metadata.criticalRating = calibre_metadata.rating
 
 	return overlay_metadata
 
@@ -208,34 +210,41 @@ def update_calibre_metadata(calibre_metadata, comic_metadata):
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
 
-	# from calibre.utils.html2text import html2text
-	# from calibre.utils.date import UNDEFINED_DATE
-	# from calibre.utils.localization import lang_as_iso639_1
+	from calibre.utils.date import parse_only_date
+	from datetime import date
+	from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
-	if comic_metadata.title:
-		calibre_metadata.title = comic_metadata.title
-	# if len(comic_metadata.authors) > 0:
-	# 	for author in comic_metadata.authors:
-	# 		credit = dict()
-	# 		credit['person'] = author
-	# 		credit['role'] = "Writer"
-	# 		calibre_metadata.credits.append(credit)
-	if comic_metadata.series:
-		calibre_metadata.series = comic_metadata.series
-	if comic_metadata.issue:
-		calibre_metadata.series_index = float(comic_metadata.issue)
-	if len(comic_metadata.tags) > 0:
-		calibre_metadata.tags = comic_metadata.tags
-	if comic_metadata.publisher:
-		calibre_metadata.publisher = comic_metadata.publisher
-	# if comic_metadata.comments:
-	# 	calibre_metadata.comments = html2text(comic_metadata.comments)
-	# if comic_metadata.pubdate != UNDEFINED_DATE:
-	# 	calibre_metadata.year = comic_metadata.pubdate.year
-	# 	calibre_metadata.month = comic_metadata.pubdate.month
-	# 	calibre_metadata.day = comic_metadata.pubdate.day
-	# if comic_metadata.language:
-	# 	calibre_metadata.language = lang_as_iso639_1(comic_metadata.language)
+	calibre_metadata.title = comic_metadata.title
+
+	calibre_metadata.authors = []
+	for credit in comic_metadata.credits:
+		if credit['role'] == "Writer":
+			calibre_metadata.authors.append(credit['person'])
+
+	calibre_metadata.series = comic_metadata.series
+	calibre_metadata.series_index = float(comic_metadata.issue)
+
+	calibre_metadata.tags = comic_metadata.tags
+
+	calibre_metadata.publisher = comic_metadata.publisher
+
+	if comic_metadata.comments and comic_metadata.comments.strip():
+		calibre_metadata.comments = comic_metadata.comments.strip()
+
+	puby = comic_metadata.pubdate.year
+	pubm = comic_metadata.pubdate.month
+	if puby is not None:
+		try:
+			dt = date(puby, 6 if pubm is None else pubm, 15)
+			dt = parse_only_date(str(dt))
+			calibre_metadata.pubdate = dt
+		except:
+			pass
+
+	if comic_metadata.language:
+		calibre_metadata.language = calibre_langcode_to_name(canonicalize_lang(comic_metadata.language))
+
+	calibre_metadata.rating = comic_metadata.criticalRating
 
 	return calibre_metadata
 
@@ -340,6 +349,7 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
+	from calibre.utils.unrar import RARFile, extract_member, names
 
 	cix_metadata = None
 	cbi_metadata = None
@@ -357,9 +367,14 @@ def get_comic_metadata_from_file(ffile, ext, do_embed):
 		zf.close()
 	else:
 		# get the cbi metadata
-		from calibre.utils.unrar import RARFile
 		zr = RARFile(ffile, get_comment=True)
 		cbi_metadata = zr.comment
+		# get the cix metadata
+		with open(ffile, 'rb') as zr:
+			fnames = list(names(zr))
+			for name in fnames:
+				if name.lower() == "comicinfo.xml":
+					cix_metadata = extract_member(zr, match=None, name=name)[1]
 
 	# get the metadata as comictagger metadata
 	if cix_metadata is not None:
