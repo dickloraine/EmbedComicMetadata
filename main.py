@@ -41,7 +41,8 @@ def update_metadata(ia, do_action): 	# ia = interface action
 		# generate a string with the books info, to show in the completion dialog
 		job_info["Current_Book"] = str(calibre_metadata.title) + " - " + str(calibre_metadata.authors[0])
 		if calibre_metadata.series:
-			job_info["Current_Book"] = str(calibre_metadata.series) + ": " + str(calibre_metadata.series_index) + " - " + job_info["Current_Book"]
+			job_info["Current_Book"] = (str(calibre_metadata.series) + ": " + str(calibre_metadata.series_index) +
+				" - " + job_info["Current_Book"])
 
 		# get the comic formats
 		is_cbz_comic = ia.db.has_format(book_id, "cbz")
