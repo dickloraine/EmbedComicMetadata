@@ -359,12 +359,11 @@ def get_comic_metadata_from_cbz(ia, book_id, do_action):
 				return ComicInfoXml().metadataFromString(cix_metadata)
 
 	# get the cbi metadata
-	cbi_metadata = None
 	if do_action == "read_both" or do_action == "read_cbi":
 		cbi_metadata = zf.comment
-	zf.close()
-	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
-		return ComicBookInfo().metadataFromString(cbi_metadata)
+		zf.close()
+		if ComicBookInfo().validateString(cbi_metadata):
+			return ComicBookInfo().metadataFromString(cbi_metadata)
 	return None
 
 
@@ -389,12 +388,11 @@ def get_comic_metadata_from_cbr(ia, book_id, do_action):
 					return ComicInfoXml().metadataFromString(cix_metadata)
 
 	# get the cbi metadata
-	cbi_metadata = None
 	if do_action == "read_both" or do_action == "read_cbi":
 		zr = RARFile(ffile, get_comment=True)
 		cbi_metadata = zr.comment
-	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
-		return ComicBookInfo().metadataFromString(cbi_metadata)
+		if ComicBookInfo().validateString(cbi_metadata):
+			return ComicBookInfo().metadataFromString(cbi_metadata)
 	return None
 
 
