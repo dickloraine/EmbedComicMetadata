@@ -183,15 +183,9 @@ def write_calibre_metadata(ia, do_action, book_id, is_cbz_comic):
 
 	# if there is a cbz, take info from there, otherwise use the cbr
 	if is_cbz_comic:
-		ext = "cbz"
+		comic_metadata = get_comic_metadata_from_cbz(ia, book_id, do_action)
 	else:  # remove cbr reading for now, needs tests
-		ext = "cbr"
-		return False
-	# get the file
-	ffile = ia.db.format(book_id, ext, as_path=True)
-	# get the metadata from the file, depending on "do_action". if both, prefer
-	# "cix_metadata" (maybe make a preference later)
-	comic_metadata = get_comic_metadata_from_file(ffile, ext, do_action)
+		comic_metadata = None  # get_comic_metadata_from_cbr(ia, book_id, do_action)
 
 	# if no metadata return
 	if comic_metadata is None:
@@ -275,9 +269,17 @@ def embed_cix_metadata(ffile, overlay_metadata):
 			cix_metadata = zf.read(name)
 			break
 
-	# get the metadata to embed
-	cix_metadata = get_metadata_string(cix_metadata, overlay_metadata,
-					ComicInfoXml().metadataFromString, ComicInfoXml().stringFromMetadata)
+	# transform the existing metadata to comictagger compatible metadata
+	if cix_metadata is None:
+		cix_metadata = GenericMetadata()
+	else:
+		cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)
+
+	# now overlay the calibre metadata with the original metadata
+	cix_metadata.overlay(overlay_metadata)
+
+	# transform the metadata back to string
+	cix_metadata = ComicInfoXml().stringFromMetadata(cix_metadata)
 
 	# save the metadata in the file
 	if cix_file is not None:
@@ -297,35 +299,79 @@ def embed_cbi_metadata(ffile, overlay_metadata):
 	cbi_metadata = zf.comment
 	zf.close()
 
-	# get the metadata to embed
-	cbi_metadata = get_metadata_string(cbi_metadata, overlay_metadata,
-					ComicBookInfo().metadataFromString, ComicBookInfo().stringFromMetadata, ComicBookInfo().validateString)
+	# transform the existing metadata to comictagger compatible metadata
+	if cbi_metadata is None or not ComicBookInfo().validateString(cbi_metadata):
+		cbi_metadata = GenericMetadata()
+	else:
+		cbi_metadata = ComicBookInfo().metadataFromString(cbi_metadata)
+
+	# now overlay the calibre metadata with the original metadata
+	cbi_metadata.overlay(overlay_metadata)
+
+	# transform the metadata back to string
+	cbi_metadata = ComicBookInfo().stringFromMetadata(cbi_metadata)
 
 	# save the metadata in the comment
 	writeZipComment(ffile, cbi_metadata)
 
 
-def get_metadata_string(metadata, overlay_metadata, fromString, toString, validate=None):
+def get_comic_metadata_from_cbz(ia, book_id, do_action):
 	'''
-	Returns the metadata to be embedded as a string
+	Reads the comic metadata from the comic cbz file as comictagger metadata
+	and returns the metadata depending on do_action
 	'''
 
-	if validate is None:
-		is_validated = True
-	else:
-		is_validated = validate(metadata)
+	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
-	# transform the existing metadata to comictagger compatible metadata
-	if metadata is None or not is_validated:
-		metadata = GenericMetadata()
-	else:
-		metadata = fromString(metadata)
+	ffile = ia.db.format(book_id, "cbz", as_path=True)
+	# open the zipfile
+	zf = ZipFile(ffile)
+	# get cix metadata
+	if do_action == "read_both" or do_action == "read_cix":
+		for name in zf.namelist():
+			if name.lower() == "comicinfo.xml":
+				cix_metadata = zf.read(name)
+				zf.close()
+				return ComicInfoXml().metadataFromString(cix_metadata)
+	# get the cbi metadata
+	cbi_metadata = None
+	if do_action == "read_both" or do_action == "read_cbi":
+		cbi_metadata = zf.comment
+	zf.close()
+	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
+		return ComicBookInfo().metadataFromString(cbi_metadata)
+	return None
 
-	# now overlay the calibre metadata with the original metadata
-	metadata.overlay(overlay_metadata)
 
-	# transform the metadata back to string
-	return toString(metadata)
+def get_comic_metadata_from_cbr(ia, book_id, do_action):
+	'''
+	Reads the comic metadata from the comic cbr file as comictagger metadata
+	and returns the metadata depending on do_action
+	'''
+
+	from calibre.utils.unrar import RARFile, extract_member, names
+	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
+
+	ffile = ia.db.format(book_id, "cbr", as_path=True)
+	# get the cix metadata
+	if do_action == "read_both" or do_action == "read_cix":
+		with open(ffile, 'rb') as zr:
+			fnames = list(names(zr))
+			for name in fnames:
+				if name.lower() == "comicinfo.xml":
+					cix_metadata = extract_member(zr, match=None, name=name)[1]
+					return ComicInfoXml().metadataFromString(cix_metadata)
+
+	# get the cbi metadata
+	cbi_metadata = None
+	if do_action == "read_both" or do_action == "read_cbi":
+		zr = RARFile(ffile, get_comment=True)
+		cbi_metadata = zr.comment
+	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
+		return ComicBookInfo().metadataFromString(cbi_metadata)
+	return None
 
 
 def convert_cbr_to_cbz(ia, book_id, delete_cbr):
@@ -350,50 +396,6 @@ def convert_cbr_to_cbz(ia, book_id, delete_cbr):
 			ia.db.add_format(book_id, "cbz", tf)
 	if delete_cbr:
 		ia.db.remove_formats({book_id: {'cbr'}})
-
-
-def get_comic_metadata_from_file(ffile, ext, do_action):
-	'''
-	Reads the comic metadata from the comic file as comictagger metadata
-	and returns the metadata depending on do_action
-	'''
-
-	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
-	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
-	# from calibre.utils.unrar import RARFile, extract_member, names
-
-	cix_metadata = None
-	cbi_metadata = None
-	if ext == "cbz":
-		# open the zipfile
-		zf = ZipFile(ffile)
-		# get cix metadata
-		if do_action == "read_both" or do_action == "read_cix":
-			for name in zf.namelist():
-				if name.lower() == "comicinfo.xml":
-					cix_metadata = zf.read(name)
-		# get the cbi metadata
-		if (do_action == "read_both" and cix_metadata is None) or do_action == "read_cbi":
-			cbi_metadata = zf.comment
-		zf.close()
-	else:  # remove cbr reading for now, needs tests
-		# # get the cbi metadata
-		# zr = RARFile(ffile, get_comment=True)
-		# cbi_metadata = zr.comment
-		# # get the cix metadata
-		# with open(ffile, 'rb') as zr:
-		# 	fnames = list(names(zr))
-		# 	for name in fnames:
-		# 		if name.lower() == "comicinfo.xml":
-		# 			cix_metadata = extract_member(zr, match=None, name=name)[1]
-		return None
-
-	# get the metadata as comictagger metadata
-	if cix_metadata is not None:
-		return ComicInfoXml().metadataFromString(cix_metadata)
-	if cbi_metadata is not None and ComicBookInfo().validateString(cbi_metadata):
-		return ComicBookInfo().metadataFromString(cbi_metadata)
-	return None
 
 
 def writeZipComment(filename, comment):
