@@ -22,7 +22,7 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	convert_cbr = prefs['convert_cbr']
 	convert_reading = prefs['convert_reading']
 	delete_cbr = prefs['delete_cbr']
-	job_info = {"books_processed": [], "books_not_processed": [], "books_converted": [], "Current_Book": 0}
+	job_info = {"books_processed": [], "books_not_processed": [], "books_converted": [], "Current_Book": ""}
 
 	# Get currently selected books
 	rows = ia.gui.library_view.selectionModel().selectedRows()
@@ -100,7 +100,6 @@ def update_metadata(ia, do_action): 	# ia = interface action
 			msg += '\nThe following books were converted to cbz: {}'.format(job_info["books_converted"])
 		if len(job_info["books_not_processed"]) > 0:
 			msg += '\nThe following books were not updated: {}'.format(job_info["books_not_processed"])
-
 	info_dialog(ia.gui, title, msg, show=True)
 
 
@@ -118,6 +117,7 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, job_info, do_action):
 	# embed the comicinfo.xml
 	if do_action == "both" or do_action == "cix":
 		embed_cix_metadata(ffile, overlay_metadata)
+
 	# embed the cbi metadata
 	if do_action == "both" or do_action == "cbi":
 		embed_cbi_metadata(ffile, overlay_metadata)
@@ -140,28 +140,37 @@ def get_overlay_metadata(calibre_metadata):
 
 	if calibre_metadata.title:
 		overlay_metadata.title = calibre_metadata.title
+
 	if len(calibre_metadata.authors) > 0:
 		for author in calibre_metadata.authors:
 			credit = dict()
 			credit['person'] = author
 			credit['role'] = "Writer"
 			overlay_metadata.credits.append(credit)
+
 	if calibre_metadata.series:
 		overlay_metadata.series = calibre_metadata.series
+
 	if calibre_metadata.series_index:
 		overlay_metadata.issue = int(calibre_metadata.series_index)
+
 	if len(calibre_metadata.tags) > 0:
 		overlay_metadata.tags = calibre_metadata.tags
+
 	if calibre_metadata.publisher:
 		overlay_metadata.publisher = calibre_metadata.publisher
+
 	if calibre_metadata.comments:
 		overlay_metadata.comments = html2text(calibre_metadata.comments)
+
 	if calibre_metadata.pubdate != UNDEFINED_DATE:
 		overlay_metadata.year = calibre_metadata.pubdate.year
 		overlay_metadata.month = calibre_metadata.pubdate.month
 		overlay_metadata.day = calibre_metadata.pubdate.day
+
 	if calibre_metadata.language:
 		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
+
 	if calibre_metadata.rating:
 		overlay_metadata.criticalRating = calibre_metadata.rating
 
@@ -187,6 +196,7 @@ def write_calibre_metadata(ia, do_action, book_id, job_info, is_cbz_comic):
 
 	# update calibres metadata with the comic_metadata
 	calibre_metadata = update_calibre_metadata(comic_metadata)
+
 	# write the metadata to the database
 	ia.db.set_metadata(book_id, calibre_metadata)
 	job_info["books_processed"].append(job_info["Current_Book"])
@@ -207,6 +217,7 @@ def update_calibre_metadata(comic_metadata):
 
 	if comic_metadata.title:
 		calibre_metadata.title = comic_metadata.title
+
 	if not comic_metadata.title:
 		# try to find a series
 		if comic_metadata.series:
@@ -214,22 +225,28 @@ def update_calibre_metadata(comic_metadata):
 			if comic_metadata.issue:
 				calibre_metadata.title += " " + str(comic_metadata.issue)
 		else:
-			calibre_metadata.title = "UNKNOWN"
+			calibre_metadata.title = ""
+
 	if comic_metadata.credits:
 		calibre_metadata.authors = []
 		for credit in comic_metadata.credits:
 			if credit['role'] == "Writer":
 				calibre_metadata.authors.append(credit['person'])
+
 	if comic_metadata.series:
 		calibre_metadata.series = comic_metadata.series
+
 	if comic_metadata.issue:
 		calibre_metadata.series_index = float(comic_metadata.issue)
+
 	if comic_metadata.tags:
 		calibre_metadata.tags = comic_metadata.tags
+
 	if comic_metadata.publisher:
 		calibre_metadata.publisher = comic_metadata.publisher
 	if comic_metadata.comments and comic_metadata.comments.strip():
 		calibre_metadata.comments = comic_metadata.comments.strip()
+
 	puby = comic_metadata.year
 	pubm = comic_metadata.month
 	if puby is not None:
@@ -239,8 +256,10 @@ def update_calibre_metadata(comic_metadata):
 			calibre_metadata.pubdate = dt
 		except:
 			pass
+
 	if comic_metadata.language:
 		calibre_metadata.language = calibre_langcode_to_name(canonicalize_lang(comic_metadata.language))
+
 	if comic_metadata.criticalRating:
 		calibre_metadata.rating = comic_metadata.criticalRating
 
@@ -248,6 +267,11 @@ def update_calibre_metadata(comic_metadata):
 
 
 def embed_cix_metadata(ffile, overlay_metadata):
+	'''
+	Embeds the cix_metadata into the given file,
+	overlayed with overlay_metadata
+	'''
+
 	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 
 	# open the zipfile with append option
@@ -285,6 +309,11 @@ def embed_cix_metadata(ffile, overlay_metadata):
 
 
 def embed_cbi_metadata(ffile, overlay_metadata):
+	'''
+	Embeds the cbi_metadata into the given file,
+	overlayed with overlay_metadata
+	'''
+
 	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 	# get cbi metadata from the zip comment
@@ -320,6 +349,7 @@ def get_comic_metadata_from_cbz(ia, book_id, do_action):
 	ffile = ia.db.format(book_id, "cbz", as_path=True)
 	# open the zipfile
 	zf = ZipFile(ffile)
+
 	# get cix metadata
 	if do_action == "read_both" or do_action == "read_cix":
 		for name in zf.namelist():
@@ -327,6 +357,7 @@ def get_comic_metadata_from_cbz(ia, book_id, do_action):
 				cix_metadata = zf.read(name)
 				zf.close()
 				return ComicInfoXml().metadataFromString(cix_metadata)
+
 	# get the cbi metadata
 	cbi_metadata = None
 	if do_action == "read_both" or do_action == "read_cbi":
@@ -387,8 +418,10 @@ def convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr):
 			zf.close()
 			# add the cbz format to calibres library
 			ia.db.add_format(book_id, "cbz", tf)
+
 	if delete_cbr:
 		ia.db.remove_formats({book_id: {'cbr'}})
+
 	job_info["books_converted"].append(job_info["Current_Book"])
 
 
