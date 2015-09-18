@@ -22,9 +22,7 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	convert_cbr = prefs['convert_cbr']
 	convert_reading = prefs['convert_reading']
 	delete_cbr = prefs['delete_cbr']
-	books_processed = []
-	books_not_processed = []
-	books_converted = []
+	job_info = {"books_processed": [], "books_not_processed": [], "books_converted": [], "Current_Book": 0}
 
 	# Get currently selected books
 	rows = ia.gui.library_view.selectionModel().selectedRows()
@@ -41,9 +39,9 @@ def update_metadata(ia, do_action): 	# ia = interface action
 		calibre_metadata = ia.db.get_metadata(book_id)
 
 		# generate a string with the books info, to show in the completion dialog
-		book_info = str(calibre_metadata.title) + " - " + str(calibre_metadata.authors[0])
+		job_info["Current_Book"] = str(calibre_metadata.title) + " - " + str(calibre_metadata.authors[0])
 		if calibre_metadata.series:
-			book_info = str(calibre_metadata.series) + ": " + str(calibre_metadata.series_index) + " - " + book_info
+			job_info["Current_Book"] = str(calibre_metadata.series) + ": " + str(calibre_metadata.series_index) + " - " + job_info["Current_Book"]
 
 		# get the comic formats
 		is_cbz_comic = ia.db.has_format(book_id, "cbz")
@@ -51,68 +49,61 @@ def update_metadata(ia, do_action): 	# ia = interface action
 
 		# sanity check
 		if not is_cbz_comic and not is_cbr_comic:
-			books_not_processed.append(book_info)
+			job_info["books_not_processed"].append(job_info["Current_Book"])
 			continue
 
 		# only convert cbr to cbz
 		if do_action == "just_convert":
-			if not is_cbr_comic:
-				books_not_processed.append(book_info)
+			if not is_cbr_comic or is_cbz_comic:
+				job_info["books_not_processed"].append(job_info["Current_Book"])
 				continue
-			convert_cbr_to_cbz(ia, book_id, delete_cbr)
-			books_converted.append(book_info)
+			convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr)
 			continue
 
 		# read comic metadata and write to calibre
 		if do_action == "read_both" or do_action == "read_cix" or do_action == "read_cbi":
 			# convert, if option is on
 			if convert_reading and is_cbr_comic and not is_cbz_comic:
-				convert_cbr_to_cbz(ia, book_id, delete_cbr)
-				books_converted.append(book_info)
+				convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr)
 				is_cbz_comic = True
 			# write the metadat to calibres database
-			has_updated = write_calibre_metadata(ia, do_action, book_id, is_cbz_comic)
-			if not has_updated:
-				books_not_processed.append(book_info)
-			books_processed.append(book_info)
+			write_calibre_metadata(ia, do_action, book_id, job_info, is_cbz_comic)
 			continue
 
 		# convert to cbz if book has only cbr format and option is on
 		if convert_cbr and is_cbr_comic and not is_cbz_comic:
-			convert_cbr_to_cbz(ia, book_id, delete_cbr)
-			books_converted.append(book_info)
+			convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr)
 			is_cbz_comic = True
 
 		# if the book is a cbz, embed the metadata in the cbz file
 		if is_cbz_comic:
-			embed_comic_metadata(ia, book_id, calibre_metadata, do_action)
-			books_processed.append(book_info)
+			embed_comic_metadata(ia, book_id, calibre_metadata, job_info, do_action)
 		else:
-			books_not_processed.append(book_info)
+			job_info["books_not_processed"].append(job_info["Current_Book"])
 
 	# Show the completion dialog
 	if do_action == "just_convert":
 		title = 'Converted files'
-		msg = 'Converted {} book(s) to cbz'.format(len(books_converted))
-		if len(books_not_processed) > 0:
-			msg += '\nThe following books were not converted: {}'.format(books_not_processed)
+		msg = 'Converted {} book(s) to cbz'.format(len(job_info["books_converted"]))
+		if len(job_info["books_not_processed"]) > 0:
+			msg += '\nThe following books were not converted: {}'.format(job_info["books_not_processed"])
 	elif do_action == "read_both" or do_action == "read_cix" or do_action == "read_cbi":
 		title = 'Updated Calibre Metadata'
-		msg = 'Updated calibre metadata for {} book(s)'.format(len(books_processed))
-		if len(books_not_processed) > 0:
-			msg += '\nThe following books had no metadata: {}'.format(books_not_processed)
+		msg = 'Updated calibre metadata for {} book(s)'.format(len(job_info["books_processed"]))
+		if len(job_info["books_not_processed"]) > 0:
+			msg += '\nThe following books had no metadata: {}'.format(job_info["books_not_processed"])
 	else:
 		title = 'Updated files'
-		msg = 'Updated the metadata in the files of {} book(s)'.format(len(books_processed))
-		if len(books_converted) > 0:
-			msg += '\nThe following books were converted to cbz: {}'.format(books_converted)
-		if len(books_not_processed) > 0:
-			msg += '\nThe following books were not updated: {}'.format(books_not_processed)
+		msg = 'Updated the metadata in the files of {} book(s)'.format(len(job_info["books_processed"]))
+		if len(job_info["books_converted"]) > 0:
+			msg += '\nThe following books were converted to cbz: {}'.format(job_info["books_converted"])
+		if len(job_info["books_not_processed"]) > 0:
+			msg += '\nThe following books were not updated: {}'.format(job_info["books_not_processed"])
 
 	info_dialog(ia.gui, title, msg, show=True)
 
 
-def embed_comic_metadata(ia, book_id, calibre_metadata, do_action):
+def embed_comic_metadata(ia, book_id, calibre_metadata, job_info, do_action):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
@@ -132,6 +123,7 @@ def embed_comic_metadata(ia, book_id, calibre_metadata, do_action):
 
 	# add the updated file to calibres library
 	ia.db.add_format(book_id, "cbz", ffile)
+	job_info["books_processed"].append(job_info["Current_Book"])
 
 
 def get_overlay_metadata(calibre_metadata):
@@ -175,7 +167,7 @@ def get_overlay_metadata(calibre_metadata):
 	return overlay_metadata
 
 
-def write_calibre_metadata(ia, do_action, book_id, is_cbz_comic):
+def write_calibre_metadata(ia, do_action, book_id, job_info, is_cbz_comic):
 	'''
 	Reads the comic metadata from the comic file and then writes the
 	metadata into calibres database
@@ -189,14 +181,14 @@ def write_calibre_metadata(ia, do_action, book_id, is_cbz_comic):
 
 	# if no metadata return
 	if comic_metadata is None:
-		return False
+		job_info["books_not_processed"].append(job_info["Current_Book"])
+		return
 
 	# update calibres metadata with the comic_metadata
 	calibre_metadata = update_calibre_metadata(comic_metadata)
 	# write the metadata to the database
 	ia.db.set_metadata(book_id, calibre_metadata)
-
-	return True
+	job_info["books_processed"].append(job_info["Current_Book"])
 
 
 def update_calibre_metadata(comic_metadata):
@@ -374,7 +366,7 @@ def get_comic_metadata_from_cbr(ia, book_id, do_action):
 	return None
 
 
-def convert_cbr_to_cbz(ia, book_id, delete_cbr):
+def convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr):
 	'''
 	Converts a cbr-comic to a cbz-comic
 	'''
@@ -396,6 +388,7 @@ def convert_cbr_to_cbz(ia, book_id, delete_cbr):
 			ia.db.add_format(book_id, "cbz", tf)
 	if delete_cbr:
 		ia.db.remove_formats({book_id: {'cbr'}})
+	job_info["books_converted"].append(job_info["Current_Book"])
 
 
 def writeZipComment(filename, comment):
