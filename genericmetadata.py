@@ -95,7 +95,7 @@ class GenericMetadata:
         self.lastMark            = None
         self.coverImage             = None
 
-    def overlay( self, new_md, overwrite=False ):  # changed for the calibre plugin
+    def overlay( self, new_md, overwrite=True ):  # changed for the calibre plugin
         # Overlay a metadata object on this one
         # that is, when the new object has non-None
         # values, over-write them to this one
@@ -103,7 +103,8 @@ class GenericMetadata:
         def assign( cur, new ):
             if new is not None:
                 if type(new) == str and len(new) == 0:
-                    setattr(self, cur, None)
+                    if overwrite:
+                        setattr(self, cur, None)
                 else:
                     setattr(self, cur, new)
 
