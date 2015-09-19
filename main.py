@@ -212,7 +212,7 @@ def update_calibre_metadata(comic_metadata):
 	from calibre.ebooks.metadata import MetaInformation
 	from calibre.utils.date import parse_only_date
 	from datetime import date
-	from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+	from calibre.utils.localization import calibre_langcode_to_name
 
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
@@ -246,6 +246,7 @@ def update_calibre_metadata(comic_metadata):
 
 	if comic_metadata.publisher:
 		calibre_metadata.publisher = comic_metadata.publisher
+
 	if comic_metadata.comments and comic_metadata.comments.strip():
 		calibre_metadata.comments = comic_metadata.comments.strip()
 
@@ -258,9 +259,8 @@ def update_calibre_metadata(comic_metadata):
 			calibre_metadata.pubdate = dt
 		except:
 			pass
-
 	if comic_metadata.language:
-		calibre_metadata.language = calibre_langcode_to_name(canonicalize_lang(comic_metadata.language))
+		calibre_metadata.language = calibre_langcode_to_name(comic_metadata.language)
 
 	if comic_metadata.criticalRating:
 		calibre_metadata.rating = comic_metadata.criticalRating
@@ -293,7 +293,7 @@ def embed_cix_metadata(ffile, overlay_metadata):
 		cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)
 
 	# now overlay the calibre metadata with the original metadata
-	cix_metadata.overlay(overlay_metadata, True)
+	cix_metadata.overlay(overlay_metadata)
 
 	# transform the metadata back to string
 	cix_metadata = ComicInfoXml().stringFromMetadata(cix_metadata)
@@ -326,7 +326,7 @@ def embed_cbi_metadata(ffile, overlay_metadata):
 		cbi_metadata = ComicBookInfo().metadataFromString(cbi_metadata)
 
 	# now overlay the calibre metadata with the original metadata
-	cbi_metadata.overlay(overlay_metadata, True)
+	cbi_metadata.overlay(overlay_metadata)
 
 	# transform the metadata back to string
 	cbi_metadata = ComicBookInfo().stringFromMetadata(cbi_metadata)
@@ -398,7 +398,7 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 	Combines the metadata from both sources
 	'''
 	if cix_metadata is not None and cbi_metadata is not None:
-		cbi_metadata.overlay(cix_metadata)
+		cbi_metadata.overlay(cix_metadata, False)
 		return cbi_metadata
 	elif cix_metadata is not None:
 		return cix_metadata
