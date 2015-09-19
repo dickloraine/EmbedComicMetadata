@@ -8,9 +8,9 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QWidget, QHBoxLayout, QCheckBox
+	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout
 except ImportError:
-	from PyQt4.Qt import QWidget, QHBoxLayout, QCheckBox
+	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout
 
 from calibre.utils.config import JSONConfig
 
@@ -34,32 +34,33 @@ class ConfigWidget(QWidget):
 
 	def __init__(self):
 		QWidget.__init__(self)
-		self.l = QHBoxLayout()
+		self.l = QGridLayout()
+		self.l.setSpacing(10)
 		self.setLayout(self.l)
 
 		self.cbi_checkbox = QCheckBox('Write metadata in zip comment', self)
 		self.cbi_checkbox.setChecked(prefs['cbi_embed'])
-		self.l.addWidget(self.cbi_checkbox)
+		self.l.addWidget(self.cbi_checkbox, 1, 0)
 
 		self.cix_checkbox = QCheckBox('Write metadata in ComicInfo.xml', self)
 		self.cix_checkbox.setChecked(prefs['cix_embed'])
-		self.l.addWidget(self.cix_checkbox)
+		self.l.addWidget(self.cix_checkbox, 1, 1)
 
 		self.convert_cbr_checkbox = QCheckBox('Auto convert cbr to cbz', self)
 		self.convert_cbr_checkbox.setChecked(prefs['convert_cbr'])
-		self.l.addWidget(self.convert_cbr_checkbox)
+		self.l.addWidget(self.convert_cbr_checkbox, 2, 0)
 
-		self.convert_reading_checkbox = QCheckBox('Auto convert while importing metadata', self)
+		self.convert_reading_checkbox = QCheckBox('Auto convert while importing to calibre', self)
 		self.convert_reading_checkbox.setChecked(prefs['convert_reading'])
-		self.l.addWidget(self.convert_reading_checkbox)
+		self.l.addWidget(self.convert_reading_checkbox, 2, 1)
 
 		self.delete_cbr_checkbox = QCheckBox('Delete cbr after conversion', self)
 		self.delete_cbr_checkbox.setChecked(prefs['delete_cbr'])
-		self.l.addWidget(self.delete_cbr_checkbox)
+		self.l.addWidget(self.delete_cbr_checkbox, 2, 2)
 
-		self.extended_menu_checkbox = QCheckBox('Extended Menu', self)
+		self.extended_menu_checkbox = QCheckBox('Extended Menu (needs calibre restart)', self)
 		self.extended_menu_checkbox.setChecked(prefs['extended_menu'])
-		self.l.addWidget(self.extended_menu_checkbox)
+		self.l.addWidget(self.extended_menu_checkbox, 3, 0)
 
 	def save_settings(self):
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
