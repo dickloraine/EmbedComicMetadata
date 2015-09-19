@@ -93,7 +93,7 @@ class GenericMetadata:
         self.rights              = None
         self.identifier          = None
         self.lastMark            = None
-        self.coverImage             = None
+        self.coverImage          = None
 
     def overlay( self, new_md, overwrite=True ):  # changed for the calibre plugin
         # Overlay a metadata object on this one
