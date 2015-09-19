@@ -7,6 +7,8 @@ from calibre.gui2 import error_dialog, info_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
+from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
+from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 
 def update_metadata(ia, do_action): 	# ia = interface action
@@ -67,7 +69,7 @@ def update_metadata(ia, do_action): 	# ia = interface action
 			if convert_reading and is_cbr_comic and not is_cbz_comic:
 				convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr)
 				is_cbz_comic = True
-			# write the metadat to calibres database
+			# write the metadata to calibres database
 			write_calibre_metadata(ia, do_action, book_id, job_info, is_cbz_comic)
 			continue
 
@@ -272,8 +274,6 @@ def embed_cix_metadata(ffile, overlay_metadata):
 	overlayed with overlay_metadata
 	'''
 
-	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
-
 	# open the zipfile with append option
 	zf = ZipFile(ffile, "a")
 
@@ -314,8 +314,6 @@ def embed_cbi_metadata(ffile, overlay_metadata):
 	overlayed with overlay_metadata
 	'''
 
-	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
-
 	# get cbi metadata from the zip comment
 	zf = ZipFile(ffile)
 	cbi_metadata = zf.comment
@@ -343,9 +341,8 @@ def get_comic_metadata_from_cbz(ia, book_id, do_action):
 	and returns the metadata depending on do_action
 	'''
 
-	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
-	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
-
+	cix_metadata = None
+	cbi_metadata = None
 	ffile = ia.db.format(book_id, "cbz", as_path=True)
 	# open the zipfile
 	zf = ZipFile(ffile)
@@ -354,17 +351,15 @@ def get_comic_metadata_from_cbz(ia, book_id, do_action):
 	if do_action == "read_both" or do_action == "read_cix":
 		for name in zf.namelist():
 			if name.lower() == "comicinfo.xml":
-				cix_metadata = zf.read(name)
-				zf.close()
-				return ComicInfoXml().metadataFromString(cix_metadata)
+				cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
+				break
 
 	# get the cbi metadata
-	if do_action == "read_both" or do_action == "read_cbi":
-		cbi_metadata = zf.comment
-		zf.close()
-		if ComicBookInfo().validateString(cbi_metadata):
-			return ComicBookInfo().metadataFromString(cbi_metadata)
-	return None
+	if (do_action == "read_both" or do_action == "read_cbi") and (
+				ComicBookInfo().validateString(zf.comment)):
+		cbi_metadata = ComicBookInfo().metadataFromString(zf.comment)
+	zf.close()
+	return get_combined_metadata(cix_metadata, cbi_metadata)
 
 
 def get_comic_metadata_from_cbr(ia, book_id, do_action):
@@ -374,9 +369,9 @@ def get_comic_metadata_from_cbr(ia, book_id, do_action):
 	'''
 
 	from calibre.utils.unrar import RARFile, extract_member, names
-	from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
-	from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
+	cix_metadata = None
+	cbi_metadata = None
 	ffile = ia.db.format(book_id, "cbr", as_path=True)
 	# get the cix metadata
 	if do_action == "read_both" or do_action == "read_cix":
@@ -385,15 +380,28 @@ def get_comic_metadata_from_cbr(ia, book_id, do_action):
 			for name in fnames:
 				if name.lower() == "comicinfo.xml":
 					cix_metadata = extract_member(zr, match=None, name=name)[1]
-					return ComicInfoXml().metadataFromString(cix_metadata)
+					cix_metadata = ComicInfoXml().metadataFromString(cix_metadata)
+					break
 
 	# get the cbi metadata
-	if do_action == "read_both" or do_action == "read_cbi":
-		zr = RARFile(ffile, get_comment=True)
-		cbi_metadata = zr.comment
-		if ComicBookInfo().validateString(cbi_metadata):
-			return ComicBookInfo().metadataFromString(cbi_metadata)
-	return None
+	with open(ffile, 'rb') as stream:
+		zr = RARFile(stream, get_comment=True)
+		comment = zr.comment
+	if (do_action == "read_both" or do_action == "read_cbi") and (
+				ComicBookInfo().validateString(comment)):
+		cbi_metadata = ComicBookInfo().metadataFromString(comment)
+	return get_combined_metadata(cix_metadata, cbi_metadata)
+
+
+def get_combined_metadata(cix_metadata, cbi_metadata):
+	'''
+	Combines the metadata from both sources
+	'''
+	if cix_metadata and cbi_metadata:
+		return cbi_metadata.overlay(cix_metadata)
+	elif cix_metadata:
+		return cix_metadata
+	return cbi_metadata
 
 
 def convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr):
@@ -402,17 +410,23 @@ def convert_cbr_to_cbz(ia, book_id, job_info, delete_cbr):
 	'''
 
 	from calibre.ptempfile import TemporaryFile, TemporaryDirectory
-	from calibre.utils.unrar import extract
+	from calibre.utils.unrar import RARFile, extract
 
 	with TemporaryDirectory('_cbr2cbz') as tdir:
 		# extract the rar file
 		ffile = ia.db.format(book_id, "cbr", as_path=True)
 		extract(ffile, tdir)
+		# get the comment
+		with open(ffile, 'rb') as stream:
+			zr = RARFile(stream, get_comment=True)
+			comment = zr.comment
 
 		# make the cbz file
 		with TemporaryFile("comic.cbz") as tf:
 			zf = ZipFile(tf, "w")
 			zf.add_dir(tdir)
+			if comment:
+				zf.comment = comment
 			zf.close()
 			# add the cbz format to calibres library
 			ia.db.add_format(book_id, "cbz", tf)
