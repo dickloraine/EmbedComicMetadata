@@ -186,8 +186,8 @@ def write_calibre_metadata(ia, do_action, book_id, job_info, is_cbz_comic):
 	# if there is a cbz, take info from there, otherwise use the cbr
 	if is_cbz_comic:
 		comic_metadata = get_comic_metadata_from_cbz(ia, book_id, do_action)
-	else:  # remove cbr reading for now, needs tests
-		comic_metadata = None  # get_comic_metadata_from_cbr(ia, book_id, do_action)
+	else:
+		comic_metadata = get_comic_metadata_from_cbr(ia, book_id, do_action)
 
 	# if no metadata return
 	if comic_metadata is None:
