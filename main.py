@@ -20,15 +20,15 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	# get the db from calibre, to get metadata etc
 	ia.db = ia.gui.current_db.new_api
 
+	# initialize j(ob), to store all needed informations
 	j = {"BOOK_ID": 0, "FORMAT": "", "INFO": "", "ACTION": do_action,
-				"PROCESSED": [], "NOT_PROCESSED": [], "CONVERTED": []}
+		"PROCESSED": [], "NOT_PROCESSED": [], "CONVERTED": []}
 
 	# Get currently selected books
 	rows = ia.gui.library_view.selectionModel().selectedRows()
 	if not rows or len(rows) == 0:
 		return error_dialog(ia.gui, 'Cannot update metadata',
 						'No books selected', show=True)
-
 	# Map the rows to book ids
 	ids = list(map(ia.gui.library_view.model().id, rows))
 
@@ -57,30 +57,17 @@ def update_metadata(ia, do_action): 	# ia = interface action
 
 		# only convert cbr to cbz
 		if j["ACTION"] == "just_convert":
-			if j["FORMAT"] == "cbz":
-				j["NOT_PROCESSED"].append(j["INFO"])
-				continue
 			convert_cbr_to_cbz(ia, j)
 			continue
 
 		# read comic metadata and write to calibre
 		if j["ACTION"] == "read_both" or j["ACTION"] == "read_cix" or j["ACTION"] == "read_cbi":
-			# convert, if option is on
-			if prefs['convert_reading'] and j["FORMAT"] == "cbr":
-				convert_cbr_to_cbz(ia, j)
 			# write the metadata to calibres database
 			write_calibre_metadata(ia, j)
 			continue
 
-		# convert to cbz if book has only cbr format and option is on
-		if prefs['convert_cbr'] and j["FORMAT"] == "cbr":
-			convert_cbr_to_cbz(ia, j)
-
-		# if the book is a cbz, embed the metadata in the cbz file
-		if j["FORMAT"] == "cbz":
-			embed_comic_metadata(ia, j, calibre_metadata)
-		else:
-			j["NOT_PROCESSED"].append(j["INFO"])
+		# embed the calibre metadata into the comic archive
+		embed_comic_metadata(ia, j, calibre_metadata)
 
 	# Show the completion dialog
 	if j["ACTION"] == "just_convert":
@@ -107,6 +94,15 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
+
+	# convert if option is on
+	if prefs['convert_cbr']:
+		convert_cbr_to_cbz(ia, j)
+
+	# if not a cbz return
+	if j["FORMAT"] != "cbz":
+		j["NOT_PROCESSED"].append(j["INFO"])
+		return
 
 	# copy the file to temp folder
 	ffile = ia.db.format(j["BOOK_ID"], "cbz", as_path=True)
@@ -182,6 +178,9 @@ def write_calibre_metadata(ia, j):
 	Reads the comic metadata from the comic file and then writes the
 	metadata into calibres database
 	'''
+	# convert, if option is on
+	if prefs['convert_reading']:
+		convert_cbr_to_cbz(ia, j)
 
 	# get the metadata from the comic archive
 	comic_metadata = get_comic_metadata_from_file(ia, j)
@@ -414,6 +413,10 @@ def convert_cbr_to_cbz(ia, j):
 	from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 	from calibre.utils.unrar import RARFile, extract
 
+	if j["FORMAT"] == "cbz":
+		j["NOT_PROCESSED"].append(j["INFO"])
+		return
+
 	with TemporaryDirectory('_cbr2cbz') as tdir:
 		# extract the rar file
 		ffile = ia.db.format(j["BOOK_ID"], "cbr", as_path=True)
@@ -436,6 +439,7 @@ def convert_cbr_to_cbz(ia, j):
 	if prefs['delete_cbr']:
 		ia.db.remove_formats({j["BOOK_ID"]: {'cbr'}})
 
+	j["FORMAT"] = "cbz"
 	j["CONVERTED"].append(j["INFO"])
 
 
