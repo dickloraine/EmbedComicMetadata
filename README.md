@@ -15,7 +15,7 @@ Can automatically convert cbr files to cbz
 * Click the addon EmbedComicMetadata icon in your toolbar
 * (You can select a specific action or open the configuration bei clicking on the small arrow on the icon and selecting the desired option)
 
-### To embed the comic archive metadata into calibre:
+### To import the comic archive metadata into calibre:
 * Select the comics that should be updated in the library.
 * Click the small arrow on the addon EmbedComicMetadata icon in your toolbar
 * Click on "Import Metadata from the comic archive into calibre"
