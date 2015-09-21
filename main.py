@@ -78,7 +78,7 @@ def update_metadata(ia, do_action): 	# ia = interface action
 
 		# if the book is a cbz, embed the metadata in the cbz file
 		if j["FORMAT"] == "cbz":
-			embed_comic_metadata(ia, calibre_metadata, j)
+			embed_comic_metadata(ia, j, calibre_metadata)
 		else:
 			j["NOT_PROCESSED"].append(j["INFO"])
 
@@ -103,7 +103,7 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	info_dialog(ia.gui, title, msg, show=True)
 
 
-def embed_comic_metadata(ia, calibre_metadata, j):
+def embed_comic_metadata(ia, j, calibre_metadata):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
