@@ -148,7 +148,7 @@ def get_overlay_metadata(calibre_metadata):
 		overlay_metadata.series = calibre_metadata.series
 
 	if calibre_metadata.series_index:
-		overlay_metadata.issue = int(calibre_metadata.series_index)
+		overlay_metadata.issue = calibre_metadata.series_index
 
 	if len(calibre_metadata.tags) > 0:
 		overlay_metadata.tags = calibre_metadata.tags
@@ -414,7 +414,8 @@ def convert_cbr_to_cbz(ia, j):
 	from calibre.utils.unrar import RARFile, extract
 
 	if j["FORMAT"] == "cbz":
-		j["NOT_PROCESSED"].append(j["INFO"])
+		if j["ACTION"] == "just_convert":
+			j["NOT_PROCESSED"].append(j["INFO"])
 		return
 
 	with TemporaryDirectory('_cbr2cbz') as tdir:
