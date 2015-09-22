@@ -261,10 +261,13 @@ def update_calibre_metadata(ia, comic_metadata):
 
 	# custom columns
 	custom_cols = ia.db.field_metadata.custom_field_metadata()
-	if prefs['col_page_count'] and comic_metadata.issue:
-		col_name = prefs['col_page_count']
+	if prefs['col_issue'] and comic_metadata.issue:
+		col_name = prefs['col_issue']
 		col = custom_cols[col_name]
-		col['#value#'] = comic_metadata.issue
+		if isinstance(comic_metadata.issue, unicode):
+			col['#value#'] = unicodedata.numeric(comic_metadata.issue)
+		else:
+			col['#value#'] = float(comic_metadata.issue)
 		calibre_metadata.set_user_metadata(col_name, col)
 
 	return calibre_metadata

@@ -22,7 +22,7 @@ from calibre.utils.config import JSONConfig
 prefs = JSONConfig('plugins/EmbedComicMetadata')
 
 # Set default custom columns
-prefs.defaults['col_page_count'] = None
+prefs.defaults['col_issue'] = None
 
 # Set default Options
 prefs.defaults['cbi_embed'] = True
@@ -49,7 +49,7 @@ class ConfigWidget(QWidget):
 		self.custom_columns_box.setLayout(self.custom_columns_layout)
 
 		# test with page_count
-		self.make_columnbox("page_count_column", 'Page Count Column:', prefs['col_page_count'], ["int", "float"], 1)
+		self.make_columnbox("issue_column", 'Issue Column:', prefs['col_issue'], ["float"], 1)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -67,7 +67,7 @@ class ConfigWidget(QWidget):
 
 	def save_settings(self):
 		# Save custom columns
-		prefs['col_page_count'] = self.page_count_column.get_selected_column()
+		prefs['col_issue'] = self.issue_column.get_selected_column()
 
 		# Save default Options
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
@@ -120,9 +120,11 @@ class ConfigWidget(QWidget):
 		def populate_combo(self, custom_columns, selected_column):
 			self.clear()
 			self.column_names = []
+			selected_idx = 0
+			custom_columns[""] = {"name": ""}
 			for key in sorted(custom_columns.keys()):
 				self.column_names.append(key)
-				self.addItem('%s (%s)' % (key, custom_columns[key]['name']))
+				self.addItem('%s - %s' % (key, custom_columns[key]['name']))
 				if key == selected_column:
 					selected_idx = len(self.column_names) - 1
 			self.setCurrentIndex(selected_idx)
