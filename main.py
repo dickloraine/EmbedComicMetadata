@@ -188,14 +188,14 @@ def write_calibre_metadata(ia, j):
 		return
 
 	# update calibres metadata with the comic_metadata
-	calibre_metadata = update_calibre_metadata(comic_metadata)
+	calibre_metadata = update_calibre_metadata(ia, comic_metadata)
 
 	# write the metadata to the database
 	ia.db.set_metadata(j["BOOK_ID"], calibre_metadata)
 	j["PROCESSED"].append(j["INFO"])
 
 
-def update_calibre_metadata(comic_metadata):
+def update_calibre_metadata(ia, comic_metadata):
 	'''
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
@@ -258,6 +258,14 @@ def update_calibre_metadata(comic_metadata):
 
 	if comic_metadata.criticalRating:
 		calibre_metadata.rating = comic_metadata.criticalRating
+
+	# custom columns
+	custom_cols = ia.db.field_metadata.custom_field_metadata()
+	if prefs['col_page_count'] and comic_metadata.issue:
+		col_name = prefs['col_page_count']
+		col = custom_cols[col_name]
+		col['#value#'] = comic_metadata.issue
+		calibre_metadata.set_user_metadata(col_name, col)
 
 	return calibre_metadata
 

@@ -8,9 +8,9 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox
+	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel
 except ImportError:
-	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox
+	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel
 
 from calibre.utils.config import JSONConfig
 
@@ -21,7 +21,10 @@ from calibre.utils.config import JSONConfig
 # so as to ensure you dont accidentally clobber a calibre config file
 prefs = JSONConfig('plugins/EmbedComicMetadata')
 
-# Set defaults
+# Set default custom columns
+prefs.defaults['col_page_count'] = None
+
+# Set default Options
 prefs.defaults['cbi_embed'] = True
 prefs.defaults['cix_embed'] = True
 prefs.defaults['convert_cbr'] = True
@@ -40,10 +43,19 @@ class ConfigWidget(QWidget):
 
 		# ----------------------------------------------------------------------
 		# Custom Columns
-		self.custom_cloumns_box = QGroupBox('Custom Columns:')
-		self.l.addWidget(self.custom_cloumns_box)
-		self.custom_cloumns_layout = QGridLayout()
-		self.custom_cloumns_box.setLayout(self.custom_cloumns_layout)
+		self.custom_columns_box = QGroupBox('Custom Columns:')
+		self.l.addWidget(self.custom_columns_box)
+		self.custom_columns_layout = QGridLayout()
+		self.custom_columns_box.setLayout(self.custom_columns_layout)
+
+		# test with page_count
+		available_columns = self.get_custom_columns(["int", "float"])
+		page_col = prefs['col_page_count']
+		self.page_count_column = self.CustomColumnComboBox(self, available_columns, page_col)
+		self.page_count_label = QLabel('Page Count Column:')
+		self.page_count_label.setBuddy(self.page_count_column)
+		self.custom_columns_layout.addWidget(self.page_count_label, 1, 0)
+		self.custom_columns_layout.addWidget(self.page_count_column, 1, 1)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -60,6 +72,10 @@ class ConfigWidget(QWidget):
 		self.make_checkbox(self.cfg_layout, "extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], 3, 1)
 
 	def save_settings(self):
+		# Save custom columns
+		prefs['col_page_count'] = self.page_count_column.get_selected_column()
+
+		# Save default Options
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
 		prefs['cix_embed'] = self.cix_checkbox.isChecked()
 		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
@@ -84,3 +100,37 @@ class ConfigWidget(QWidget):
 			if typ in column_types:
 				available_columns[key] = column
 		return available_columns
+
+	# modified from CountPages
+	class CustomColumnComboBox(QComboBox):
+
+		def __init__(self, parent, custom_columns={}, selected_column='', initial_items=['']):
+			QComboBox.__init__(self, parent)
+			self.populate_combo(custom_columns, selected_column, initial_items)
+
+		def populate_combo(self, custom_columns, selected_column, initial_items=['']):
+			self.clear()
+			self.column_names = list(initial_items)
+			if len(initial_items) > 0:
+				self.addItems(initial_items)
+			selected_idx = 0
+			for idx, value in enumerate(initial_items):
+				if value == selected_column:
+					selected_idx = idx
+			for key in sorted(custom_columns.keys()):
+				self.column_names.append(key)
+				self.addItem('%s (%s)' % (key, custom_columns[key]['name']))
+				if key == selected_column:
+					selected_idx = len(self.column_names) - 1
+			self.setCurrentIndex(selected_idx)
+
+		def select_column(self, key):
+			selected_idx = 0
+			for i, val in enumerate(self.column_names):
+				if val == key:
+					selected_idx = i
+					break
+			self.setCurrentIndex(selected_idx)
+
+		def get_selected_column(self):
+			return self.column_names[self.currentIndex()]
