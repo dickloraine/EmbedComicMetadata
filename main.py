@@ -203,6 +203,7 @@ def update_calibre_metadata(comic_metadata):
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
 
+	import unicodedata
 	from calibre.ebooks.metadata import MetaInformation
 	from calibre.utils.date import parse_only_date
 	from datetime import date
@@ -233,7 +234,7 @@ def update_calibre_metadata(comic_metadata):
 		calibre_metadata.series = comic_metadata.series
 
 	if comic_metadata.issue:
-		calibre_metadata.series_index = float(comic_metadata.issue)
+		calibre_metadata.series_index = unicodedata.numeric(comic_metadata.issue)
 
 	if comic_metadata.tags:
 		calibre_metadata.tags = comic_metadata.tags
