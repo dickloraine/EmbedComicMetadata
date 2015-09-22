@@ -49,13 +49,7 @@ class ConfigWidget(QWidget):
 		self.custom_columns_box.setLayout(self.custom_columns_layout)
 
 		# test with page_count
-		available_columns = self.get_custom_columns(["int", "float"])
-		page_col = prefs['col_page_count']
-		self.page_count_column = self.CustomColumnComboBox(self, available_columns, page_col)
-		self.page_count_label = QLabel('Page Count Column:')
-		self.page_count_label.setBuddy(self.page_count_column)
-		self.custom_columns_layout.addWidget(self.page_count_label, 1, 0)
-		self.custom_columns_layout.addWidget(self.page_count_column, 1, 1)
+		self.make_columnbox("page_count_column", 'Page Count Column:', prefs['col_page_count'], ["int", "float"], 1)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -64,12 +58,12 @@ class ConfigWidget(QWidget):
 		self.cfg_layout = QGridLayout()
 		self.cfg_box.setLayout(self.cfg_layout)
 
-		self.make_checkbox(self.cfg_layout, "cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], 1, 0)
-		self.make_checkbox(self.cfg_layout, "cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], 1, 1)
-		self.make_checkbox(self.cfg_layout, "convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], 2, 0)
-		self.make_checkbox(self.cfg_layout, "convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], 2, 1)
-		self.make_checkbox(self.cfg_layout, "delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], 3, 0)
-		self.make_checkbox(self.cfg_layout, "extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], 3, 1)
+		self.make_checkbox("cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], 1, 0)
+		self.make_checkbox("cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], 1, 1)
+		self.make_checkbox("convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], 2, 0)
+		self.make_checkbox("convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], 2, 1)
+		self.make_checkbox("delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], 3, 0)
+		self.make_checkbox("extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], 3, 1)
 
 	def save_settings(self):
 		# Save custom columns
@@ -83,11 +77,26 @@ class ConfigWidget(QWidget):
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
 		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
 
-	def make_checkbox(self, parent, name, title, pref, grid_row, grid_column):
+	def make_checkbox(self, name, title, pref, grid_row, grid_column):
 		setattr(self, name, QCheckBox(title, self))
 		checkbox = getattr(self, name)
 		checkbox.setChecked(pref)
-		parent.addWidget(checkbox, grid_row, grid_column)
+		self.cfg_layout.addWidget(checkbox, grid_row, grid_column)
+
+	def make_columnbox(self, name, label_text, pref, column_types, grid_row):
+		# label
+		setattr(self, name + "label", QLabel(label_text))
+		column_label = getattr(self, name + "label")
+
+		# columnbox
+		available_columns = self.get_custom_columns(column_types)
+		setattr(self, name, self.CustomColumnComboBox(self, available_columns, pref))
+		column_box = getattr(self, name)
+
+		# put together and add
+		column_label.setBuddy(column_box)
+		self.custom_columns_layout.addWidget(column_label, grid_row, 0)
+		self.custom_columns_layout.addWidget(column_box, grid_row, 1)
 
 	def get_custom_columns(self, column_types=[]):
 		'''
@@ -104,19 +113,13 @@ class ConfigWidget(QWidget):
 	# modified from CountPages
 	class CustomColumnComboBox(QComboBox):
 
-		def __init__(self, parent, custom_columns={}, selected_column='', initial_items=['']):
+		def __init__(self, parent, custom_columns={}, selected_column=''):
 			QComboBox.__init__(self, parent)
-			self.populate_combo(custom_columns, selected_column, initial_items)
+			self.populate_combo(custom_columns, selected_column)
 
-		def populate_combo(self, custom_columns, selected_column, initial_items=['']):
+		def populate_combo(self, custom_columns, selected_column):
 			self.clear()
-			self.column_names = list(initial_items)
-			if len(initial_items) > 0:
-				self.addItems(initial_items)
-			selected_idx = 0
-			for idx, value in enumerate(initial_items):
-				if value == selected_column:
-					selected_idx = idx
+			self.column_names = []
 			for key in sorted(custom_columns.keys()):
 				self.column_names.append(key)
 				self.addItem('%s (%s)' % (key, custom_columns[key]['name']))
