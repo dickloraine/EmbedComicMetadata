@@ -234,7 +234,10 @@ def update_calibre_metadata(comic_metadata):
 		calibre_metadata.series = comic_metadata.series
 
 	if comic_metadata.issue:
-		calibre_metadata.series_index = unicodedata.numeric(comic_metadata.issue)
+		if isinstance(comic_metadata.issue, unicode):
+			calibre_metadata.series_index = unicodedata.numeric(comic_metadata.issue)
+		else:
+			calibre_metadata.series_index = float(comic_metadata.issue)
 
 	if comic_metadata.tags:
 		calibre_metadata.tags = comic_metadata.tags
