@@ -8,9 +8,9 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout
+	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox
 except ImportError:
-	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout
+	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox
 
 from calibre.utils.config import JSONConfig
 
@@ -32,35 +32,32 @@ prefs.defaults['extended_menu'] = False
 
 class ConfigWidget(QWidget):
 
-	def __init__(self):
+	def __init__(self, ia):
 		QWidget.__init__(self)
-		self.l = QGridLayout()
-		self.l.setSpacing(10)
+		self.ia = ia
+		self.l = QVBoxLayout()
 		self.setLayout(self.l)
 
-		self.cbi_checkbox = QCheckBox('Write metadata in zip comment', self)
-		self.cbi_checkbox.setChecked(prefs['cbi_embed'])
-		self.l.addWidget(self.cbi_checkbox, 1, 0)
+		# ----------------------------------------------------------------------
+		# Custom Columns
+		self.custom_cloumns_box = QGroupBox('Custom Columns:')
+		self.l.addWidget(self.custom_cloumns_box)
+		self.custom_cloumns_layout = QGridLayout()
+		self.custom_cloumns_box.setLayout(self.custom_cloumns_layout)
 
-		self.cix_checkbox = QCheckBox('Write metadata in ComicInfo.xml', self)
-		self.cix_checkbox.setChecked(prefs['cix_embed'])
-		self.l.addWidget(self.cix_checkbox, 1, 1)
+		# ----------------------------------------------------------------------
+		# Options
+		self.cfg_box = QGroupBox('Options:')
+		self.l.addWidget(self.cfg_box)
+		self.cfg_layout = QGridLayout()
+		self.cfg_box.setLayout(self.cfg_layout)
 
-		self.convert_cbr_checkbox = QCheckBox('Auto convert cbr to cbz', self)
-		self.convert_cbr_checkbox.setChecked(prefs['convert_cbr'])
-		self.l.addWidget(self.convert_cbr_checkbox, 2, 0)
-
-		self.convert_reading_checkbox = QCheckBox('Auto convert while importing to calibre', self)
-		self.convert_reading_checkbox.setChecked(prefs['convert_reading'])
-		self.l.addWidget(self.convert_reading_checkbox, 2, 1)
-
-		self.delete_cbr_checkbox = QCheckBox('Delete cbr after conversion', self)
-		self.delete_cbr_checkbox.setChecked(prefs['delete_cbr'])
-		self.l.addWidget(self.delete_cbr_checkbox, 2, 2)
-
-		self.extended_menu_checkbox = QCheckBox('Extended Menu (needs calibre restart)', self)
-		self.extended_menu_checkbox.setChecked(prefs['extended_menu'])
-		self.l.addWidget(self.extended_menu_checkbox, 3, 0)
+		self.make_checkbox(self.cfg_layout, "cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], 1, 0)
+		self.make_checkbox(self.cfg_layout, "cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], 1, 1)
+		self.make_checkbox(self.cfg_layout, "convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], 2, 0)
+		self.make_checkbox(self.cfg_layout, "convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], 2, 1)
+		self.make_checkbox(self.cfg_layout, "delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], 3, 0)
+		self.make_checkbox(self.cfg_layout, "extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], 3, 1)
 
 	def save_settings(self):
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
@@ -69,3 +66,21 @@ class ConfigWidget(QWidget):
 		prefs['convert_reading'] = self.convert_reading_checkbox.isChecked()
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
 		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
+
+	def make_checkbox(self, parent, name, title, pref, grid_row, grid_column):
+		setattr(self, name, QCheckBox(title, self))
+		checkbox = getattr(self, name)
+		checkbox.setChecked(pref)
+		parent.addWidget(checkbox, grid_row, grid_column)
+
+	def get_custom_columns(self, column_types=[]):
+		'''
+		Gets matching custom columns for the types in the list column_types
+		'''
+		custom_columns = self.ia.gui.library_view.model().custom_columns
+		available_columns = {}
+		for key, column in custom_columns.iteritems():
+			typ = column['datatype']
+			if typ in column_types:
+				available_columns[key] = column
+		return available_columns

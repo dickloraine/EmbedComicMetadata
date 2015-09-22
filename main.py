@@ -16,7 +16,6 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	Redirects and handles the action indicated by "do_action"
 	The main function for the plugin
 	'''
-
 	# get the db from calibre, to get metadata etc
 	ia.db = ia.gui.current_db.new_api
 
@@ -94,7 +93,6 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
-
 	# convert if option is on
 	if prefs['convert_cbr']:
 		convert_cbr_to_cbz(ia, j)
@@ -127,7 +125,6 @@ def get_overlay_metadata(calibre_metadata):
 	'''
 	Copies calibres metadata to comictagger compatible metadata
 	'''
-
 	from calibre.utils.html2text import html2text
 	from calibre.utils.date import UNDEFINED_DATE
 	from calibre.utils.localization import lang_as_iso639_1
@@ -202,7 +199,6 @@ def update_calibre_metadata(comic_metadata):
 	'''
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
-
 	import unicodedata
 	from calibre.ebooks.metadata import MetaInformation
 	from calibre.utils.date import parse_only_date
@@ -271,7 +267,6 @@ def embed_cix_metadata(ffile, overlay_metadata):
 	Embeds the cix_metadata into the given file,
 	overlayed with overlay_metadata
 	'''
-
 	# open the zipfile with append option
 	zf = ZipFile(ffile, "a")
 
@@ -311,7 +306,6 @@ def embed_cbi_metadata(ffile, overlay_metadata):
 	Embeds the cbi_metadata into the given file,
 	overlayed with overlay_metadata
 	'''
-
 	# get cbi metadata from the zip comment
 	zf = ZipFile(ffile)
 	cbi_metadata = zf.comment
@@ -345,7 +339,6 @@ def get_comic_metadata_from_cbz(ia, j):
 	Reads the comic metadata from the comic cbz file as comictagger metadata
 	and returns the metadata depending on do_action
 	'''
-
 	cix_metadata = None
 	cbi_metadata = None
 	ffile = ia.db.format(j["BOOK_ID"], "cbz", as_path=True)
@@ -372,7 +365,6 @@ def get_comic_metadata_from_cbr(ia, j):
 	Reads the comic metadata from the comic cbr file as comictagger metadata
 	and returns the metadata depending on do_action
 	'''
-
 	from calibre.utils.unrar import RARFile, extract_member, names
 
 	cix_metadata = None
@@ -413,7 +405,6 @@ def convert_cbr_to_cbz(ia, j):
 	'''
 	Converts a cbr-comic to a cbz-comic
 	'''
-
 	from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 	from calibre.utils.unrar import RARFile, extract
 
@@ -457,7 +448,6 @@ def writeZipComment(filename, comment):
 	easy to manipulate.  See this website for more info:
 	see: http://en.wikipedia.org/wiki/Zip_(file_format)#Structure
 	'''
-
 	from os import stat
 	from struct import pack
 

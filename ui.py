@@ -45,7 +45,6 @@ class EmbedComicMetadata(InterfaceAction):
 		self.qaction.triggered.connect(self.main_menu_triggered)
 
 	def build_menu(self):
-		prefs['extended_menu']
 		m = self.menu
 		m.clear()
 

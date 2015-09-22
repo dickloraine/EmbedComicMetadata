@@ -62,8 +62,9 @@ class EmbedComicMetadataBase(InterfaceActionBase):
 		# top of the module as importing the config class will also cause the
 		# GUI libraries to be loaded, which we do not want when using calibre
 		# from the command line
-		from calibre_plugins.EmbedComicMetadata.config import ConfigWidget
-		return ConfigWidget()
+		if self.actual_plugin_:
+			from calibre_plugins.EmbedComicMetadata.config import ConfigWidget
+			return ConfigWidget(self.actual_plugin_)
 
 	def save_settings(self, config_widget):
 		'''
