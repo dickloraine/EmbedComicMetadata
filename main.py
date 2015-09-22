@@ -205,6 +205,16 @@ def update_calibre_metadata(ia, comic_metadata):
 	from datetime import date
 	from calibre.utils.localization import calibre_langcode_to_name
 
+	# synonyms for artists
+	WRITER = ['writer', 'plotter', 'scripter']
+	PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
+	INKER = ['inker', 'artist', 'finishes']
+	COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
+	LETTERER = ['letterer']
+	COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
+	EDITOR = ['editor']
+	credits = comic_metadata.credits
+
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
 
@@ -220,11 +230,9 @@ def update_calibre_metadata(ia, comic_metadata):
 		else:
 			calibre_metadata.title = ""
 
-	if comic_metadata.credits:
-		calibre_metadata.authors = []
-		for credit in comic_metadata.credits:
-			if credit['role'] == "Writer":
-				calibre_metadata.authors.append(credit['person'])
+	authors = get_role(WRITER, credits)
+	if authors:
+		calibre_metadata.authors = authors
 
 	if comic_metadata.series:
 		calibre_metadata.series = comic_metadata.series
@@ -261,14 +269,13 @@ def update_calibre_metadata(ia, comic_metadata):
 
 	# custom columns
 	custom_cols = ia.db.field_metadata.custom_field_metadata()
-	if prefs['col_issue'] and comic_metadata.issue:
-		col_name = prefs['col_issue']
-		col = custom_cols[col_name]
-		if isinstance(comic_metadata.issue, unicode):
-			col['#value#'] = unicodedata.numeric(comic_metadata.issue)
-		else:
-			col['#value#'] = float(comic_metadata.issue)
-		calibre_metadata.set_user_metadata(col_name, col)
+	# artists
+	update_custom_column(prefs['penciller_column'], get_role(PENCILLER, credits), calibre_metadata, custom_cols)
+	update_custom_column(prefs['inker_column'], get_role(INKER, credits), calibre_metadata, custom_cols)
+	update_custom_column(prefs['colorist_column'], get_role(COLORIST, credits), calibre_metadata, custom_cols)
+	update_custom_column(prefs['letterer_column'], get_role(LETTERER, credits), calibre_metadata, custom_cols)
+	update_custom_column(prefs['cover_artist_column'], get_role(COVER_ARTIST, credits), calibre_metadata, custom_cols)
+	update_custom_column(prefs['editor_column'], get_role(EDITOR, credits), calibre_metadata, custom_cols)
 
 	return calibre_metadata
 
@@ -410,6 +417,26 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 	elif cix_metadata is not None:
 		return cix_metadata
 	return cbi_metadata
+
+
+def update_custom_column(col_name, value, calibre_metadata, custom_cols):
+	if col_name and value:
+		col = custom_cols[col_name]
+		col['#value#'] = value
+		calibre_metadata.set_user_metadata(col_name, col)
+
+
+def get_role(role, credits):
+	'''
+	Gets a list of persons with the given role.
+	First primary persons, then all others, alphabetically
+	'''
+	persons = []
+	for credit in credits:
+		if credit['role'].lower() in role:
+			persons.append(credit['person'])
+	persons.sort()
+	return persons
 
 
 def convert_cbr_to_cbz(ia, j):

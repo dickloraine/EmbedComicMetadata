@@ -22,7 +22,12 @@ from calibre.utils.config import JSONConfig
 prefs = JSONConfig('plugins/EmbedComicMetadata')
 
 # Set default custom columns
-prefs.defaults['col_issue'] = None
+prefs.defaults['penciller_column'] = None
+prefs.defaults['inker_column'] = None
+prefs.defaults['colorist_column'] = None
+prefs.defaults['letterer_column'] = None
+prefs.defaults['cover_artist_column'] = None
+prefs.defaults['editor_column'] = None
 
 # Set default Options
 prefs.defaults['cbi_embed'] = True
@@ -48,8 +53,13 @@ class ConfigWidget(QWidget):
 		self.custom_columns_layout = QGridLayout()
 		self.custom_columns_box.setLayout(self.custom_columns_layout)
 
-		# test with page_count
-		self.make_columnbox("issue_column", 'Issue Column:', prefs['col_issue'], ["float"], 1)
+		# Artists
+		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], 1, 0)
+		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], 1, 2)
+		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], 2, 0)
+		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], 2, 2)
+		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], 3, 0)
+		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], 3, 2)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -67,7 +77,12 @@ class ConfigWidget(QWidget):
 
 	def save_settings(self):
 		# Save custom columns
-		prefs['col_issue'] = self.issue_column.get_selected_column()
+		prefs['penciller_column'] = self.penciller_column.get_selected_column()
+		prefs['inker_column'] = self.inker_column.get_selected_column()
+		prefs['colorist_column'] = self.colorist_column.get_selected_column()
+		prefs['letterer_column'] = self.letterer_column.get_selected_column()
+		prefs['cover_artist_column'] = self.cover_artist_column.get_selected_column()
+		prefs['editor_column'] = self.editor_column.get_selected_column()
 
 		# Save default Options
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
@@ -83,7 +98,7 @@ class ConfigWidget(QWidget):
 		checkbox.setChecked(pref)
 		self.cfg_layout.addWidget(checkbox, grid_row, grid_column)
 
-	def make_columnbox(self, name, label_text, pref, column_types, grid_row):
+	def make_columnbox(self, name, label_text, pref, column_types, grid_row, grid_column):
 		# label
 		setattr(self, name + "label", QLabel(label_text))
 		column_label = getattr(self, name + "label")
@@ -95,8 +110,8 @@ class ConfigWidget(QWidget):
 
 		# put together and add
 		column_label.setBuddy(column_box)
-		self.custom_columns_layout.addWidget(column_label, grid_row, 0)
-		self.custom_columns_layout.addWidget(column_box, grid_row, 1)
+		self.custom_columns_layout.addWidget(column_label, grid_row, grid_column)
+		self.custom_columns_layout.addWidget(column_box, grid_row, grid_column + 1)
 
 	def get_custom_columns(self, column_types=[]):
 		'''
@@ -124,7 +139,7 @@ class ConfigWidget(QWidget):
 			custom_columns[""] = {"name": ""}
 			for key in sorted(custom_columns.keys()):
 				self.column_names.append(key)
-				self.addItem('%s - %s' % (key, custom_columns[key]['name']))
+				self.addItem('%s' % (custom_columns[key]['name']))
 				if key == selected_column:
 					selected_idx = len(self.column_names) - 1
 			self.setCurrentIndex(selected_idx)
