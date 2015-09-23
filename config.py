@@ -48,14 +48,16 @@ class ConfigWidget(QWidget):
 
 		# ----------------------------------------------------------------------
 		# Custom Columns
-		lc = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
+		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
 		# Artists
-		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], lc, 1, 0)
-		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], lc, 1, 2)
-		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], lc, 2, 0)
-		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], lc, 2, 2)
-		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], lc, 3, 0)
-		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], lc, 3, 2)
+		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], lca, 1, 0)
+		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], lca, 1, 2)
+		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], lca, 2, 0)
+		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], lca, 2, 2)
+		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], lca, 3, 0)
+		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], lca, 3, 2)
+		# Others
+		lco = self.make_groupbox("other_custom_columns_box", 'Other Custom Columns:', self.l)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -85,7 +87,7 @@ class ConfigWidget(QWidget):
 		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
 
 	def make_groupbox(self, name, title, parent):
-		groupbox = QGroupBox('Custom Columns:', self)
+		groupbox = QGroupBox(title, self)
 		setattr(self, name, groupbox)
 		parent.addWidget(groupbox)
 		groupbox_layout = QGridLayout()
