@@ -131,38 +131,22 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	from calibre.utils.localization import lang_as_iso639_1
 
 	overlay_metadata = GenericMetadata()
+
 	role = partial(set_role, credits=overlay_metadata.credits)
+	update_field = partial(update_comic_field, target=overlay_metadata)
 
-	if calibre_metadata.title:
-		overlay_metadata.title = calibre_metadata.title
-
+	update_field(calibre_metadata.title, "title")
 	role("Writer", calibre_metadata.authors)
-
-	if calibre_metadata.series:
-		overlay_metadata.series = calibre_metadata.series
-
-	if calibre_metadata.series_index:
-		overlay_metadata.issue = calibre_metadata.series_index
-
-	if calibre_metadata.tags and len(calibre_metadata.tags) > 0:
-		overlay_metadata.tags = calibre_metadata.tags
-
-	if calibre_metadata.publisher:
-		overlay_metadata.publisher = calibre_metadata.publisher
-
-	if calibre_metadata.comments:
-		overlay_metadata.comments = html2text(calibre_metadata.comments)
-
-	if calibre_metadata.pubdate != UNDEFINED_DATE:
-		overlay_metadata.year = calibre_metadata.pubdate.year
-		overlay_metadata.month = calibre_metadata.pubdate.month
-		overlay_metadata.day = calibre_metadata.pubdate.day
-
-	if calibre_metadata.language:
-		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
-
-	if calibre_metadata.rating:
-		overlay_metadata.criticalRating = calibre_metadata.rating
+	update_field(calibre_metadata.series, "series")
+	update_field(calibre_metadata.series_index, "issue")
+	update_field(calibre_metadata.tags, "tags")
+	update_field(calibre_metadata.publisher, "publisher")
+	update_field(html2text(calibre_metadata.comments), "comments")
+	update_field(calibre_metadata.pubdate.year, "year", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field(calibre_metadata.pubdate.month, "month", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field(calibre_metadata.pubdate.day, "day", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field(calibre_metadata.rating, "criticalRating")
+	update_field(lang_as_iso639_1(calibre_metadata.language), "language")
 
 	# custom columns
 	field = partial(ia.db.field_for, book_id=j["BOOK_ID"])
@@ -222,14 +206,14 @@ def update_calibre_metadata(ia, comic_metadata):
 	COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
 	EDITOR = ['editor']
 
-	role = partial(get_role, credits=comic_metadata.credits)
-
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
 
-	if comic_metadata.title:
-		calibre_metadata.title = comic_metadata.title
+	role = partial(get_role, credits=comic_metadata.credits)
+	update_field = partial(update_calibre_field, target=calibre_metadata)
 
+	# Get title, if no title, try to assign series infos
+	update_field(comic_metadata.title, "title")
 	if not comic_metadata.title:
 		# try to find a series
 		if comic_metadata.series:
@@ -239,28 +223,22 @@ def update_calibre_metadata(ia, comic_metadata):
 		else:
 			calibre_metadata.title = ""
 
-	authors = role(WRITER)
-	if authors:
-		calibre_metadata.authors = authors
+	# simple metadata
+	update_field(role(WRITER), "authors")
+	update_field(comic_metadata.series, "series")
+	update_field(calibre_langcode_to_name(comic_metadata.language), "language", equal=comic_metadata.language)
+	update_field(comic_metadata.criticalRating, "rating")
+	update_field(comic_metadata.publisher, "publisher")
+	update_field(comic_metadata.comments.strip(), "comments", equal=comic_metadata.comments)
 
-	if comic_metadata.series:
-		calibre_metadata.series = comic_metadata.series
-
+	# special cases
+	# issue
 	if comic_metadata.issue:
 		if isinstance(comic_metadata.issue, unicode):
 			calibre_metadata.series_index = unicodedata.numeric(comic_metadata.issue)
 		else:
 			calibre_metadata.series_index = float(comic_metadata.issue)
-
-	if comic_metadata.tags:
-		calibre_metadata.tags = comic_metadata.tags
-
-	if comic_metadata.publisher:
-		calibre_metadata.publisher = comic_metadata.publisher
-
-	if comic_metadata.comments and comic_metadata.comments.strip():
-		calibre_metadata.comments = comic_metadata.comments.strip()
-
+	# published date
 	puby = comic_metadata.year
 	pubm = comic_metadata.month
 	if puby is not None:
@@ -270,11 +248,6 @@ def update_calibre_metadata(ia, comic_metadata):
 			calibre_metadata.pubdate = dt
 		except:
 			pass
-	if comic_metadata.language:
-		calibre_metadata.language = calibre_langcode_to_name(comic_metadata.language)
-
-	if comic_metadata.criticalRating:
-		calibre_metadata.rating = comic_metadata.criticalRating
 
 	# custom columns
 	custom_cols = ia.db.field_metadata.custom_field_metadata()
@@ -434,6 +407,16 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 	elif cix_metadata is not None:
 		return cix_metadata
 	return cbi_metadata
+
+
+def update_comic_field(source, name, target, equal=True):
+	if equal and source:
+		setattr(target, name, source)
+
+
+def update_calibre_field(source, field, target, equal=True):
+	if equal and source:
+		target.set(field, source)
 
 
 def update_custom_column(col_name, value, calibre_metadata, custom_cols):
