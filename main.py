@@ -2,6 +2,7 @@
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 from calibre.utils.zipfile import ZipFile
 from calibre.gui2 import error_dialog, info_dialog
 
@@ -106,7 +107,7 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	ffile = ia.db.format(j["BOOK_ID"], "cbz", as_path=True)
 
 	# now copy the calibre metadata to comictagger compatible metadata
-	overlay_metadata = get_overlay_metadata(calibre_metadata)
+	overlay_metadata = get_overlay_metadata(ia, j, calibre_metadata)
 
 	# embed the comicinfo.xml
 	if j["ACTION"] == "both" or j["ACTION"] == "cix":
@@ -121,7 +122,7 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	j["PROCESSED"].append(j["INFO"])
 
 
-def get_overlay_metadata(calibre_metadata):
+def get_overlay_metadata(ia, j, calibre_metadata):
 	'''
 	Copies calibres metadata to comictagger compatible metadata
 	'''
@@ -130,16 +131,12 @@ def get_overlay_metadata(calibre_metadata):
 	from calibre.utils.localization import lang_as_iso639_1
 
 	overlay_metadata = GenericMetadata()
+	credits = []
 
 	if calibre_metadata.title:
 		overlay_metadata.title = calibre_metadata.title
 
-	if len(calibre_metadata.authors) > 0:
-		for author in calibre_metadata.authors:
-			credit = dict()
-			credit['person'] = author
-			credit['role'] = "Writer"
-			overlay_metadata.credits.append(credit)
+	set_role("Writer", calibre_metadata.authors, credits)
 
 	if calibre_metadata.series:
 		overlay_metadata.series = calibre_metadata.series
@@ -167,6 +164,18 @@ def get_overlay_metadata(calibre_metadata):
 	if calibre_metadata.rating:
 		overlay_metadata.criticalRating = calibre_metadata.rating
 
+	# custom columns
+	field = partial(ia.db.field_for, book_id=j["BOOK_ID"])
+
+	# artists
+	set_role("Penciller", field(prefs['penciller_column']), credits)
+	set_role("Inker", field(prefs['inker_column']), credits)
+	set_role("Colorist", field(prefs['colorist_column']), credits)
+	set_role("Letterer", field(prefs['letterer_column']), credits)
+	set_role("CoverArtist", field(prefs['cover_artist_column']), credits)
+	set_role("Editor", field(prefs['editor_column']), credits)
+
+	overlay_metadata.credits = credits
 	return overlay_metadata
 
 
@@ -437,6 +446,15 @@ def get_role(role, credits):
 			persons.append(credit['person'])
 	persons.sort()
 	return persons
+
+
+def set_role(role, persons, credits):
+	if len(persons) > 0:
+		for person in persons:
+			credit = dict()
+			credit['person'] = person
+			credit['role'] = role
+			credits.append(credit)
 
 
 def convert_cbr_to_cbz(ia, j):
