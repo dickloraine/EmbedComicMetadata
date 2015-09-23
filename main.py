@@ -449,7 +449,7 @@ def get_role(role, credits):
 
 
 def set_role(role, persons, credits):
-	if len(persons) > 0:
+	if persons and len(persons) > 0:
 		for person in persons:
 			credit = dict()
 			credit['person'] = person
