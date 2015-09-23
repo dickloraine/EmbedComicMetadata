@@ -131,12 +131,12 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	from calibre.utils.localization import lang_as_iso639_1
 
 	overlay_metadata = GenericMetadata()
-	credits = []
+	role = partial(set_role, credits=overlay_metadata.credits)
 
 	if calibre_metadata.title:
 		overlay_metadata.title = calibre_metadata.title
 
-	set_role("Writer", calibre_metadata.authors, credits)
+	role("Writer", calibre_metadata.authors)
 
 	if calibre_metadata.series:
 		overlay_metadata.series = calibre_metadata.series
@@ -144,7 +144,7 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	if calibre_metadata.series_index:
 		overlay_metadata.issue = calibre_metadata.series_index
 
-	if len(calibre_metadata.tags) > 0:
+	if calibre_metadata.tags and len(calibre_metadata.tags) > 0:
 		overlay_metadata.tags = calibre_metadata.tags
 
 	if calibre_metadata.publisher:
@@ -168,14 +168,13 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	field = partial(ia.db.field_for, book_id=j["BOOK_ID"])
 
 	# artists
-	set_role("Penciller", field(prefs['penciller_column']), credits)
-	set_role("Inker", field(prefs['inker_column']), credits)
-	set_role("Colorist", field(prefs['colorist_column']), credits)
-	set_role("Letterer", field(prefs['letterer_column']), credits)
-	set_role("CoverArtist", field(prefs['cover_artist_column']), credits)
-	set_role("Editor", field(prefs['editor_column']), credits)
+	role("Penciller", field(prefs['penciller_column']))
+	role("Inker", field(prefs['inker_column']))
+	role("Colorist", field(prefs['colorist_column']))
+	role("Letterer", field(prefs['letterer_column']))
+	role("CoverArtist", field(prefs['cover_artist_column']))
+	role("Editor", field(prefs['editor_column']))
 
-	overlay_metadata.credits = credits
 	return overlay_metadata
 
 
@@ -222,7 +221,8 @@ def update_calibre_metadata(ia, comic_metadata):
 	LETTERER = ['letterer']
 	COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
 	EDITOR = ['editor']
-	credits = comic_metadata.credits
+
+	role = partial(get_role, credits=comic_metadata.credits)
 
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
@@ -239,7 +239,7 @@ def update_calibre_metadata(ia, comic_metadata):
 		else:
 			calibre_metadata.title = ""
 
-	authors = get_role(WRITER, credits)
+	authors = role(WRITER)
 	if authors:
 		calibre_metadata.authors = authors
 
@@ -278,13 +278,14 @@ def update_calibre_metadata(ia, comic_metadata):
 
 	# custom columns
 	custom_cols = ia.db.field_metadata.custom_field_metadata()
+	update_column = partial(update_custom_column, calibre_metadata=calibre_metadata, custom_cols=custom_cols)
 	# artists
-	update_custom_column(prefs['penciller_column'], get_role(PENCILLER, credits), calibre_metadata, custom_cols)
-	update_custom_column(prefs['inker_column'], get_role(INKER, credits), calibre_metadata, custom_cols)
-	update_custom_column(prefs['colorist_column'], get_role(COLORIST, credits), calibre_metadata, custom_cols)
-	update_custom_column(prefs['letterer_column'], get_role(LETTERER, credits), calibre_metadata, custom_cols)
-	update_custom_column(prefs['cover_artist_column'], get_role(COVER_ARTIST, credits), calibre_metadata, custom_cols)
-	update_custom_column(prefs['editor_column'], get_role(EDITOR, credits), calibre_metadata, custom_cols)
+	update_column(prefs['penciller_column'], role(PENCILLER))
+	update_column(prefs['inker_column'], role(INKER))
+	update_column(prefs['colorist_column'], role(COLORIST))
+	update_column(prefs['letterer_column'], role(LETTERER))
+	update_column(prefs['cover_artist_column'], role(COVER_ARTIST))
+	update_column(prefs['editor_column'], role(EDITOR))
 
 	return calibre_metadata
 
