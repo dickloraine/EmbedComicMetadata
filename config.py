@@ -28,6 +28,12 @@ prefs.defaults['colorist_column'] = None
 prefs.defaults['letterer_column'] = None
 prefs.defaults['cover_artist_column'] = None
 prefs.defaults['editor_column'] = None
+prefs.defaults['storyarc_column'] = None
+prefs.defaults['characters_column'] = None
+prefs.defaults['teams_column'] = None
+prefs.defaults['locations_column'] = None
+prefs.defaults['volume_column'] = None
+prefs.defaults['genre_column'] = None
 
 # Set default Options
 prefs.defaults['cbi_embed'] = True
@@ -48,16 +54,24 @@ class ConfigWidget(QWidget):
 
 		# ----------------------------------------------------------------------
 		# Custom Columns
-		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
+
 		# Artists
+		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
 		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], lca, 1, 0)
 		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], lca, 1, 2)
 		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], lca, 2, 0)
 		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], lca, 2, 2)
 		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], lca, 3, 0)
 		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], lca, 3, 2)
+
 		# Others
 		lco = self.make_groupbox("other_custom_columns_box", 'Other Custom Columns:', self.l)
+		self.make_columnbox("storyarc_column", 'Story Arc Column:', prefs['storyarc_column'], ["text"], lco, 1, 0)
+		self.make_columnbox("characters_column", 'Characters Column:', prefs['characters_column'], ["text"], lco, 1, 2)
+		self.make_columnbox("teams_column", 'Teams Column:', prefs['teams_column'], ["text"], lco, 2, 0)
+		self.make_columnbox("locations_column", 'Locations Column:', prefs['locations_column'], ["text"], lco, 2, 2)
+		self.make_columnbox("volume_column", 'Volume Column:', prefs['volume_column'], ["text"], lco, 3, 0)
+		self.make_columnbox("genre_column", 'Genre Column:', prefs['genre_column'], ["text"], lco, 3, 2)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -77,6 +91,12 @@ class ConfigWidget(QWidget):
 		prefs['letterer_column'] = self.letterer_column.get_selected_column()
 		prefs['cover_artist_column'] = self.cover_artist_column.get_selected_column()
 		prefs['editor_column'] = self.editor_column.get_selected_column()
+		prefs['storyarc_column'] = self.storyarc_column.get_selected_column()
+		prefs['characters_column'] = self.characters_column.get_selected_column()
+		prefs['teams_column'] = self.teams_column.get_selected_column()
+		prefs['locations_column'] = self.locations_column.get_selected_column()
+		prefs['volume_column'] = self.volume_column.get_selected_column()
+		prefs['genre_column'] = self.genre_column.get_selected_column()
 
 		# Save Options
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()

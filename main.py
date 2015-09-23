@@ -286,6 +286,13 @@ def update_calibre_metadata(ia, comic_metadata):
 	update_column(prefs['letterer_column'], role(LETTERER))
 	update_column(prefs['cover_artist_column'], role(COVER_ARTIST))
 	update_column(prefs['editor_column'], role(EDITOR))
+	# others
+	update_column(prefs['storyarc_column'], comic_metadata.storyArc)
+	update_column(prefs['characters_column'], comic_metadata.characters)
+	update_column(prefs['teams_column'], comic_metadata.teams)
+	update_column(prefs['locations_column'], comic_metadata.locations)
+	update_column(prefs['volume_column'], comic_metadata.volume)
+	update_column(prefs['genre_column'], comic_metadata.genre)
 
 	return calibre_metadata
 
