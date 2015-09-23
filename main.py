@@ -158,6 +158,13 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	role("Letterer", field(prefs['letterer_column']))
 	role("CoverArtist", field(prefs['cover_artist_column']))
 	role("Editor", field(prefs['editor_column']))
+	# others
+	update_field(field(prefs['storyarc_column']), "storyArc")
+	update_field(field(prefs['characters_column']), "characters")
+	update_field(field(prefs['teams_column']), "teams")
+	update_field(field(prefs['locations_column']), "locations")
+	update_field(field(prefs['volume_column']), "volume")
+	update_field(field(prefs['genre_column']), "genre")
 
 	return overlay_metadata
 
