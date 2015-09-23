@@ -48,32 +48,24 @@ class ConfigWidget(QWidget):
 
 		# ----------------------------------------------------------------------
 		# Custom Columns
-		self.custom_columns_box = QGroupBox('Custom Columns:')
-		self.l.addWidget(self.custom_columns_box)
-		self.custom_columns_layout = QGridLayout()
-		self.custom_columns_box.setLayout(self.custom_columns_layout)
-
+		lc = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
 		# Artists
-		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], 1, 0)
-		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], 1, 2)
-		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], 2, 0)
-		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], 2, 2)
-		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], 3, 0)
-		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], 3, 2)
+		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], lc, 1, 0)
+		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], lc, 1, 2)
+		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], lc, 2, 0)
+		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], lc, 2, 2)
+		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], lc, 3, 0)
+		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], lc, 3, 2)
 
 		# ----------------------------------------------------------------------
 		# Options
-		self.cfg_box = QGroupBox('Options:')
-		self.l.addWidget(self.cfg_box)
-		self.cfg_layout = QGridLayout()
-		self.cfg_box.setLayout(self.cfg_layout)
-
-		self.make_checkbox("cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], 1, 0)
-		self.make_checkbox("cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], 1, 1)
-		self.make_checkbox("convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], 2, 0)
-		self.make_checkbox("convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], 2, 1)
-		self.make_checkbox("delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], 3, 0)
-		self.make_checkbox("extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], 3, 1)
+		lo = self.make_groupbox("cfg_box", 'Options:', self.l)
+		self.make_checkbox("cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], lo, 1, 0)
+		self.make_checkbox("cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], lo, 1, 1)
+		self.make_checkbox("convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], lo, 2, 0)
+		self.make_checkbox("convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], lo, 2, 1)
+		self.make_checkbox("delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], lo, 3, 0)
+		self.make_checkbox("extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], lo, 3, 1)
 
 	def save_settings(self):
 		# Save custom columns
@@ -84,7 +76,7 @@ class ConfigWidget(QWidget):
 		prefs['cover_artist_column'] = self.cover_artist_column.get_selected_column()
 		prefs['editor_column'] = self.editor_column.get_selected_column()
 
-		# Save default Options
+		# Save Options
 		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
 		prefs['cix_embed'] = self.cix_checkbox.isChecked()
 		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
@@ -92,26 +84,35 @@ class ConfigWidget(QWidget):
 		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
 		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
 
-	def make_checkbox(self, name, title, pref, grid_row, grid_column):
-		setattr(self, name, QCheckBox(title, self))
-		checkbox = getattr(self, name)
-		checkbox.setChecked(pref)
-		self.cfg_layout.addWidget(checkbox, grid_row, grid_column)
+	def make_groupbox(self, name, title, parent):
+		groupbox = QGroupBox('Custom Columns:', self)
+		setattr(self, name, groupbox)
+		parent.addWidget(groupbox)
+		groupbox_layout = QGridLayout()
+		setattr(self, name + "_layout", groupbox_layout)
+		groupbox.setLayout(groupbox_layout)
+		return groupbox_layout
 
-	def make_columnbox(self, name, label_text, pref, column_types, grid_row, grid_column):
+	def make_checkbox(self, name, title, pref, parent, grid_row, grid_column):
+		checkbox = QCheckBox(title, self)
+		setattr(self, name, checkbox)
+		checkbox.setChecked(pref)
+		parent.addWidget(checkbox, grid_row, grid_column)
+
+	def make_columnbox(self, name, label_text, pref, column_types, parent, grid_row, grid_column):
 		# label
-		setattr(self, name + "label", QLabel(label_text))
-		column_label = getattr(self, name + "label")
+		column_label = QLabel(label_text, self)
+		setattr(self, name + "label", column_label)
 
 		# columnbox
 		available_columns = self.get_custom_columns(column_types)
-		setattr(self, name, self.CustomColumnComboBox(self, available_columns, pref))
-		column_box = getattr(self, name)
+		column_box = self.CustomColumnComboBox(self, available_columns, pref)
+		setattr(self, name, column_box)
 
 		# put together and add
 		column_label.setBuddy(column_box)
-		self.custom_columns_layout.addWidget(column_label, grid_row, grid_column)
-		self.custom_columns_layout.addWidget(column_box, grid_row, grid_column + 1)
+		parent.addWidget(column_label, grid_row, grid_column)
+		parent.addWidget(column_box, grid_row, grid_column + 1)
 
 	def get_custom_columns(self, column_types=[]):
 		'''
