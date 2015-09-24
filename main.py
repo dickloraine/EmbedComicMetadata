@@ -135,18 +135,18 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	role = partial(set_role, credits=overlay_metadata.credits)
 	update_field = partial(update_comic_field, target=overlay_metadata)
 
-	update_field(calibre_metadata.title, "title")
+	update_field("title", calibre_metadata.title)
 	role("Writer", calibre_metadata.authors)
-	update_field(calibre_metadata.series, "series")
-	update_field(calibre_metadata.series_index, "issue")
-	update_field(calibre_metadata.tags, "tags")
-	update_field(calibre_metadata.publisher, "publisher")
-	update_field(html2text(calibre_metadata.comments), "comments")
-	update_field(calibre_metadata.pubdate.year, "year", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
-	update_field(calibre_metadata.pubdate.month, "month", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
-	update_field(calibre_metadata.pubdate.day, "day", equal=calibre_metadata.pubdate != UNDEFINED_DATE)
-	update_field(calibre_metadata.rating, "criticalRating")
-	update_field(lang_as_iso639_1(calibre_metadata.language), "language")
+	update_field("series", calibre_metadata.series)
+	update_field("issue", calibre_metadata.series_index)
+	update_field("tags", calibre_metadata.tags)
+	update_field("publisher", calibre_metadata.publisher)
+	update_field("comments", html2text(calibre_metadata.comments))
+	update_field("year", calibre_metadata.pubdate.year, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field("month", calibre_metadata.pubdate.month, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field("day", calibre_metadata.pubdate.day, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
+	update_field("criticalRating", calibre_metadata.rating)
+	update_field("language", lang_as_iso639_1(calibre_metadata.language))
 
 	# custom columns
 	field = partial(ia.db.field_for, book_id=j["BOOK_ID"])
@@ -159,12 +159,12 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	role("CoverArtist", field(prefs['cover_artist_column']))
 	role("Editor", field(prefs['editor_column']))
 	# others
-	update_field(field(prefs['storyarc_column']), "storyArc")
-	update_field(field(prefs['characters_column']), "characters")
-	update_field(field(prefs['teams_column']), "teams")
-	update_field(field(prefs['locations_column']), "locations")
-	update_field(field(prefs['volume_column']), "volume")
-	update_field(field(prefs['genre_column']), "genre")
+	update_field("storyArc", field(prefs['storyarc_column']))
+	update_field("characters", field(prefs['characters_column']))
+	update_field("teams", field(prefs['teams_column']))
+	update_field("locations", field(prefs['locations_column']))
+	update_field("volume", field(prefs['volume_column']))
+	update_field("genre", field(prefs['genre_column']))
 
 	return overlay_metadata
 
@@ -231,12 +231,12 @@ def update_calibre_metadata(ia, comic_metadata):
 			calibre_metadata.title = ""
 
 	# simple metadata
-	update_field(role(WRITER), "authors")
-	update_field(comic_metadata.series, "series")
-	update_field(calibre_langcode_to_name(comic_metadata.language), "language", equal=comic_metadata.language)
-	update_field(comic_metadata.criticalRating, "rating")
-	update_field(comic_metadata.publisher, "publisher")
-	update_field(comic_metadata.comments.strip(), "comments", equal=comic_metadata.comments)
+	update_field("authors", role(WRITER))
+	update_field("series", comic_metadata.series)
+	update_field("language", calibre_langcode_to_name(comic_metadata.language), equal=comic_metadata.language)
+	update_field("rating", comic_metadata.criticalRating)
+	update_field("publisher", comic_metadata.publisher)
+	update_field("comments", comic_metadata.comments.strip(), equal=comic_metadata.comments)
 
 	# special cases
 	# issue
@@ -416,12 +416,12 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 	return cbi_metadata
 
 
-def update_comic_field(source, name, target, equal=True):
+def update_comic_field(field, source, target, equal=True):
 	if equal and source:
-		setattr(target, name, source)
+		setattr(target, field, source)
 
 
-def update_calibre_field(source, field, target, equal=True):
+def update_calibre_field(field, source, target, equal=True):
 	if equal and source:
 		target.set(field, source)
 
