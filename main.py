@@ -224,7 +224,7 @@ def update_calibre_metadata(ia, comic_metadata):
 	update_field = partial(update_calibre_field, target=calibre_metadata)
 
 	# Get title, if no title, try to assign series infos
-	update_field(comic_metadata.title, "title")
+	update_field("title", comic_metadata.title)
 	if not comic_metadata.title:
 		# try to find a series
 		if comic_metadata.series:
