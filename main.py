@@ -471,6 +471,7 @@ def set_role(role, persons, credits):
 	if persons and len(persons) > 0:
 		for person in persons:
 			credit = dict()
+			person = swap_author_names_back(person)
 			credit['person'] = person
 			credit['role'] = role
 			credits.append(credit)
@@ -497,6 +498,15 @@ def swap_author_names(author):
 		name_parts = author.strip().partition(' ')
 		return name_parts[2].strip() + ', ' + name_parts[0]
 	return author
+
+
+def swap_author_names_back(author):
+	if author is None:
+		return author
+	if author.find(',') == -1:
+		return author
+	name_parts = author.strip().partition(',')
+	return name_parts[2].strip() + ' ' + name_parts[0]
 
 
 def convert_cbr_to_cbz(ia, j):

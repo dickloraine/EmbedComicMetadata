@@ -112,19 +112,6 @@ class ComicInfoXml:
         credit_cover_list     = list()
         credit_editor_list    = list()
 
-        if md.characters:
-            characters_list = md.characters
-        else:
-            characters_list = list()
-        if md.teams:
-            teams_list = md.teams
-        else:
-            teams_list = list()
-        if md.locations:
-            locations_list = md.locations
-        else:
-            locations_list = list()
-
         # first, loop thru credits, and build a list for each role that CIX supports
         for credit in metadata.credits:
 
@@ -178,18 +165,6 @@ class ComicInfoXml:
             node = ET.SubElement(root, 'Editor')
             node.text = listToString( credit_editor_list )
 
-        if len( characters_list ) > 0:
-            node = ET.SubElement(root, 'Characters')
-            node.text = listToString( characters_list )
-
-        if len( teams_list ) > 0:
-            node = ET.SubElement(root, 'Teams')
-            node.text = listToString( teams_list )
-
-        if len( locations_list ) > 0:
-            node = ET.SubElement(root, 'Locations')
-            node.text = listToString( locations_list )
-
         assign( 'Publisher', md.publisher )
         assign( 'Imprint', md.imprint )
         assign( 'Genre', md.genre )
@@ -201,6 +176,9 @@ class ComicInfoXml:
         if md.blackAndWhite is not None and md.blackAndWhite:
             ET.SubElement(root, 'BlackAndWhite').text = "Yes"
         assign( 'Manga', md.manga )
+        assign( 'Characters', md.characters )
+        assign( 'Teams', md.teams )
+        assign( 'Locations', md.locations )
         assign( 'ScanInformation', md.scanInfo )
 
         #  loop and add the page entries under pages node
