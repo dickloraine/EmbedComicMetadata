@@ -447,6 +447,8 @@ def get_role(role, credits):
 	for credit in credits:
 		if credit['role'].lower() in role:
 			persons.append(credit['person'])
+	if prefs['swap_names']:
+		persons = swap_authors_names(persons)
 	persons.sort()
 	return persons
 
@@ -458,6 +460,23 @@ def set_role(role, persons, credits):
 			credit['person'] = person
 			credit['role'] = role
 			credits.append(credit)
+
+
+def swap_authors_names(authors):
+	swaped_authors = []
+	for author in authors:
+		author = swap_author_names(author)
+		swaped_authors.append(author)
+	return swaped_authors
+
+
+def swap_author_names(author):
+	if author is None:
+		return author
+	if author.find(',') == -1:
+		name_parts = author.strip().partition(' ')
+		return name_parts[2].strip() + ', ' + name_parts[0]
+	return author
 
 
 def convert_cbr_to_cbz(ia, j):
