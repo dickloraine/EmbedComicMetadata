@@ -132,9 +132,11 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 
 	overlay_metadata = GenericMetadata()
 
+	# shorten some functions
 	role = partial(set_role, credits=overlay_metadata.credits)
 	update_field = partial(update_comic_field, target=overlay_metadata)
 
+	# update the fields of comic metadata
 	update_field("title", calibre_metadata.title)
 	role("Writer", calibre_metadata.authors)
 	update_field("series", calibre_metadata.series)
@@ -220,6 +222,7 @@ def update_calibre_metadata(ia, comic_metadata):
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
 
+	# shorten some functions
 	role = partial(get_role, credits=comic_metadata.credits)
 	update_field = partial(update_calibre_field, target=calibre_metadata)
 
@@ -422,16 +425,25 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 
 
 def update_comic_field(field, source, target):
+	'''
+	Sets the attribute field of target to the value of source
+	'''
 	if source:
 		setattr(target, field, source)
 
 
 def update_calibre_field(field, source, target):
+	'''
+	Sets the attribute field of target to the value of source
+	'''
 	if source:
 		target.set(field, source)
 
 
 def update_custom_column(col_name, value, calibre_metadata, custom_cols):
+	'''
+	Updates the given custom column with the name of col_name to value
+	'''
 	if col_name and value:
 		col = custom_cols[col_name]
 		col['#value#'] = value
@@ -453,6 +465,9 @@ def get_role(role, credits):
 
 
 def set_role(role, persons, credits):
+	'''
+	Sets all persons with the given role to credits
+	'''
 	if persons and len(persons) > 0:
 		for person in persons:
 			credit = dict()
@@ -462,6 +477,9 @@ def set_role(role, persons, credits):
 
 
 def swap_authors_names(authors):
+	'''
+	Swaps the names of all names in authors to "LN, FN"
+	'''
 	swaped_authors = []
 	for author in authors:
 		author = swap_author_names(author)
@@ -470,6 +488,9 @@ def swap_authors_names(authors):
 
 
 def swap_author_names(author):
+	'''
+	Swaps the name of the given author to "LN, FN"
+	'''
 	if author is None:
 		return author
 	if author.find(',') == -1:
