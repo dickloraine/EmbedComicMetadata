@@ -83,7 +83,7 @@ class ConfigWidget(QWidget):
 		self.make_checkbox("convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], lo, 2, 1)
 		self.make_checkbox("delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], lo, 3, 0)
 		self.make_checkbox("extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], lo, 3, 1)
-		self.make_checkbox("swap_names_checkbox", 'Swap names when importing metadata', prefs['swap_names'], lo, 4, 0)
+		self.make_checkbox("swap_names_checkbox", 'Swap names to "LN, FN" when importing metadata', prefs['swap_names'], lo, 4, 0)
 
 	def save_settings(self):
 		# Save custom columns
