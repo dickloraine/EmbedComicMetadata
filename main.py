@@ -141,10 +141,6 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	update_field("issue", calibre_metadata.series_index)
 	update_field("tags", calibre_metadata.tags)
 	update_field("publisher", calibre_metadata.publisher)
-	update_field("comments", html2text(calibre_metadata.comments), equal=calibre_metadata.comments)
-	update_field("year", calibre_metadata.pubdate.year, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
-	update_field("month", calibre_metadata.pubdate.month, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
-	update_field("day", calibre_metadata.pubdate.day, equal=calibre_metadata.pubdate != UNDEFINED_DATE)
 	update_field("criticalRating", calibre_metadata.rating)
 	update_field("language", lang_as_iso639_1(calibre_metadata.language))
 	# need to check for None
