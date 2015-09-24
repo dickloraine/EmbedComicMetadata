@@ -449,7 +449,6 @@ def get_role(role, credits):
 			persons.append(credit['person'])
 	if prefs['swap_names']:
 		persons = swap_authors_names(persons)
-	persons.sort()
 	return persons
 
 
