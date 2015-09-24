@@ -316,9 +316,9 @@ def embed_cix_metadata(ffile, overlay_metadata):
 
 	# save the metadata in the file
 	if cix_file is not None:
-		zf.replacestr(cix_file, cix_metadata)
+		zf.replacestr(cix_file, cix_metadata.decode('utf-8', 'ignore'))
 	else:
-		zf.writestr("ComicInfo.xml", cix_metadata)
+		zf.writestr("ComicInfo.xml", cix_metadata.decode('utf-8', 'ignore'))
 
 	# close the zipfile
 	zf.close()
