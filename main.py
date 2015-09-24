@@ -142,10 +142,11 @@ def get_overlay_metadata(ia, j, calibre_metadata):
 	update_field("tags", calibre_metadata.tags)
 	update_field("publisher", calibre_metadata.publisher)
 	update_field("criticalRating", calibre_metadata.rating)
-	update_field("language", lang_as_iso639_1(calibre_metadata.language))
 	# need to check for None
 	if calibre_metadata.comments:
 		update_field("comments", html2text(calibre_metadata.comments))
+	if calibre_metadata.language:
+		update_field("language", lang_as_iso639_1(calibre_metadata.language))
 	if calibre_metadata.pubdate != UNDEFINED_DATE:
 		update_field("year", calibre_metadata.pubdate.year)
 		update_field("month", calibre_metadata.pubdate.month)
