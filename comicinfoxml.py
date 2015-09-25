@@ -170,6 +170,7 @@ class ComicInfoXml:
         md.characters = tuple_to_string(md.characters)
         md.teams = tuple_to_string(md.teams)
         md.locations = tuple_to_string(md.locations)
+        md.genre = tuple_to_string(md.genre)
 
         assign( 'Publisher', md.publisher )
         assign( 'Imprint', md.imprint )
