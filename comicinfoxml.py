@@ -165,6 +165,12 @@ class ComicInfoXml:
             node = ET.SubElement(root, 'Editor')
             node.text = listToString( credit_editor_list )
 
+        # calibre custom columns like tags return tuples, so we need to handle
+        # these specially
+        md.characters = tuple_to_string(md.characters)
+        md.teams = tuple_to_string(md.teams)
+        md.locations = tuple_to_string(md.locations)
+
         assign( 'Publisher', md.publisher )
         assign( 'Imprint', md.imprint )
         assign( 'Genre', md.genre )
@@ -289,6 +295,7 @@ class ComicInfoXml:
         tree = ET.parse( filename )
         return self.convertXMLToMetadata( tree )
 
+
 def listToString( l ):
     string = ""
     if l is not None:
@@ -297,3 +304,14 @@ def listToString( l ):
                 string += ", "
             string += item
     return string
+
+
+def tuple_to_string(metadata):
+    if metadata and not (isinstance(metadata, str) or isinstance(metadata, unicode)):
+        string = ""
+        for item in metadata:
+            if len(string) > 0:
+                string += ", "
+            string += item
+        return string
+    return metadata
