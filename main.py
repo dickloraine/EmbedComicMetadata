@@ -496,7 +496,8 @@ def swap_author_names(author):
 		return author
 	if author.find(',') == -1:
 		name_parts = author.strip().partition(' ')
-		return name_parts[2].strip() + ', ' + name_parts[0]
+		if name_parts[2].strip():
+			return name_parts[2].strip() + ', ' + name_parts[0]
 	return author
 
 
