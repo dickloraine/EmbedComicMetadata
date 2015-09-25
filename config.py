@@ -55,24 +55,28 @@ class ConfigWidget(QWidget):
 
 		# ----------------------------------------------------------------------
 		# Custom Columns
+		# Define some column types
+		self.PERSON_TYPE = {"is_multiple": True, "is_names": True}
+		self.TAG_TYPE = {"is_multiple": True, "is_names": False}
+		self.SINGLE_TYPE = {"is_multiple": False, "is_names": False}
 
 		# Artists
 		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
-		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], ["text"], lca, 1, 0)
-		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], ["text"], lca, 1, 2)
-		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], ["text"], lca, 2, 0)
-		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], ["text"], lca, 2, 2)
-		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], ["text"], lca, 3, 0)
-		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], ["text"], lca, 3, 2)
+		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], self.PERSON_TYPE, lca, 1, 0)
+		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], self.PERSON_TYPE, lca, 1, 2)
+		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], self.PERSON_TYPE, lca, 2, 0)
+		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], self.PERSON_TYPE, lca, 2, 2)
+		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], self.PERSON_TYPE, lca, 3, 0)
+		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], self.PERSON_TYPE, lca, 3, 2)
 
 		# Others
 		lco = self.make_groupbox("other_custom_columns_box", 'Other Custom Columns:', self.l)
-		self.make_columnbox("storyarc_column", 'Story Arc Column:', prefs['storyarc_column'], ["text"], lco, 1, 0)
-		self.make_columnbox("characters_column", 'Characters Column:', prefs['characters_column'], ["text"], lco, 1, 2)
-		self.make_columnbox("teams_column", 'Teams Column:', prefs['teams_column'], ["text"], lco, 2, 0)
-		self.make_columnbox("locations_column", 'Locations Column:', prefs['locations_column'], ["text"], lco, 2, 2)
-		self.make_columnbox("volume_column", 'Volume Column:', prefs['volume_column'], ["text"], lco, 3, 0)
-		self.make_columnbox("genre_column", 'Genre Column:', prefs['genre_column'], ["text"], lco, 3, 2)
+		self.make_columnbox("storyarc_column", 'Story Arc Column:', prefs['storyarc_column'], self.SINGLE_TYPE, lco, 1, 0)
+		self.make_columnbox("characters_column", 'Characters Column:', prefs['characters_column'], self.TAG_TYPE, lco, 1, 2)
+		self.make_columnbox("teams_column", 'Teams Column:', prefs['teams_column'], self.TAG_TYPE, lco, 2, 0)
+		self.make_columnbox("locations_column", 'Locations Column:', prefs['locations_column'], self.TAG_TYPE, lco, 2, 2)
+		self.make_columnbox("volume_column", 'Volume Column:', prefs['volume_column'], self.SINGLE_TYPE, lco, 3, 0)
+		self.make_columnbox("genre_column", 'Genre Column:', prefs['genre_column'], self.TAG_TYPE, lco, 3, 2)
 
 		# ----------------------------------------------------------------------
 		# Options
@@ -124,13 +128,13 @@ class ConfigWidget(QWidget):
 		checkbox.setChecked(pref)
 		parent.addWidget(checkbox, grid_row, grid_column)
 
-	def make_columnbox(self, name, label_text, pref, column_types, parent, grid_row, grid_column):
+	def make_columnbox(self, name, label_text, pref, column_type, parent, grid_row, grid_column):
 		# label
 		column_label = QLabel(label_text, self)
 		setattr(self, name + "label", column_label)
 
 		# columnbox
-		available_columns = self.get_custom_columns(column_types)
+		available_columns = self.get_custom_columns(column_type)
 		column_box = self.CustomColumnComboBox(self, available_columns, pref)
 		setattr(self, name, column_box)
 
@@ -139,15 +143,22 @@ class ConfigWidget(QWidget):
 		parent.addWidget(column_label, grid_row, grid_column)
 		parent.addWidget(column_box, grid_row, grid_column + 1)
 
-	def get_custom_columns(self, column_types=[]):
+	def get_custom_columns(self, column_type):
 		'''
-		Gets matching custom columns for the types in the list column_types
+		Gets matching custom columns for column_type
 		'''
 		custom_columns = self.ia.gui.library_view.model().custom_columns
 		available_columns = {}
 		for key, column in custom_columns.iteritems():
-			typ = column['datatype']
-			if typ in column_types:
+			if column['datatype'] != "text":
+				continue
+			is_multiple = column_type["is_multiple"]
+			is_names = column['display'].get('is_names', False)
+			if column_type == self.PERSON_TYPE and is_multiple and is_names:
+				available_columns[key] = column
+			elif column_type == self.TAG_TYPE and is_multiple and not is_names:
+				available_columns[key] = column
+			elif column_type == self.SINGLE_TYPE and not is_multiple and not is_names:
 				available_columns[key] = column
 		return available_columns
 
