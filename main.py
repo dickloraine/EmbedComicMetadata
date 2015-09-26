@@ -494,20 +494,25 @@ def swap_author_names(author):
 	'''
 	if author is None:
 		return author
-	if author.find(',') == -1:
-		name_parts = author.strip().partition(' ')
-		if name_parts[2].strip():
-			return name_parts[2].strip() + ', ' + name_parts[0]
-	return author
+	if ',' in author:
+		return author
+	parts = author.split(None)
+	if len(parts) <= 1:
+		return author
+	surname = parts[-1]
+	return '%s, %s' % (surname, ' '.join(parts[:-1]))
 
 
 def swap_author_names_back(author):
 	if author is None:
 		return author
-	if author.find(',') == -1:
-		return author
-	name_parts = author.strip().partition(',')
-	return name_parts[2].strip() + ' ' + name_parts[0]
+	if ',' in author:
+		parts = author.split(',')
+		if len(parts) <= 1:
+			return author
+		surname = parts[0]
+		return '%s %s' % (' '.join(parts[1:]), surname)
+	return author
 
 
 def convert_cbr_to_cbz(ia, j):
