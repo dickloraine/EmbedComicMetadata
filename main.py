@@ -254,8 +254,8 @@ def update_calibre_metadata(ia, comic_metadata):
 		else:
 			calibre_metadata.series_index = float(comic_metadata.issue)
 	# pub date
-	puby = comic_metadata.year
-	pubm = comic_metadata.month
+	puby = int(comic_metadata.year)
+	pubm = int(comic_metadata.month)
 	if puby is not None:
 		try:
 			dt = date(puby, 6 if pubm is None else pubm, 15)
