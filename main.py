@@ -2,6 +2,7 @@
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 from calibre.utils.zipfile import ZipFile
 from calibre.gui2 import error_dialog, info_dialog
 
@@ -16,7 +17,6 @@ def update_metadata(ia, do_action): 	# ia = interface action
 	Redirects and handles the action indicated by "do_action"
 	The main function for the plugin
 	'''
-
 	# get the db from calibre, to get metadata etc
 	ia.db = ia.gui.current_db.new_api
 
@@ -94,7 +94,6 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	'''
 	Set the metadata in the file to	match the current metadata in the database.
 	'''
-
 	# convert if option is on
 	if prefs['convert_cbr']:
 		convert_cbr_to_cbz(ia, j)
@@ -108,7 +107,7 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	ffile = ia.db.format(j["BOOK_ID"], "cbz", as_path=True)
 
 	# now copy the calibre metadata to comictagger compatible metadata
-	overlay_metadata = get_overlay_metadata(calibre_metadata)
+	overlay_metadata = get_overlay_metadata(ia, j, calibre_metadata)
 
 	# embed the comicinfo.xml
 	if j["ACTION"] == "both" or j["ACTION"] == "cix":
@@ -123,52 +122,55 @@ def embed_comic_metadata(ia, j, calibre_metadata):
 	j["PROCESSED"].append(j["INFO"])
 
 
-def get_overlay_metadata(calibre_metadata):
+def get_overlay_metadata(ia, j, calibre_metadata):
 	'''
 	Copies calibres metadata to comictagger compatible metadata
 	'''
-
 	from calibre.utils.html2text import html2text
 	from calibre.utils.date import UNDEFINED_DATE
 	from calibre.utils.localization import lang_as_iso639_1
 
 	overlay_metadata = GenericMetadata()
 
-	if calibre_metadata.title:
-		overlay_metadata.title = calibre_metadata.title
+	# shorten some functions
+	role = partial(set_role, credits=overlay_metadata.credits)
+	update_field = partial(update_comic_field, target=overlay_metadata)
 
-	if len(calibre_metadata.authors) > 0:
-		for author in calibre_metadata.authors:
-			credit = dict()
-			credit['person'] = author
-			credit['role'] = "Writer"
-			overlay_metadata.credits.append(credit)
-
-	if calibre_metadata.series:
-		overlay_metadata.series = calibre_metadata.series
-
-	if calibre_metadata.series_index:
-		overlay_metadata.issue = calibre_metadata.series_index
-
-	if len(calibre_metadata.tags) > 0:
-		overlay_metadata.tags = calibre_metadata.tags
-
-	if calibre_metadata.publisher:
-		overlay_metadata.publisher = calibre_metadata.publisher
-
+	# update the fields of comic metadata
+	update_field("title", calibre_metadata.title)
+	role("Writer", calibre_metadata.authors)
+	update_field("series", calibre_metadata.series)
+	update_field("issue", calibre_metadata.series_index)
+	update_field("tags", calibre_metadata.tags)
+	update_field("publisher", calibre_metadata.publisher)
+	update_field("criticalRating", calibre_metadata.rating)
+	# need to check for None
 	if calibre_metadata.comments:
-		overlay_metadata.comments = html2text(calibre_metadata.comments)
-
-	if calibre_metadata.pubdate != UNDEFINED_DATE:
-		overlay_metadata.year = calibre_metadata.pubdate.year
-		overlay_metadata.month = calibre_metadata.pubdate.month
-		overlay_metadata.day = calibre_metadata.pubdate.day
-
+		update_field("comments", html2text(calibre_metadata.comments))
 	if calibre_metadata.language:
-		overlay_metadata.language = lang_as_iso639_1(calibre_metadata.language)
+		update_field("language", lang_as_iso639_1(calibre_metadata.language))
+	if calibre_metadata.pubdate != UNDEFINED_DATE:
+		update_field("year", calibre_metadata.pubdate.year)
+		update_field("month", calibre_metadata.pubdate.month)
+		update_field("day", calibre_metadata.pubdate.day)
 
-	if calibre_metadata.rating:
-		overlay_metadata.criticalRating = calibre_metadata.rating
+	# custom columns
+	field = partial(ia.db.field_for, book_id=j["BOOK_ID"])
+
+	# artists
+	role("Penciller", field(prefs['penciller_column']))
+	role("Inker", field(prefs['inker_column']))
+	role("Colorist", field(prefs['colorist_column']))
+	role("Letterer", field(prefs['letterer_column']))
+	role("CoverArtist", field(prefs['cover_artist_column']))
+	role("Editor", field(prefs['editor_column']))
+	# others
+	update_field("storyArc", field(prefs['storyarc_column']))
+	update_field("characters", field(prefs['characters_column']))
+	update_field("teams", field(prefs['teams_column']))
+	update_field("locations", field(prefs['locations_column']))
+	update_field("volume", field(prefs['volume_column']))
+	update_field("genre", field(prefs['genre_column']))
 
 	return overlay_metadata
 
@@ -191,30 +193,41 @@ def write_calibre_metadata(ia, j):
 		return
 
 	# update calibres metadata with the comic_metadata
-	calibre_metadata = update_calibre_metadata(comic_metadata)
+	calibre_metadata = update_calibre_metadata(ia, comic_metadata)
 
 	# write the metadata to the database
 	ia.db.set_metadata(j["BOOK_ID"], calibre_metadata)
 	j["PROCESSED"].append(j["INFO"])
 
 
-def update_calibre_metadata(comic_metadata):
+def update_calibre_metadata(ia, comic_metadata):
 	'''
 	Maps the entries in the comic_metadata to calibre metadata
 	'''
-
 	import unicodedata
 	from calibre.ebooks.metadata import MetaInformation
 	from calibre.utils.date import parse_only_date
 	from datetime import date
 	from calibre.utils.localization import calibre_langcode_to_name
 
+	# synonyms for artists
+	WRITER = ['writer', 'plotter', 'scripter']
+	PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
+	INKER = ['inker', 'artist', 'finishes']
+	COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
+	LETTERER = ['letterer']
+	COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
+	EDITOR = ['editor']
+
 	# start with a fresh calibre metadata
 	calibre_metadata = MetaInformation(None, None)
 
-	if comic_metadata.title:
-		calibre_metadata.title = comic_metadata.title
+	# shorten some functions
+	role = partial(get_role, credits=comic_metadata.credits)
+	update_field = partial(update_calibre_field, target=calibre_metadata)
 
+	# Get title, if no title, try to assign series infos
+	update_field("title", comic_metadata.title)
 	if not comic_metadata.title:
 		# try to find a series
 		if comic_metadata.series:
@@ -224,32 +237,25 @@ def update_calibre_metadata(comic_metadata):
 		else:
 			calibre_metadata.title = ""
 
-	if comic_metadata.credits:
-		calibre_metadata.authors = []
-		for credit in comic_metadata.credits:
-			if credit['role'] == "Writer":
-				calibre_metadata.authors.append(credit['person'])
-
-	if comic_metadata.series:
-		calibre_metadata.series = comic_metadata.series
-
+	# simple metadata
+	update_field("authors", role(WRITER))
+	update_field("series", comic_metadata.series)
+	update_field("rating", comic_metadata.criticalRating)
+	update_field("publisher", comic_metadata.publisher)
+	# special cases
+	if comic_metadata.language:
+		update_field("language", calibre_langcode_to_name(comic_metadata.language))
+	if comic_metadata.comments:
+		update_field("comments", comic_metadata.comments.strip())
+	# issue
 	if comic_metadata.issue:
 		if isinstance(comic_metadata.issue, unicode):
 			calibre_metadata.series_index = unicodedata.numeric(comic_metadata.issue)
 		else:
 			calibre_metadata.series_index = float(comic_metadata.issue)
-
-	if comic_metadata.tags:
-		calibre_metadata.tags = comic_metadata.tags
-
-	if comic_metadata.publisher:
-		calibre_metadata.publisher = comic_metadata.publisher
-
-	if comic_metadata.comments and comic_metadata.comments.strip():
-		calibre_metadata.comments = comic_metadata.comments.strip()
-
-	puby = comic_metadata.year
-	pubm = comic_metadata.month
+	# pub date
+	puby = int(comic_metadata.year)
+	pubm = int(comic_metadata.month)
 	if puby is not None:
 		try:
 			dt = date(puby, 6 if pubm is None else pubm, 15)
@@ -257,11 +263,24 @@ def update_calibre_metadata(comic_metadata):
 			calibre_metadata.pubdate = dt
 		except:
 			pass
-	if comic_metadata.language:
-		calibre_metadata.language = calibre_langcode_to_name(comic_metadata.language)
 
-	if comic_metadata.criticalRating:
-		calibre_metadata.rating = comic_metadata.criticalRating
+	# custom columns
+	custom_cols = ia.db.field_metadata.custom_field_metadata()
+	update_column = partial(update_custom_column, calibre_metadata=calibre_metadata, custom_cols=custom_cols)
+	# artists
+	update_column(prefs['penciller_column'], role(PENCILLER))
+	update_column(prefs['inker_column'], role(INKER))
+	update_column(prefs['colorist_column'], role(COLORIST))
+	update_column(prefs['letterer_column'], role(LETTERER))
+	update_column(prefs['cover_artist_column'], role(COVER_ARTIST))
+	update_column(prefs['editor_column'], role(EDITOR))
+	# others
+	update_column(prefs['storyarc_column'], comic_metadata.storyArc)
+	update_column(prefs['characters_column'], comic_metadata.characters)
+	update_column(prefs['teams_column'], comic_metadata.teams)
+	update_column(prefs['locations_column'], comic_metadata.locations)
+	update_column(prefs['volume_column'], comic_metadata.volume)
+	update_column(prefs['genre_column'], comic_metadata.genre)
 
 	return calibre_metadata
 
@@ -271,7 +290,6 @@ def embed_cix_metadata(ffile, overlay_metadata):
 	Embeds the cix_metadata into the given file,
 	overlayed with overlay_metadata
 	'''
-
 	# open the zipfile with append option
 	zf = ZipFile(ffile, "a")
 
@@ -298,9 +316,9 @@ def embed_cix_metadata(ffile, overlay_metadata):
 
 	# save the metadata in the file
 	if cix_file is not None:
-		zf.replacestr(cix_file, cix_metadata)
+		zf.replacestr(cix_file, cix_metadata.decode('utf-8', 'ignore'))
 	else:
-		zf.writestr("ComicInfo.xml", cix_metadata)
+		zf.writestr("ComicInfo.xml", cix_metadata.decode('utf-8', 'ignore'))
 
 	# close the zipfile
 	zf.close()
@@ -311,7 +329,6 @@ def embed_cbi_metadata(ffile, overlay_metadata):
 	Embeds the cbi_metadata into the given file,
 	overlayed with overlay_metadata
 	'''
-
 	# get cbi metadata from the zip comment
 	zf = ZipFile(ffile)
 	cbi_metadata = zf.comment
@@ -345,7 +362,6 @@ def get_comic_metadata_from_cbz(ia, j):
 	Reads the comic metadata from the comic cbz file as comictagger metadata
 	and returns the metadata depending on do_action
 	'''
-
 	cix_metadata = None
 	cbi_metadata = None
 	ffile = ia.db.format(j["BOOK_ID"], "cbz", as_path=True)
@@ -372,7 +388,6 @@ def get_comic_metadata_from_cbr(ia, j):
 	Reads the comic metadata from the comic cbr file as comictagger metadata
 	and returns the metadata depending on do_action
 	'''
-
 	from calibre.utils.unrar import RARFile, extract_member, names
 
 	cix_metadata = None
@@ -409,11 +424,101 @@ def get_combined_metadata(cix_metadata, cbi_metadata):
 	return cbi_metadata
 
 
+def update_comic_field(field, source, target):
+	'''
+	Sets the attribute field of target to the value of source
+	'''
+	if source:
+		setattr(target, field, source)
+
+
+def update_calibre_field(field, source, target):
+	'''
+	Sets the attribute field of target to the value of source
+	'''
+	if source:
+		target.set(field, source)
+
+
+def update_custom_column(col_name, value, calibre_metadata, custom_cols):
+	'''
+	Updates the given custom column with the name of col_name to value
+	'''
+	if col_name and value:
+		col = custom_cols[col_name]
+		col['#value#'] = value
+		calibre_metadata.set_user_metadata(col_name, col)
+
+
+def get_role(role, credits):
+	'''
+	Gets a list of persons with the given role.
+	First primary persons, then all others, alphabetically
+	'''
+	persons = []
+	for credit in credits:
+		if credit['role'].lower() in role:
+			persons.append(credit['person'])
+	if prefs['swap_names']:
+		persons = swap_authors_names(persons)
+	return persons
+
+
+def set_role(role, persons, credits):
+	'''
+	Sets all persons with the given role to credits
+	'''
+	if persons and len(persons) > 0:
+		for person in persons:
+			credit = dict()
+			person = swap_author_names_back(person)
+			credit['person'] = person
+			credit['role'] = role
+			credits.append(credit)
+
+
+def swap_authors_names(authors):
+	'''
+	Swaps the names of all names in authors to "LN, FN"
+	'''
+	swaped_authors = []
+	for author in authors:
+		author = swap_author_names(author)
+		swaped_authors.append(author)
+	return swaped_authors
+
+
+def swap_author_names(author):
+	'''
+	Swaps the name of the given author to "LN, FN"
+	'''
+	if author is None:
+		return author
+	if ',' in author:
+		return author
+	parts = author.split(None)
+	if len(parts) <= 1:
+		return author
+	surname = parts[-1]
+	return '%s, %s' % (surname, ' '.join(parts[:-1]))
+
+
+def swap_author_names_back(author):
+	if author is None:
+		return author
+	if ',' in author:
+		parts = author.split(',')
+		if len(parts) <= 1:
+			return author
+		surname = parts[0]
+		return '%s %s' % (' '.join(parts[1:]), surname)
+	return author
+
+
 def convert_cbr_to_cbz(ia, j):
 	'''
 	Converts a cbr-comic to a cbz-comic
 	'''
-
 	from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 	from calibre.utils.unrar import RARFile, extract
 
@@ -457,7 +562,6 @@ def writeZipComment(filename, comment):
 	easy to manipulate.  See this website for more info:
 	see: http://en.wikipedia.org/wiki/Zip_(file_format)#Structure
 	'''
-
 	from os import stat
 	from struct import pack
 

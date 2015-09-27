@@ -168,9 +168,10 @@ class GenericMetadata:
     def overlayCredits( self, new_credits, overwrite ):
         # changed for the calibre plugin
         if overwrite:
-            for r in self.credits:
-                if r['role'].lower() == "writer":
-                    self.credits.remove(r)
+            for c in new_credits:
+                for r in self.credits:
+                    if r['role'].lower() == c['role'].lower():
+                        self.credits.remove(r)
 
         for c in new_credits:
             if c.has_key('primary') and c['primary']:
@@ -183,6 +184,7 @@ class GenericMetadata:
                 for r in reversed(self.credits):
                     if r['role'].lower() == c['role'].lower():
                         self.credits.remove(r)
+
             # otherwise, add it!
             else:
                 self.addCredit( c['person'], c['role'], primary )
