@@ -23,7 +23,7 @@ Can automatically convert cbr files to cbz
 
 ### Custom Columns:
 You can make custom columns in calibre and populate them with metadata imported with the plugin.
-In the configuration use the dropdown menu for the columns to selcet what metadata should be written to what custom column.
+In the configuration use the dropdown menu for the columns to select what metadata should be written to what custom column.
 
 The custom columns you make in calibre should be of the following type, depending on the metadata stored in them.
 
