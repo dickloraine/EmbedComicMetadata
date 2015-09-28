@@ -56,9 +56,11 @@ class ConfigWidget(QWidget):
 		# ----------------------------------------------------------------------
 		# Custom Columns
 		# Define some column types
-		self.PERSON_TYPE = {"is_multiple": True, "is_names": True}
-		self.TAG_TYPE = {"is_multiple": True, "is_names": False}
-		self.SINGLE_TYPE = {"is_multiple": False, "is_names": False}
+		self.PERSON_TYPE = {"is_multiple": True, "is_names": True, "datatype": "text"}
+		self.TAG_TYPE = {"is_multiple": True, "is_names": False, "datatype": "text"}
+		self.SINGLE_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
+		self.FLOAT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "float"}
+		self.SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
 
 		# Artists
 		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
@@ -150,15 +152,13 @@ class ConfigWidget(QWidget):
 		custom_columns = self.ia.gui.library_view.model().custom_columns
 		available_columns = {}
 		for key, column in custom_columns.iteritems():
-			if column['datatype'] != "text":
-				continue
-			is_multiple = column_type["is_multiple"]
-			is_names = column['display'].get('is_names', False)
-			if column_type == self.PERSON_TYPE and is_multiple and is_names:
-				available_columns[key] = column
-			elif column_type == self.TAG_TYPE and is_multiple and not is_names:
-				available_columns[key] = column
-			elif column_type == self.SINGLE_TYPE and not is_multiple and not is_names:
+			if column["is_multiple"]:
+				is_multiple = True
+			else:
+				is_multiple = False
+			if (column["datatype"] == column_type["datatype"] and
+					is_multiple == column_type["is_multiple"] and
+					column['display'].get('is_names', False) == column_type['is_names']):
 				available_columns[key] = column
 		return available_columns
 
