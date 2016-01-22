@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
-						print_function)
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QMenu
+    from PyQt5.Qt import QMenu
 except ImportError:
-	from PyQt4.Qt import QMenu
+    from PyQt4.Qt import QMenu
 
 from functools import partial
 
@@ -18,88 +18,86 @@ from functools import partial
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
 
-from calibre_plugins.EmbedComicMetadata.main import update_metadata
 from calibre_plugins.EmbedComicMetadata.config import prefs
+from calibre_plugins.EmbedComicMetadata.setup import CONFIG_NAME, CONFIG_DESCRIPTION, CONFIG_TRIGGER_FUNC, CONFIG_TRIGGER_ARG, map_over_config_items
 
 
 class EmbedComicMetadata(InterfaceAction):
 
-	name = 'Embed Comic Metadata'
+    name = 'Embed Comic Metadata'
 
-	# Declare the main action associated with this plugin
-	action_spec = ('Embed Comic Metadata', None,
-			'Run the Embed Comic Metadata Plugin', None)
+    # Declare the main action associated with this plugin
+    if prefs["main_import"]:
+        action_spec = ('Import Comic Metadata', None,
+                'Imports the metadata from the comic to calibre', None)
+    else:
+        action_spec = ('Embed Comic Metadata', None,
+                'Embeds calibres metadata into the comic', None)
 
-	def genesis(self):
-		# This method is called once per plugin, do initial setup here
-		self.menu = QMenu(self.gui)
-		self.build_menu()
+    def genesis(self):
+        # menu
+        self.menu = QMenu(self.gui)
 
-		# Set the icon for this interface action
-		icon = get_icons('images/icon.png')  # need to import this?
+        # Set the icon for this interface action
+        icon = get_icons('images/icon.png')  # need to import this?
 
-		# The qaction is automatically created from the action_spec defined
-		# above
-		self.qaction.setMenu(self.menu)
-		self.qaction.setIcon(icon)
-		self.qaction.triggered.connect(self.main_menu_triggered)
+        # The qaction is automatically created from the action_spec defined
+        # above
+        self.qaction.setMenu(self.menu)
+        self.qaction.setIcon(icon)
+        self.qaction.triggered.connect(self.main_menu_triggered)
 
-	def build_menu(self):
-		m = self.menu
-		m.clear()
+        # build menu
+        self.menu.clear()
+        map_over_config_items(self.build_menu, "menu", "UI_Action_Items")
+        self.menu_action("configure", "Configure",
+            partial(self.interface_action_base_plugin.do_user_config, (self.gui)))
+        self.toggle_menu_items()
 
-		if prefs['extended_menu']:
-			self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
-			self.create_menu_action(m, "read_cix", "Import Comic Rack Metadata from the comic archive into calibre", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "read_cix"), shortcut_name=None)
-			self.create_menu_action(m, "read_cbi", "Import Comment Metadata from the comic archive into calibre", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "read_cbi"), shortcut_name=None)
-			m.addSeparator()
-			self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
-			self.create_menu_action(m, "embedcbi", "Only embed Metadata in comment", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "cbi"), shortcut_name=None)
-			self.create_menu_action(m, "embedcix", "Only embed Metadata in ComicInfo.xml", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "cix"), shortcut_name=None)
-			self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
-			m.addSeparator()
-			self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
-								description=None, triggered=self.configure_triggered, shortcut_name=None)
-		else:
-			self.create_menu_action(m, "read_both", "Import Metadata from the comic archive into calibre", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "read_both"), shortcut_name=None)
-			self.create_menu_action(m, "embed", "Embed both Comic Metadata types", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "both"), shortcut_name=None)
-			self.create_menu_action(m, "convert", "Only convert cbr to cbz", icon=None, shortcut=None,
-								description=None, triggered=partial(self.sub_menu_triggered, "just_convert"), shortcut_name=None)
-			m.addSeparator()
-			self.create_menu_action(m, "configure", "Configure", icon=None, shortcut=None,
-								description=None, triggered=self.configure_triggered, shortcut_name=None)
+    def build_menu(self, item):
+        if item[CONFIG_NAME] == "seperator":
+            self.menu.addSeparator()
+        else:
+            if item[CONFIG_TRIGGER_ARG]:
+                triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
+            else:
+                triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
+            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
 
-	def main_menu_triggered(self):
-		# Check the preferences for what should be embedded
-		if prefs['cbi_embed'] and prefs['cix_embed']:
-			do_action = "both"
-		elif prefs['cbi_embed']:
-			do_action = "cbi"
-		elif prefs['cix_embed']:
-			do_action = "cix"
-		else:
-			return error_dialog(self.gui, 'Cannot update metadata',
-						'No embed format selected', show=True)
-		# embed the metadata
-		update_metadata(self, do_action)
+    def toggle_menu_items(self):
+        map_over_config_items(self._toggle_menu_items, "menu")
 
-	def sub_menu_triggered(self, do_action):
-		update_metadata(self, do_action)
+    def _toggle_menu_items(self, item):
+        action = getattr(self, item[CONFIG_NAME])
+        action.setVisible(prefs[item[CONFIG_NAME]])
 
-	def configure_triggered(self):
-		self.interface_action_base_plugin.do_user_config(self.gui)
+    def main_menu_triggered(self):
+        from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre
 
-	def apply_settings(self):
-		from calibre_plugins.EmbedComicMetadata.config import prefs
-		# In an actual non trivial plugin, you would probably need to
-		# do something based on the settings in prefs
-		prefs
+        # Check the preferences for what should be done
+        if (prefs['read_cbi'] and prefs['read_cix']) or (prefs['cbi_embed'] and prefs['cix_embed']):
+            action = "both"
+        elif (prefs['read_cbi']) or (prefs['cbi_embed']):
+            action = "cbi"
+        elif (prefs['read_cix']) or (prefs['cix_embed']):
+            action = "cix"
+        else:
+            return error_dialog(self.gui, 'Cannot update metadata',
+                        'No embed format selected', show=True)
+
+        if prefs["main_import"]:
+            import_to_calibre(self, action)
+        else:
+            embed_into_comic(self, action)
+
+    def apply_settings(self):
+        from calibre_plugins.EmbedComicMetadata.config import prefs
+        # In an actual non trivial plugin, you would probably need to
+        # do something based on the settings in prefs
+        prefs
+
+    def menu_action(self, name, title, triggerfunc):
+        action = self.create_menu_action(self.menu, name, title, icon=None,
+            shortcut=None, description=None, triggered=triggerfunc,
+            shortcut_name=None)
+        setattr(self, name, action)

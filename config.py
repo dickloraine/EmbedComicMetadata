@@ -1,18 +1,20 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
-						print_function)
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-	from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel
+    from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
 except ImportError:
-	from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel
+    from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
 
 from calibre.utils.config import JSONConfig
+from calibre_plugins.EmbedComicMetadata.setup import get_configuration, CONFIG_NAME, CONFIG_TITLE, CONFIG_DEFAULT, CONFIG_COLUMN_TYPE
+
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/interface_demo) is also
@@ -21,173 +23,139 @@ from calibre.utils.config import JSONConfig
 # so as to ensure you dont accidentally clobber a calibre config file
 prefs = JSONConfig('plugins/EmbedComicMetadata')
 
-# Set default custom columns
-prefs.defaults['penciller_column'] = None
-prefs.defaults['inker_column'] = None
-prefs.defaults['colorist_column'] = None
-prefs.defaults['letterer_column'] = None
-prefs.defaults['cover_artist_column'] = None
-prefs.defaults['editor_column'] = None
-prefs.defaults['storyarc_column'] = None
-prefs.defaults['characters_column'] = None
-prefs.defaults['teams_column'] = None
-prefs.defaults['locations_column'] = None
-prefs.defaults['volume_column'] = None
-prefs.defaults['genre_column'] = None
+config = get_configuration()
 
-# Set default Options
-prefs.defaults['cbi_embed'] = True
-prefs.defaults['cix_embed'] = True
-prefs.defaults['convert_cbr'] = True
-prefs.defaults['convert_reading'] = False
-prefs.defaults['delete_cbr'] = False
-prefs.defaults['extended_menu'] = False
-prefs.defaults['swap_names'] = False
+# set defaults
+for group in config:
+    for item in group["Items"]:
+        prefs.defaults[item[CONFIG_NAME]] = item[CONFIG_DEFAULT]
 
 
 class ConfigWidget(QWidget):
 
-	def __init__(self, ia):
-		QWidget.__init__(self)
-		self.ia = ia
-		self.l = QVBoxLayout()
-		self.setLayout(self.l)
+    def __init__(self, ia):
+        QWidget.__init__(self)
+        self.ia = ia
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
 
-		# ----------------------------------------------------------------------
-		# Custom Columns
-		# Define some column types
-		self.PERSON_TYPE = {"is_multiple": True, "is_names": True, "datatype": "text"}
-		self.TAG_TYPE = {"is_multiple": True, "is_names": False, "datatype": "text"}
-		self.SINGLE_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
-		self.FLOAT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "float"}
-		self.SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
+        # make the config menu
+        for group in config:
+            self.make_submenu(group)
 
-		# Artists
-		lca = self.make_groupbox("artists_custom_columns_box", 'Artists Custom Columns:', self.l)
-		self.make_columnbox("penciller_column", 'Penciller Column:', prefs['penciller_column'], self.PERSON_TYPE, lca, 1, 0)
-		self.make_columnbox("inker_column", 'Inker Column:', prefs['inker_column'], self.PERSON_TYPE, lca, 1, 2)
-		self.make_columnbox("colorist_column", 'Colorist Column:', prefs['colorist_column'], self.PERSON_TYPE, lca, 2, 0)
-		self.make_columnbox("letterer_column", 'Letterer Column:', prefs['letterer_column'], self.PERSON_TYPE, lca, 2, 2)
-		self.make_columnbox("cover_artist_column", 'Cover Artist Column:', prefs['cover_artist_column'], self.PERSON_TYPE, lca, 3, 0)
-		self.make_columnbox("editor_column", 'Editor Column:', prefs['editor_column'], self.PERSON_TYPE, lca, 3, 2)
+        # make menu button choices exclusive
+        self.make_exclusive("exclusive_group", [self.main_embed, self.main_import])
 
-		# Others
-		lco = self.make_groupbox("other_custom_columns_box", 'Other Custom Columns:', self.l)
-		self.make_columnbox("storyarc_column", 'Story Arc Column:', prefs['storyarc_column'], self.SINGLE_TYPE, lco, 1, 0)
-		self.make_columnbox("characters_column", 'Characters Column:', prefs['characters_column'], self.TAG_TYPE, lco, 1, 2)
-		self.make_columnbox("teams_column", 'Teams Column:', prefs['teams_column'], self.TAG_TYPE, lco, 2, 0)
-		self.make_columnbox("locations_column", 'Locations Column:', prefs['locations_column'], self.TAG_TYPE, lco, 2, 2)
-		self.make_columnbox("volume_column", 'Volume Column:', prefs['volume_column'], self.SINGLE_TYPE, lco, 3, 0)
-		self.make_columnbox("genre_column", 'Genre Column:', prefs['genre_column'], self.TAG_TYPE, lco, 3, 2)
+    def save_settings(self):
+        for group in config:
+            if group["Type"] == "columnboxes":
+                func = self.CustomColumnComboBox.get_selected_column
+            if group["Type"] == "checkboxes":
+                func = QCheckBox.isChecked
+            for item in group["Items"]:
+                action = getattr(self, item[CONFIG_NAME])
+                prefs[item[CONFIG_NAME]] = func(action)
+        # rebuild the menu
+        self.ia.toggle_menu_items()
 
-		# ----------------------------------------------------------------------
-		# Options
-		lo = self.make_groupbox("cfg_box", 'Options:', self.l)
-		self.make_checkbox("cbi_checkbox", 'Write metadata in zip comment', prefs['cbi_embed'], lo, 1, 0)
-		self.make_checkbox("cix_checkbox", 'Write metadata in ComicInfo.xml', prefs['cix_embed'], lo, 1, 1)
-		self.make_checkbox("convert_cbr_checkbox", 'Auto convert cbr to cbz', prefs['convert_cbr'], lo, 2, 0)
-		self.make_checkbox("convert_reading_checkbox", 'Auto convert while importing to calibre', prefs['convert_reading'], lo, 2, 1)
-		self.make_checkbox("delete_cbr_checkbox", 'Delete cbr after conversion', prefs['delete_cbr'], lo, 3, 0)
-		self.make_checkbox("extended_menu_checkbox", 'Extended Menu (needs calibre restart)', prefs['extended_menu'], lo, 3, 1)
-		self.make_checkbox("swap_names_checkbox", 'Swap names to "LN, FN" when importing metadata', prefs['swap_names'], lo, 4, 0)
+    def make_submenu(self, cfg):
+        lo = self.make_groupbox(cfg["Name"] + "_box", cfg["Title"], self.l)
+        i, k = 1, 0
+        for item in cfg["Items"]:
+            # make the element
+            if cfg["Type"] == "checkboxes":
+                self.make_checkbox(item[CONFIG_NAME], item[CONFIG_TITLE],
+                    prefs[item[CONFIG_NAME]], lo, i, k)
+            if cfg["Type"] == "columnboxes":
+                self.make_columnbox(item[CONFIG_NAME], item[CONFIG_TITLE],
+                    prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
+            # check for new row
+            if cfg["Type"] == "checkboxes" and k < cfg["Columns"]:
+                k += 1
+            elif cfg["Type"] == "columnboxes" and k < cfg["Columns"] / 2:
+                k += 2
+            else:
+                k = 0
+                i += 1
 
-	def save_settings(self):
-		# Save custom columns
-		prefs['penciller_column'] = self.penciller_column.get_selected_column()
-		prefs['inker_column'] = self.inker_column.get_selected_column()
-		prefs['colorist_column'] = self.colorist_column.get_selected_column()
-		prefs['letterer_column'] = self.letterer_column.get_selected_column()
-		prefs['cover_artist_column'] = self.cover_artist_column.get_selected_column()
-		prefs['editor_column'] = self.editor_column.get_selected_column()
-		prefs['storyarc_column'] = self.storyarc_column.get_selected_column()
-		prefs['characters_column'] = self.characters_column.get_selected_column()
-		prefs['teams_column'] = self.teams_column.get_selected_column()
-		prefs['locations_column'] = self.locations_column.get_selected_column()
-		prefs['volume_column'] = self.volume_column.get_selected_column()
-		prefs['genre_column'] = self.genre_column.get_selected_column()
+    def make_exclusive(self, name, list):
+        name = QButtonGroup(self)
+        for item in list:
+            name.addButton(item)
 
-		# Save Options
-		prefs['cbi_embed'] = self.cbi_checkbox.isChecked()
-		prefs['cix_embed'] = self.cix_checkbox.isChecked()
-		prefs['convert_cbr'] = self.convert_cbr_checkbox.isChecked()
-		prefs['convert_reading'] = self.convert_reading_checkbox.isChecked()
-		prefs['delete_cbr'] = self.delete_cbr_checkbox.isChecked()
-		prefs['extended_menu'] = self.extended_menu_checkbox.isChecked()
-		prefs['swap_names'] = self.swap_names_checkbox.isChecked()
+    def make_groupbox(self, name, title, parent):
+        groupbox = QGroupBox(title, self)
+        setattr(self, name, groupbox)
+        parent.addWidget(groupbox)
+        groupbox_layout = QGridLayout()
+        setattr(self, name + "_layout", groupbox_layout)
+        groupbox.setLayout(groupbox_layout)
+        return groupbox_layout
 
-	def make_groupbox(self, name, title, parent):
-		groupbox = QGroupBox(title, self)
-		setattr(self, name, groupbox)
-		parent.addWidget(groupbox)
-		groupbox_layout = QGridLayout()
-		setattr(self, name + "_layout", groupbox_layout)
-		groupbox.setLayout(groupbox_layout)
-		return groupbox_layout
+    def make_checkbox(self, name, title, pref, parent, grid_row, grid_column):
+        checkbox = QCheckBox(title, self)
+        setattr(self, name, checkbox)
+        checkbox.setChecked(pref)
+        parent.addWidget(checkbox, grid_row, grid_column)
 
-	def make_checkbox(self, name, title, pref, parent, grid_row, grid_column):
-		checkbox = QCheckBox(title, self)
-		setattr(self, name, checkbox)
-		checkbox.setChecked(pref)
-		parent.addWidget(checkbox, grid_row, grid_column)
+    def make_columnbox(self, name, label_text, pref, column_type, parent, grid_row, grid_column):
+        # label
+        column_label = QLabel(label_text, self)
+        setattr(self, name + "label", column_label)
 
-	def make_columnbox(self, name, label_text, pref, column_type, parent, grid_row, grid_column):
-		# label
-		column_label = QLabel(label_text, self)
-		setattr(self, name + "label", column_label)
+        # columnbox
+        available_columns = self.get_custom_columns(column_type)
+        column_box = self.CustomColumnComboBox(self, available_columns, pref)
+        setattr(self, name, column_box)
 
-		# columnbox
-		available_columns = self.get_custom_columns(column_type)
-		column_box = self.CustomColumnComboBox(self, available_columns, pref)
-		setattr(self, name, column_box)
+        # put together and add
+        column_label.setBuddy(column_box)
+        parent.addWidget(column_label, grid_row, grid_column)
+        parent.addWidget(column_box, grid_row, grid_column + 1)
 
-		# put together and add
-		column_label.setBuddy(column_box)
-		parent.addWidget(column_label, grid_row, grid_column)
-		parent.addWidget(column_box, grid_row, grid_column + 1)
+    def get_custom_columns(self, column_type):
+        '''
+        Gets matching custom columns for column_type
+        '''
+        custom_columns = self.ia.gui.library_view.model().custom_columns
+        available_columns = {}
+        for key, column in custom_columns.iteritems():
+            if column["is_multiple"]:
+                is_multiple = True
+            else:
+                is_multiple = False
+            if (column["datatype"] == column_type["datatype"] and
+                    is_multiple == column_type["is_multiple"] and
+                    column['display'].get('is_names', False) == column_type['is_names']):
+                available_columns[key] = column
+        return available_columns
 
-	def get_custom_columns(self, column_type):
-		'''
-		Gets matching custom columns for column_type
-		'''
-		custom_columns = self.ia.gui.library_view.model().custom_columns
-		available_columns = {}
-		for key, column in custom_columns.iteritems():
-			if column["is_multiple"]:
-				is_multiple = True
-			else:
-				is_multiple = False
-			if (column["datatype"] == column_type["datatype"] and
-					is_multiple == column_type["is_multiple"] and
-					column['display'].get('is_names', False) == column_type['is_names']):
-				available_columns[key] = column
-		return available_columns
+    # modified from CountPages
+    class CustomColumnComboBox(QComboBox):
 
-	# modified from CountPages
-	class CustomColumnComboBox(QComboBox):
+        def __init__(self, parent, custom_columns={}, selected_column=''):
+            QComboBox.__init__(self, parent)
+            self.populate_combo(custom_columns, selected_column)
 
-		def __init__(self, parent, custom_columns={}, selected_column=''):
-			QComboBox.__init__(self, parent)
-			self.populate_combo(custom_columns, selected_column)
+        def populate_combo(self, custom_columns, selected_column):
+            self.clear()
+            self.column_names = []
+            selected_idx = 0
+            custom_columns[""] = {"name": ""}
+            for key in sorted(custom_columns.keys()):
+                self.column_names.append(key)
+                self.addItem('%s' % (custom_columns[key]['name']))
+                if key == selected_column:
+                    selected_idx = len(self.column_names) - 1
+            self.setCurrentIndex(selected_idx)
 
-		def populate_combo(self, custom_columns, selected_column):
-			self.clear()
-			self.column_names = []
-			selected_idx = 0
-			custom_columns[""] = {"name": ""}
-			for key in sorted(custom_columns.keys()):
-				self.column_names.append(key)
-				self.addItem('%s' % (custom_columns[key]['name']))
-				if key == selected_column:
-					selected_idx = len(self.column_names) - 1
-			self.setCurrentIndex(selected_idx)
+        def select_column(self, key):
+            selected_idx = 0
+            for i, val in enumerate(self.column_names):
+                if val == key:
+                    selected_idx = i
+                    break
+            self.setCurrentIndex(selected_idx)
 
-		def select_column(self, key):
-			selected_idx = 0
-			for i, val in enumerate(self.column_names):
-				if val == key:
-					selected_idx = i
-					break
-			self.setCurrentIndex(selected_idx)
-
-		def get_selected_column(self):
-			return self.column_names[self.currentIndex()]
+        def get_selected_column(self):
+            return self.column_names[self.currentIndex()]
