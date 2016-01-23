@@ -1,4 +1,4 @@
-﻿__license__   = 'GPL v3'
+__license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
@@ -38,7 +38,7 @@ def embed_into_comic(ia, action):
         if action == "both" or action == "cix":
             metadata.embed_cix_metadata()
         if action == "both" or action == "cbi":
-            metadata.embed_cbi_metadata
+            metadata.embed_cbi_metadata()
         metadata.add_updated_comic_to_calibre()
         return True
 
