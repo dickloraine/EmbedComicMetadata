@@ -83,9 +83,9 @@ def get_configuration():
                 ["read_cbi", 'Import metadata from zip comment', True],
                 ["read_cix", 'Import metadata from ComicInfo.xml', True],
                 ["convert_cbr", 'Auto convert cbr to cbz', True],
-                ["convert_reading", 'Auto convert while importing to calibre', True],
-                ["delete_cbr", 'Delete cbr after conversion', True],
-                ["swap_names", 'Swap names to "LN, FN" when importing metadata', True]
+                ["convert_reading", 'Auto convert while importing to calibre', False],
+                ["delete_cbr", 'Delete cbr after conversion', False],
+                ["swap_names", 'Swap names to "LN, FN" when importing metadata', False]
             ]
         },
         {
@@ -95,7 +95,7 @@ def get_configuration():
             "Columns": 2,
             "Items": [
                 ["main_embed", 'Embed metadata', True],
-                ["main_import", 'Import metadata', True],
+                ["main_import", 'Import metadata', False],
             ]
         },
         {
@@ -105,13 +105,13 @@ def get_configuration():
             "Columns": 3,
             "Items": [
                 ["embed", 'Show embed both button', True],
-                ["embedcbi", 'Show embed cbi button', True],
-                ["embedcix", 'Show embed cix button', True],
+                ["embedcbi", 'Show embed cbi button', False],
+                ["embedcix", 'Show embed cix button', False],
                 ["read_both", 'Show import both button', True],
-                ["import_cix", 'Show import cix button', True],
-                ["import_cbi", 'Show import cbi button', True],
+                ["import_cix", 'Show import cix button', False],
+                ["import_cbi", 'Show import cbi button', False],
                 ["convert", 'Show convert button', True],
-                ["cover", 'Show embed cover button', True]
+                ["cover", 'Show embed cover button (experimental)', False]
             ],
             "UI_Action_Items": [
                 ["read_both", 'Import Metadata from the comic archive into calibre', import_to_calibre, "both"],
