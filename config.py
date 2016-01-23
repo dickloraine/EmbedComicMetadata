@@ -44,7 +44,7 @@ class ConfigWidget(QWidget):
             self.make_submenu(group)
 
         # make menu button choices exclusive
-        self.make_exclusive("exclusive_group", [self.main_embed, self.main_import])
+        self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
 
     def save_settings(self):
         for group in config:
