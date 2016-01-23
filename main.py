@@ -65,10 +65,9 @@ def convert(ia):
 
 def embed_cover(ia):
     def _embed_cover(ia, metadata):
-        done = metadata.update_cover()
-        if done:
-            metadata.add_updated_comic_to_calibre()
-        return done
+        metadata.update_cover()
+        metadata.add_updated_comic_to_calibre()
+        return True
 
     iterate_over_books(ia, _embed_cover, "Updated Covers",
         'Embeded {} covers',

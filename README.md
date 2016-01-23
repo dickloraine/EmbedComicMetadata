@@ -47,7 +47,7 @@ Use with care, just inserts the calibre cover as "00000000_cover" into the comic
 - **Auto convert cbr to cbz**: If a comic has only the cbr format, convert it to store the metadata (default: on)
 - **Auto convert while importing to calibre**: As above, but even when importing metadata into calibre (default: off)
 - **Delete cbr after conversion**: Deletes the cbr format after the conversion (default: off)
-- **Swap names to "LN, FN" when importing metadata**: Does just what it says
+- **Swap names to "LN, FN" when importing metadata**: Does just what it says (default: off)
 - **Main Button Action**: You can set, what action should be performed if the big toolbar button is pressed. Needs a calibre restart (default: Embed metadata)
 - **Menu Buttons**: The dropdown menu on the icon in the toolbar can be custimized to your liking through these options
 

@@ -295,9 +295,6 @@ class ComicMetadata:
         # get the calibre cover
         cover_path = self.db.cover(self.book_id, as_path=True)
         fmt = cover_path.rpartition('.')[-1]
-        if fmt == "":
-            zf.close()
-            return False
         new_cover_name = "00000000_cover." + fmt
 
         # search for a previously embeded cover
@@ -314,7 +311,6 @@ class ComicMetadata:
 
         # close the zipfile
         zf.close()
-        return True
 
     def get_comic_metadata_from_cbz(self):
         '''
@@ -384,4 +380,3 @@ def numericalSort(value):
     parts = numbers.split(value)
     parts[1::2] = map(int, parts[1::2])
     return parts
-    
