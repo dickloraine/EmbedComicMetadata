@@ -22,10 +22,10 @@ def import_to_calibre(ia, action):
             return False
         return True
 
-    iterate_over_books(ia, _import_to_calibre, "Updated Calibre Metadata",
+    iterate_over_books(ia, _import_to_calibre, action, "Updated Calibre Metadata",
         'Updated calibre metadata for {} book(s)',
         'The following books had no metadata: {}',
-        action, True, "convert_reading")
+        True, "convert_reading")
 
 
 def embed_into_comic(ia, action):
@@ -42,10 +42,9 @@ def embed_into_comic(ia, action):
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_into_comic, "Updated comics",
+    iterate_over_books(ia, _embed_into_comic, action, "Updated comics",
         'Updated the metadata in the files of {} comics',
-        'The following books were not updated: {}',
-        action)
+        'The following books were not updated: {}')
 
 
 def convert(ia):
@@ -57,25 +56,28 @@ def convert(ia):
             ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
         return True
 
-    iterate_over_books(ia, _convert, "Converted files",
+    iterate_over_books(ia, _convert, None, "Converted files",
         'Converted {} book(s) to cbz',
         'The following books were not converted: {}',
-        None, False)
+        False)
 
 
 def embed_cover(ia):
     def _embed_cover(ia, metadata):
+        if metadata.format == "cbr":
+            return False
         metadata.update_cover()
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_cover, "Updated Covers",
+    iterate_over_books(ia, _embed_cover, None, "Updated Covers",
         'Embeded {} covers',
-        'The following covers were not added: {}')
+        'The following covers were not embeded: {}')
 
 
-def iterate_over_books(ia, func, title, ptext, notptext, action=None, convert=True,
-        convaction="convert_cbr", convtext="The following comics were converted to cbz: {}"):
+def iterate_over_books(ia, func, action, title, ptext, notptext,
+        convert=True, convaction="convert_cbr",
+        convtext="The following comics were converted to cbz: {}"):
     '''
     Iterates over all selected books. For each book, it checks if it should be
     converted to cbz and then applies func to the book.
