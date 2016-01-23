@@ -1,9 +1,6 @@
-﻿__license__   = 'GPL v3'
+__license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
-
-import logging
-logger = logging.getLogger(__name__)
 
 from functools import partial
 from calibre.utils.zipfile import ZipFile
@@ -387,3 +384,4 @@ def numericalSort(value):
     parts = numbers.split(value)
     parts[1::2] = map(int, parts[1::2])
     return parts
+    
