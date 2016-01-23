@@ -8,6 +8,7 @@ Requires calibre version 1.0.0 or later.
 - Can embed the metadata to the zip comment or a ComicInfo.xml file inside the archives
 - Can read the above metadata formats and import them into calibre
 - Can write many additional metadata into custom columns Can automatically convert cbr files to cbz
+- Can embed the calibre cover into cbz comics (experimental)
 
 ## Usage
 ### To embed calibres metadata into the comic archive:
@@ -34,14 +35,21 @@ Characters, Teams, Locations, Genre
 #### Text, column shown in the tag browser:
 Story Arc, Volume
 
+### Customizing the main menu:
+The menu in the toolbar can be custimized to your liking through the options in the configuration.
+
+### Embed Cover:
+Use with care, just inserts the calibre cover as "00000000_cover" into the comic archive (previously inserted calibre covers are overwritten).
+
 ## Configuration
 - **Write metadata in zip comment**: This format is used by calibre, if you import comic files and by ComicbookLovers (default: on)
 - **Write metadata in ComicInfo.xml**: This format is used by ComicRack and some other comic readers (default: on)
 - **Auto convert cbr to cbz**: If a comic has only the cbr format, convert it to store the metadata (default: on)
 - **Auto convert while importing to calibre**: As above, but even when importing metadata into calibre (default: off)
 - **Delete cbr after conversion**: Deletes the cbr format after the conversion (default: off)
-- **Extended Menu**: The dropdown menu on the icon gets all available command. Needs a calibre restart (default: off)
 - **Swap names to "LN, FN" when importing metadata**: Does just what it says
+- **Main Button Action**: You can set, what action should be performed if the big toolbar button is pressed. Needs a calibre restart (default: Embed metadata)
+- **Menu Buttons**: The dropdown menu on the icon in the toolbar can be custimized to your liking through these options
 
 ## Acknowledgement
 The handling of the comic metadata is done by using code from [ComicTagger](https://code.google.com/p/comictagger/)
