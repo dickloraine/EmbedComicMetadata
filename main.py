@@ -11,7 +11,6 @@ from calibre_plugins.EmbedComicMetadata.comicmetadata import ComicMetadata
 def import_to_calibre(ia, action):
     def _import_to_calibre(ia, metadata, action):
         metadata.get_comic_metadata_from_file()
-
         if action == "both" and metadata.comic_metadata:
             metadata.import_comic_metadata_to_calibre(metadata.comic_metadata)
         elif action == "cix" and metadata.cix_metadata:
@@ -30,11 +29,9 @@ def import_to_calibre(ia, action):
 
 def embed_into_comic(ia, action):
     def _embed_into_comic(ia, metadata, action):
-        metadata.get_comic_metadata_from_file()
-
         if metadata.format == "cbr":
             return False
-
+        metadata.get_comic_metadata_from_file()
         if action == "both" or action == "cix":
             metadata.embed_cix_metadata()
         if action == "both" or action == "cbi":

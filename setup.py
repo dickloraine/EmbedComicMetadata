@@ -85,7 +85,8 @@ def get_configuration():
                 ["convert_cbr", 'Auto convert cbr to cbz', True],
                 ["convert_reading", 'Auto convert while importing to calibre', False],
                 ["delete_cbr", 'Delete cbr after conversion', False],
-                ["swap_names", 'Swap names to "LN, FN" when importing metadata', False]
+                ["import_tags", 'Import tags from comic metadata', False],
+                ["overwrite_calibre_tags", 'If checked, overwrites the tags in calibre.', False]
             ]
         },
         {

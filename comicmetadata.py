@@ -203,6 +203,13 @@ class ComicMetadata:
         else:
             mi.title = ""
 
+        # tags
+        if co.tags != [] and prefs['import_tags']:
+            if prefs['overwrite_calibre_tags']:
+                mi.tags = co.tags
+            else:
+                mi.tags = list(set(self.calibre_metadata.tags + co.tags))
+
         # simple metadata
         update_field("authors", role(WRITER))
         update_field("series", co.series)
