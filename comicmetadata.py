@@ -415,7 +415,7 @@ def get_role(role, credits):
     for credit in credits:
         if credit['role'].lower() in role:
             persons.append(credit['person'])
-    if prefs['swap_names']:
+    if persons and len(persons) > 0 and prefs['swap_names']:
         persons = swap_authors_names(persons)
     return persons
 
@@ -437,22 +437,14 @@ def swap_authors_names(authors):
     '''
     Swaps the names of all names in authors to "LN, FN"
     '''
-    swaped_authors = []
-    for author in authors:
-        author = swap_author_names(author)
-        swaped_authors.append(author)
-    return swaped_authors
-
-
-def swap_author_names(author):
-    '''
-    Swaps the name of the given author to "LN, FN"
-    '''
     from calibre.ebooks.metadata import author_to_author_sort
 
-    if author is None or ',' in author:
-        return author
-    return author_to_author_sort(author)
+    swaped_authors = []
+    for author in authors:
+        if ',' not in author:
+            author = author_to_author_sort(author)
+        swaped_authors.append(author)
+    return swaped_authors
 
 
 def swap_author_names_back(author):
