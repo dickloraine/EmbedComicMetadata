@@ -448,15 +448,11 @@ def swap_author_names(author):
     '''
     Swaps the name of the given author to "LN, FN"
     '''
-    if author is None:
+    from calibre.ebooks.metadata import author_to_author_sort
+
+    if author is None or ',' in author:
         return author
-    if ',' in author:
-        return author
-    parts = author.split(None)
-    if len(parts) <= 1:
-        return author
-    surname = parts[-1]
-    return '%s, %s' % (surname, ' '.join(parts[:-1]))
+    return author_to_author_sort(author)
 
 
 def swap_author_names_back(author):
