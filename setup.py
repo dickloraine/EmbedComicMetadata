@@ -40,6 +40,7 @@ def get_configuration():
     UI_Action_Items: The buttons in the toolbar menu. Has the form:
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
+    from calibre_plugins.EmbedComicMetadata.languages.lang import L
     from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert
 
     # configuration
@@ -78,7 +79,7 @@ def get_configuration():
             "Type": "checkboxes",
             "Columns": 2,
             "Items": [
-                ["cbi_embed", 'Write metadata in zip comment', True],
+                ["cbi_embed", L['Write metadata in zip comment'], True],
                 ["cix_embed", 'Write metadata in ComicInfo.xml', True],
                 ["read_cbi", 'Import metadata from zip comment', True],
                 ["read_cix", 'Import metadata from ComicInfo.xml', True],
