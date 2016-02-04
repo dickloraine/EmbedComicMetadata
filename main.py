@@ -113,6 +113,8 @@ def iterate_over_books(ia, func, action, title, ptext, notptext,
             processed.append(metadata.info)
         else:
             not_processed.append(metadata.info)
+        # clean up
+        metadata.delete_temp_cbz_file()
 
     msg = ptext.format(len(processed))
     if convert and len(converted) > 0:

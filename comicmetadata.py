@@ -261,6 +261,14 @@ class ComicMetadata:
         if not self.file and self.format == "cbz":
             self.file = self.db.format(self.book_id, "cbz", as_path=True)
 
+    def delete_temp_cbz_file(self):
+        try:
+            import os
+            if os.path.exists(self.file):
+                os.remove(self.file)
+        except:
+            pass
+
     def convert_to_cbz(self):
         '''
         Converts a cbr-comic to a cbz-comic
