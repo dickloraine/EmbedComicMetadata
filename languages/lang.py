@@ -14,4 +14,4 @@ lang_dict = {
 
 
 lang = get_lang()
-L = lang_dict.get(lang, lang_dict["en"])
+_L = lang_dict.get(lang, lang_dict["en"])

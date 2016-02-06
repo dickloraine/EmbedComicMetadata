@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2 import error_dialog, info_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
+from calibre_plugins.EmbedComicMetadata.languages.lang import _L
 from calibre_plugins.EmbedComicMetadata.comicmetadata import ComicMetadata
 
 
@@ -24,9 +25,9 @@ def import_to_calibre(ia, action):
             return False
         return True
 
-    iterate_over_books(ia, _import_to_calibre, action, "Updated Calibre Metadata",
-        'Updated calibre metadata for {} book(s)',
-        'The following books had no metadata: {}',
+    iterate_over_books(ia, _import_to_calibre, action, _L["Updated Calibre Metadata"],
+        _L['Updated calibre metadata for {} book(s)'],
+        _L['The following books had no metadata: {}'],
         True, "convert_reading")
 
 
@@ -42,9 +43,9 @@ def embed_into_comic(ia, action):
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_into_comic, action, "Updated comics",
-        'Updated the metadata in the files of {} comics',
-        'The following books were not updated: {}')
+    iterate_over_books(ia, _embed_into_comic, action, _L["Updated comics"],
+        _L['Updated the metadata in the files of {} comics'],
+        _L['The following books were not updated: {}'])
 
 
 def convert(ia):
@@ -56,9 +57,9 @@ def convert(ia):
             ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
         return True
 
-    iterate_over_books(ia, _convert, None, "Converted files",
-        'Converted {} book(s) to cbz',
-        'The following books were not converted: {}',
+    iterate_over_books(ia, _convert, None, _L["Converted files"],
+        _L['Converted {} book(s) to cbz'],
+        _L['The following books were not converted: {}'],
         False)
 
 
@@ -70,14 +71,14 @@ def embed_cover(ia):
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_cover, None, "Updated Covers",
-        'Embeded {} covers',
-        'The following covers were not embeded: {}')
+    iterate_over_books(ia, _embed_cover, None, _L["Updated Covers"],
+        _L['Embeded {} covers'],
+        _L['The following covers were not embeded: {}'])
 
 
 def iterate_over_books(ia, func, action, title, ptext, notptext,
         convert=True, convaction="convert_cbr",
-        convtext="The following comics were converted to cbz: {}"):
+        convtext=_L["The following comics were converted to cbz: {}"]):
     '''
     Iterates over all selected books. For each book, it checks if it should be
     converted to cbz and then applies func to the book.
@@ -90,8 +91,8 @@ def iterate_over_books(ia, func, action, title, ptext, notptext,
     # Get currently selected books
     rows = ia.gui.library_view.selectionModel().selectedRows()
     if not rows or len(rows) == 0:
-        return error_dialog(ia.gui, 'Cannot update metadata',
-                        'No books selected', show=True)
+        return error_dialog(ia.gui, _L['Cannot update metadata'],
+                        _L['No books selected'], show=True)
     # Map the rows to book ids
     ids = list(map(ia.gui.library_view.model().id, rows))
 

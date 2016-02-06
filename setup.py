@@ -38,7 +38,7 @@ def get_configuration():
     UI_Action_Items: The buttons in the toolbar menu. Has the form:
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
-    from calibre_plugins.EmbedComicMetadata.languages.lang import L
+    from calibre_plugins.EmbedComicMetadata.languages.lang import _L
     from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert
 
     # configuration
@@ -49,12 +49,12 @@ def get_configuration():
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
-                ["penciller_column", 'Penciller Column:', None, PERSON_TYPE],
-                ["inker_column", 'Inker Column:', None, PERSON_TYPE],
-                ["colorist_column", 'Colorist Column:', None, PERSON_TYPE],
-                ["letterer_column", 'Letterer Column:', None, PERSON_TYPE],
-                ["cover_artist_column", 'Cover Artist Column:', None, PERSON_TYPE],
-                ["editor_column", 'Editor Column:', None, PERSON_TYPE]
+                ["penciller_column", _L['Penciller Column:'], None, PERSON_TYPE],
+                ["inker_column", _L['Inker Column:'], None, PERSON_TYPE],
+                ["colorist_column", _L['Colorist Column:'], None, PERSON_TYPE],
+                ["letterer_column", _L['Letterer Column:'], None, PERSON_TYPE],
+                ["cover_artist_column", _L['Cover Artist Column:'], None, PERSON_TYPE],
+                ["editor_column", _L['Editor Column:'], None, PERSON_TYPE]
             ]
         },
         {
@@ -63,12 +63,12 @@ def get_configuration():
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
-                ["storyarc_column", 'Story Arc Column:', None, SINGLE_TYPE],
-                ["characters_column", 'Characters Column:', None, TAG_TYPE],
-                ["teams_column", 'Teams Column:', None, TAG_TYPE],
-                ["locations_column", 'Locations Column:', None, TAG_TYPE],
-                ["volume_column", 'Volume Column:', None, SINGLE_TYPE],
-                ["genre_column", 'Genre Column:', None, TAG_TYPE]
+                ["storyarc_column", _L['Story Arc Column:'], None, SINGLE_TYPE],
+                ["characters_column", _L['Characters Column:'], None, TAG_TYPE],
+                ["teams_column", _L['Teams Column:'], None, TAG_TYPE],
+                ["locations_column", _L['Locations Column:'], None, TAG_TYPE],
+                ["volume_column", _L['Volume Column:'], None, SINGLE_TYPE],
+                ["genre_column", _L['Genre Column:'], None, TAG_TYPE]
             ]
         },
         {
@@ -77,15 +77,15 @@ def get_configuration():
             "Type": "checkboxes",
             "Columns": 2,
             "Items": [
-                ["cbi_embed", L['Write metadata in zip comment'], True],
-                ["cix_embed", 'Write metadata in ComicInfo.xml', True],
-                ["read_cbi", 'Import metadata from zip comment', True],
-                ["read_cix", 'Import metadata from ComicInfo.xml', True],
-                ["convert_cbr", 'Auto convert cbr to cbz', True],
-                ["convert_reading", 'Auto convert while importing to calibre', False],
-                ["delete_cbr", 'Delete cbr after conversion', False],
-                ["import_tags", 'Import tags from comic metadata', False],
-                ["overwrite_calibre_tags", 'If checked, overwrites the tags in calibre.', False]
+                ["cbi_embed", _L['Write metadata in zip comment'], True],
+                ["cix_embed", _L['Write metadata in ComicInfo.xml'], True],
+                ["read_cbi", _L['Import metadata from zip comment'], True],
+                ["read_cix", _L['Import metadata from ComicInfo.xml'], True],
+                ["convert_cbr", _L['Auto convert cbr to cbz'], True],
+                ["convert_reading", _L['Auto convert while importing to calibre'], False],
+                ["delete_cbr", _L['Delete cbr after conversion'], False],
+                ["import_tags", _L['Import tags from comic metadata'], False],
+                ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False]
             ]
         },
         {
@@ -94,8 +94,8 @@ def get_configuration():
             "Type": "checkboxes",
             "Columns": 2,
             "Items": [
-                ["main_embed", 'Embed metadata', True],
-                ["main_import", 'Import metadata', False],
+                ["main_embed", _L['Embed metadata'], True],
+                ["main_import", _L['Import metadata'], False],
             ]
         },
         {
@@ -104,25 +104,25 @@ def get_configuration():
             "Type": "checkboxes",
             "Columns": 3,
             "Items": [
-                ["embed", 'Show embed both button', True],
-                ["embedcbi", 'Show embed cbi button', False],
-                ["embedcix", 'Show embed cix button', False],
-                ["read_both", 'Show import both button', True],
-                ["import_cix", 'Show import cix button', False],
-                ["import_cbi", 'Show import cbi button', False],
-                ["convert", 'Show convert button', True],
-                ["cover", 'Show embed cover button (experimental)', False]
+                ["embed", _L['Show embed both button'], True],
+                ["embedcbi", _L['Show embed cbi button'], False],
+                ["embedcix", _L['Show embed cix button'], False],
+                ["read_both", _L['Show import both button'], True],
+                ["import_cix", _L['Show import cix button'], False],
+                ["import_cbi", _L['Show import cbi button'], False],
+                ["convert", _L['Show convert button'], True],
+                ["cover", _L['Show embed cover button (experimental)'], False]
             ],
             "UI_Action_Items": [
-                ["read_both", 'Import Metadata from the comic archive into calibre', import_to_calibre, "both"],
-                ["import_cix", "Import Comic Rack Metadata from the comic archive into calibre", import_to_calibre, "cix"],
-                ["import_cbi", "Import Comment Metadata from the comic archive into calibre", import_to_calibre, "cbi"],
+                ["read_both", _L['Import Metadata from the comic archive into calibre'], import_to_calibre, "both"],
+                ["import_cix", _L["Import Comic Rack Metadata from the comic archive into calibre"], import_to_calibre, "cix"],
+                ["import_cbi", _L["Import Comment Metadata from the comic archive into calibre"], import_to_calibre, "cbi"],
                 ["seperator"],
-                ["embed", "Embed both Comic Metadata types", embed_into_comic, "both"],
-                ["embedcbi", "Only embed Metadata in zip comment", embed_into_comic, "cbi"],
-                ["embedcix", "Only embed Metadata in ComicInfo.xml", embed_into_comic, "cix"],
-                ["convert", "Only convert cbr to cbz", convert, None],
-                ["cover", "Embed the calibre cover", embed_cover, None],
+                ["embed", _L["Embed both Comic Metadata types"], embed_into_comic, "both"],
+                ["embedcbi", _L["Only embed Metadata in zip comment"], embed_into_comic, "cbi"],
+                ["embedcix", _L["Only embed Metadata in ComicInfo.xml"], embed_into_comic, "cix"],
+                ["convert", _L["Only convert cbr to cbz"], convert, None],
+                ["cover", _L["Embed the calibre cover"], embed_cover, None],
                 ["seperator"]
             ]
         }
