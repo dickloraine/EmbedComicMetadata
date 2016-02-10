@@ -5,6 +5,8 @@ __docformat__ = 'restructuredtext en'
 en = {
     # CONFIG MENU
     # custom columns (setup.py)
+    'Artists Custom Columns:': 'Artists Custom Columns:',
+    'Other Custom Columns:': 'Other Custom Columns:',
     'Penciller Column:': 'Penciller Column:',
     'Inker Column:': 'Inker Column:',
     'Colorist Column:': 'Colorist Column:',
@@ -18,6 +20,7 @@ en = {
     'Volume Column:': 'Volume Column:',
     'Genre Column:': 'Genre Column:',
     # options (setup.py)
+    "Options:": "Options:",
     'Write metadata in zip comment': 'Write metadata in zip comment',
     'Write metadata in ComicInfo.xml': 'Write metadata in ComicInfo.xml',
     'Import metadata from zip comment': 'Import metadata from zip comment',
@@ -25,12 +28,15 @@ en = {
     'Auto convert cbr to cbz': 'Auto convert cbr to cbz',
     'Auto convert while importing to calibre': 'Auto convert while importing to calibre',
     'Delete cbr after conversion': 'Delete cbr after conversion',
+    'Swap names to "LN, FN" when importing metadata': 'Swap names to "LN, FN" when importing metadata',
     'Import tags from comic metadata': 'Import tags from comic metadata',
     'If checked, overwrites the tags in calibre.': 'If checked, overwrites the tags in calibre.',
     # main_buton (setup.py)
+    "Main Button Action (needs a calibre restart):": "Main Button Action (needs a calibre restart):",
     'Embed metadata': 'Embed metadata',
     'Import metadata': 'Import metadata',
     # toolbar_buttons (setup.py)
+    "Menu Buttons:": "Menu Buttons:",
     'Show embed both button': 'Show embed both button',
     'Show embed cbi button': 'Show embed cbi button',
     'Show embed cix button': 'Show embed cix button',

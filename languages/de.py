@@ -3,7 +3,10 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 de = {
+    # CONFIG MENU
     # custom columns (setup.py)
+    'Artists Custom Columns:': 'Artists Custom Columns:',
+    'Other Custom Columns:': 'Other Custom Columns:',
     'Penciller Column:': 'Penciller Column:',
     'Inker Column:': 'Inker Column:',
     'Colorist Column:': 'Colorist Column:',
@@ -17,6 +20,7 @@ de = {
     'Volume Column:': 'Volume Column:',
     'Genre Column:': 'Genre Column:',
     # options (setup.py)
+    "Options:": "Optionen:",
     'Write metadata in zip comment': 'Schreibe die Metadaten in den Zip-Kommentar',
     'Write metadata in ComicInfo.xml': 'Schreibe die Metadaten in die ComicInfo.xml Datei',
     'Import metadata from zip comment': 'Importiere die Metadaten aus dem Zip-Kommentar',
@@ -24,12 +28,15 @@ de = {
     'Auto convert cbr to cbz': 'Konvertiere cbr Dateien automatisch zu cbz Dateien',
     'Auto convert while importing to calibre': 'Konvertiere auch beim Importieren automatisch',
     'Delete cbr after conversion': 'Lösche die cbr Datei nach dem Konvertieren',
+    'Swap names to "LN, FN" when importing metadata': 'Vertausche Vor- und Nachnamen beim Importieren',
     'Import tags from comic metadata': 'Importiere die Schlagwörter aus den Comic-Metadaten',
     'If checked, overwrites the tags in calibre.': 'Überschreibe die Schlagwörter in Calibre',
     # main_buton (setup.py)
+    "Main Button Action (needs a calibre restart):": "Haupt-Button Aktion (erfordert einen Neustart):",
     'Embed metadata': 'Bette Metadaten ein',
     'Import metadata': 'Importiere Metadaten',
     # toolbar_buttons (setup.py)
+    "Menu Buttons:": "Menü Buttons:",
     'Show embed both button': 'Zeige den Button um beide Metadaten einzubetten',
     'Show embed cbi button': 'Zeige den Button um cbi-Metadaten einzubetten',
     'Show embed cix button': 'Zeige den Button um cix-Metadaten einzubetten',

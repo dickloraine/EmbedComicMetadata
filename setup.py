@@ -45,7 +45,7 @@ def get_configuration():
     config = [
         {
             "Name": "artists_custom_columns",
-            "Title": "Artists Custom Columns:",
+            "Title": _L["Artists Custom Columns:"],
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
@@ -59,7 +59,7 @@ def get_configuration():
         },
         {
             "Name": "other_custom_columns",
-            "Title": "Other Custom Columns:",
+            "Title": _L["Other Custom Columns:"],
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
@@ -73,7 +73,7 @@ def get_configuration():
         },
         {
             "Name": "options",
-            "Title": "Options:",
+            "Title": _L["Options:"],
             "Type": "checkboxes",
             "Columns": 2,
             "Items": [
@@ -84,13 +84,14 @@ def get_configuration():
                 ["convert_cbr", _L['Auto convert cbr to cbz'], True],
                 ["convert_reading", _L['Auto convert while importing to calibre'], False],
                 ["delete_cbr", _L['Delete cbr after conversion'], False],
+                ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],
                 ["import_tags", _L['Import tags from comic metadata'], False],
                 ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False]
             ]
         },
         {
             "Name": "main_button",
-            "Title": "Main Button Action (needs a calibre restart):",
+            "Title": _L["Main Button Action (needs a calibre restart):"],
             "Type": "checkboxes",
             "Columns": 2,
             "Items": [
@@ -100,7 +101,7 @@ def get_configuration():
         },
         {
             "Name": "menu",
-            "Title": "Menu Buttons:",
+            "Title": _L["Menu Buttons:"],
             "Type": "checkboxes",
             "Columns": 3,
             "Items": [
