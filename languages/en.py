@@ -39,6 +39,7 @@ en = {
     'Show import cbi button': 'Show import cbi button',
     'Show convert button': 'Show convert button',
     'Show embed cover button (experimental)': 'Show embed cover button (experimental)',
+
     # TOOLBAR MENU
     # (setup.py)
     'Import Metadata from the comic archive into calibre': 'Import Metadata from the comic archive into calibre',
@@ -56,6 +57,7 @@ en = {
     'Embeds calibres metadata into the comic': 'Embeds calibres metadata into the comic',
     # config button (ui.py)
     "Configure": "Configure",
+
     # COMPLETED MESSAGES (main.py)
     "Updated Calibre Metadata": "Updated Calibre Metadata",
     'Updated calibre metadata for {} book(s)': 'Updated calibre metadata for {} book(s)',
@@ -70,6 +72,7 @@ en = {
     'Embeded {} covers': 'Embeded {} covers',
     'The following covers were not embeded: {}': 'The following covers were not embeded: {}',
     "The following comics were converted to cbz: {}": "The following comics were converted to cbz: {}",
+
     # ERRORS
     # (ui.py)
     'Cannot update metadata': 'Cannot update metadata',
@@ -77,4 +80,5 @@ en = {
     # (main.py)
     'Cannot update metadata': 'Cannot update metadata',
     'No books selected': 'No books selected'
+    # end
 }
