@@ -122,6 +122,7 @@ def get_configuration():
                 ["embed", _L["Embed both Comic Metadata types"], embed_into_comic, "both"],
                 ["embedcbi", _L["Only embed Metadata in zip comment"], embed_into_comic, "cbi"],
                 ["embedcix", _L["Only embed Metadata in ComicInfo.xml"], embed_into_comic, "cix"],
+                ["seperator"],
                 ["convert", _L["Only convert cbr to cbz"], convert, None],
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
                 ["seperator"]
