@@ -58,12 +58,12 @@ class EmbedComicMetadata(InterfaceAction):
     def build_menu(self, item):
         if item[CONFIG_NAME] == "seperator":
             self.menu.addSeparator()
+            return
+        elif item[CONFIG_TRIGGER_ARG]:
+            triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
         else:
-            if item[CONFIG_TRIGGER_ARG]:
-                triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
-            else:
-                triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
-            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
+            triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
+        self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
 
     def toggle_menu_items(self):
         map_over_config_items(self._toggle_menu_items, "menu")

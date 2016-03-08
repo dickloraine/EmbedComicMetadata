@@ -84,6 +84,7 @@ def iterate_over_books(ia, func, action, title, ptext, notptext,
     converted to cbz and then applies func to the book.
     After all books are processed, gives a completion message.
     '''
+
     processed = []
     not_processed = []
     converted = []
@@ -129,13 +130,12 @@ def iterate_over_books(ia, func, action, title, ptext, notptext,
     info_dialog(ia.gui, title, msg, show=True)
 
 
-def convert_if_prefs(ia, action, metadata, converted=None):
+def convert_if_prefs(ia, action, metadata, converted):
     # check if we should convert
     if (prefs['convert_cbr'] and metadata.format == "cbr" and action == "convert_cbr") or (
             prefs['convert_reading'] and metadata.format == "cbr" and action == "convert_reading"):
         metadata.convert_to_cbz()
-        if converted:
-            converted.append(metadata.info)
+        converted.append(metadata.info)
         if prefs['delete_cbr']:
             ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
     return converted
