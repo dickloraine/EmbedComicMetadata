@@ -68,7 +68,7 @@ class ConfigWidget(QWidget):
                 self.make_columnbox(item[CONFIG_NAME], item[CONFIG_TITLE],
                     prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
             # check for new row
-            if cfg["Type"] == "checkboxes" and k < cfg["Columns"]:
+            if cfg["Type"] == "checkboxes" and k < (cfg["Columns"] - 1):
                 k += 1
             elif cfg["Type"] == "columnboxes" and k < cfg["Columns"] / 2:
                 k += 2

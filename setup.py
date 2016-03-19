@@ -103,7 +103,7 @@ def get_configuration():
             "Name": "menu",
             "Title": _L["Menu Buttons:"],
             "Type": "checkboxes",
-            "Columns": 3,
+            "Columns": 2,
             "Items": [
                 ["embed", _L['Show embed both button'], True],
                 ["embedcbi", _L['Show embed cbi button'], False],
