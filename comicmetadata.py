@@ -288,14 +288,14 @@ class ComicMetadata:
                 self.format = "cbz"
 
     def update_cover(self):
-        self.make_temp_cbz_file()
-        # open the zipfile
-        zf = ZipFile(self.file, "a")
-
         # get the calibre cover
         cover_path = self.db.cover(self.book_id, as_path=True)
         fmt = cover_path.rpartition('.')[-1]
         new_cover_name = "00000000_cover." + fmt
+
+        # open the zipfile
+        self.make_temp_cbz_file()
+        zf = ZipFile(self.file, "a")
 
         # search for a previously embeded cover
         cover_info = ""
@@ -308,9 +308,8 @@ class ComicMetadata:
         if cover_info != "":
             zf.delete(cover_info)
         zf.write(cover_path, new_cover_name)
-
-        # close the zipfile
         zf.close()
+        delete_temp_file(cover_path)
 
     def get_comic_metadata_from_cbz(self):
         '''
@@ -358,6 +357,7 @@ class ComicMetadata:
             if ComicBookInfo().validateString(comment):
                 self.cbi_metadata = ComicBookInfo().metadataFromString(comment)
 
+        delete_temp_file(ffile)
         self._get_combined_metadata()
 
     def _get_combined_metadata(self):
