@@ -265,12 +265,7 @@ class ComicMetadata:
             self.file = self.db.format(self.book_id, "cbz", as_path=True)
 
     def delete_temp_cbz_file(self):
-        try:
-            import os
-            if os.path.exists(self.file):
-                os.remove(self.file)
-        except:
-            pass
+        delete_temp_file(self.file)
 
     def convert_to_cbz(self):
         '''
@@ -287,6 +282,7 @@ class ComicMetadata:
             with open(ffile, 'rb') as stream:
                 zr = RARFile(stream, get_comment=True)
                 comment = zr.comment
+            delete_temp_file(ffile)
 
             # make the cbz file
             with TemporaryFile("comic.cbz") as tf:
@@ -468,6 +464,15 @@ def swap_author_names_back(author):
         surname = parts[0]
         return '%s %s' % (' '.join(parts[1:]), surname)
     return author
+
+
+def delete_temp_file(ffile):
+    try:
+        import os
+        if os.path.exists(ffile):
+            os.remove(ffile)
+    except:
+        pass
 
 
 def writeZipComment(filename, comment):
