@@ -65,50 +65,41 @@ class ComicMetadata:
         self.convert_comic_md_to_calibre_md(comic_metadata)
         self.db.set_metadata(self.book_id, self.comic_md_in_calibre_format)
 
+    def overlay_metadata(self, comic_metadata):
+        # make sure we have the metadata
+        self.get_comic_metadata_from_file()
+        # make the metadata generic, if none exists now
+        if comic_metadata is None:
+            comic_metadata = GenericMetadata()
+        self.convert_calibre_md_to_comic_md()
+        comic_metadata.overlay(self.calibre_md_in_comic_format)
+
     def embed_cix_metadata(self):
         '''
         Embeds the cix_metadata
         '''
+        self.overlay_metadata(self.cix_metadata)
+        cix_string = ComicInfoXml().stringFromMetadata(self.cix_metadata)
+
         # ensure we have a temp file
         self.make_temp_cbz_file()
-        # make sure we have the metadata
-        self.get_comic_metadata_from_file()
-        # open the zipfile with append option
         zf = ZipFile(self.file, "a")
-        # make the metadata generic, if none exists now
-        if self.cix_metadata is None:
-            self.cix_metadata = GenericMetadata()
-        # convert calibre metadata to comic format
-        self.convert_calibre_md_to_comic_md()
-        # now overlay the calibre metadata with the original metadata
-        self.cix_metadata.overlay(self.calibre_md_in_comic_format)
-        # transform the metadata back to string
-        cix_string = ComicInfoXml().stringFromMetadata(self.cix_metadata)
         # save the metadata in the file
         if self.zipinfo is not None:
             zf.replacestr(self.zipinfo, cix_string.decode('utf-8', 'ignore'))
         else:
             zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
-        # close the zipfile
         zf.close()
 
     def embed_cbi_metadata(self):
         '''
         Embeds the cbi_metadata
         '''
+        self.overlay_metadata(self.cbi_metadata)
+        cbi_string = ComicBookInfo().stringFromMetadata(self.cbi_metadata)
+
         # ensure we have a temp file
         self.make_temp_cbz_file()
-        # make sure we have the metadata
-        self.get_comic_metadata_from_file()
-        # make the metadata generic, if none exists now
-        if self.cbi_metadata is None:
-            self.cbi_metadata = GenericMetadata()
-        # convert calibre metadata to comic format
-        self.convert_calibre_md_to_comic_md()
-        # now overlay the calibre metadata with the original metadata
-        self.cbi_metadata.overlay(self.calibre_md_in_comic_format)
-        # transform the metadata back to string
-        cbi_string = ComicBookInfo().stringFromMetadata(self.cbi_metadata)
         # save the metadata in the comment
         writeZipComment(self.file, cbi_string)
 
