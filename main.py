@@ -88,20 +88,12 @@ def iterate_over_books(ia, func, title, ptext, notptext,
     converted to cbz and then applies func to the book.
     After all books are processed, gives a completion message.
     '''
-
     processed = []
     not_processed = []
     converted = []
 
-    # Get currently selected books
-    rows = ia.gui.library_view.selectionModel().selectedRows()
-    if not rows or len(rows) == 0:
-        return error_dialog(ia.gui, _L['Cannot update metadata'],
-                        _L['No books selected'], show=True)
-    # Map the rows to book ids
-    ids = list(map(ia.gui.library_view.model().id, rows))
-
     # iterate through the books
+    ids = get_selected_books(ia)
     for book_id in ids:
         metadata = ComicMetadata(book_id, ia)
 
@@ -121,12 +113,34 @@ def iterate_over_books(ia, func, title, ptext, notptext,
         # clean up
         metadata.delete_temp_cbz_file()
 
+    # show a completion message
+    show_msg(ia, title, ptext, convtext, notptext, processed, converted, not_processed)
+
+
+def get_selected_books(ia):
+    # Get currently selected books
+    rows = ia.gui.library_view.selectionModel().selectedRows()
+    if not rows or len(rows) == 0:
+        return error_dialog(ia.gui, _L['Cannot update metadata'],
+                        _L['No books selected'], show=True)
+    # Map the rows to book ids
+    return list(map(ia.gui.library_view.model().id, rows))
+
+
+def show_msg(ia, title, ptext, convtext, notptext, processed, converted, not_processed):
     msg = ptext.format(len(processed))
     if convert and len(converted) > 0:
-        msg += '\n' + convtext.format(converted)
+        msg += '\n' + convtext.format(lst2string(converted))
     if len(not_processed) > 0:
-        msg += '\n' + notptext.format(not_processed)
+        msg += '\n' + notptext.format(lst2string(not_processed))
     info_dialog(ia.gui, title, msg, show=True)
+
+
+def lst2string(lst):
+    string = ""
+    for item in lst:
+        string += "\n    " + item.encode('utf-8')
+    return string
 
 
 def convert_if_prefs(ia, action, metadata, converted):
