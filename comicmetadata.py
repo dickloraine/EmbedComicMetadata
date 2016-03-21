@@ -20,11 +20,10 @@ class ComicMetadata:
     '''
 
     def __init__(self, book_id, ia):
+        # initialize the attributes
         self.book_id = book_id
         self.ia = ia
         self.db = ia.gui.current_db.new_api
-
-        # iniatialize the atributes
         self.calibre_metadata = self.db.get_metadata(book_id)
         self.cbi_metadata = None
         self.cix_metadata = None
