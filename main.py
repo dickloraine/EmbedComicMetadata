@@ -13,7 +13,7 @@ from calibre_plugins.EmbedComicMetadata.comicmetadata import ComicMetadata
 
 
 def import_to_calibre(ia, action):
-    def _import_to_calibre(ia, metadata, action):
+    def _import_to_calibre(metadata):
         metadata.get_comic_metadata_from_file()
         if action == "both" and metadata.comic_metadata:
             metadata.import_comic_metadata_to_calibre(metadata.comic_metadata)
@@ -25,14 +25,15 @@ def import_to_calibre(ia, action):
             return False
         return True
 
-    iterate_over_books(ia, _import_to_calibre, action, _L["Updated Calibre Metadata"],
+    iterate_over_books(ia, _import_to_calibre,
+        _L["Updated Calibre Metadata"],
         _L['Updated calibre metadata for {} book(s)'],
         _L['The following books had no metadata: {}'],
         True, "convert_reading")
 
 
 def embed_into_comic(ia, action):
-    def _embed_into_comic(ia, metadata, action):
+    def _embed_into_comic(metadata):
         if metadata.format == "cbr":
             return False
         metadata.get_comic_metadata_from_file()
@@ -43,13 +44,14 @@ def embed_into_comic(ia, action):
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_into_comic, action, _L["Updated comics"],
+    iterate_over_books(ia, _embed_into_comic,
+        _L["Updated comics"],
         _L['Updated the metadata in the files of {} comics'],
         _L['The following books were not updated: {}'])
 
 
 def convert(ia):
-    def _convert(ia, metadata):
+    def _convert(metadata):
         if metadata.format != "cbr":
             return False
         metadata.convert_to_cbz()
@@ -57,26 +59,28 @@ def convert(ia):
             ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
         return True
 
-    iterate_over_books(ia, _convert, None, _L["Converted files"],
+    iterate_over_books(ia, _convert,
+        _L["Converted files"],
         _L['Converted {} book(s) to cbz'],
         _L['The following books were not converted: {}'],
         False)
 
 
 def embed_cover(ia):
-    def _embed_cover(ia, metadata):
+    def _embed_cover(metadata):
         if metadata.format == "cbr":
             return False
         metadata.update_cover()
         metadata.add_updated_comic_to_calibre()
         return True
 
-    iterate_over_books(ia, _embed_cover, None, _L["Updated Covers"],
+    iterate_over_books(ia, _embed_cover,
+        _L["Updated Covers"],
         _L['Embeded {} covers'],
         _L['The following covers were not embeded: {}'])
 
 
-def iterate_over_books(ia, func, action, title, ptext, notptext,
+def iterate_over_books(ia, func, title, ptext, notptext,
         convert=True, convaction="convert_cbr",
         convtext=_L["The following comics were converted to cbz: {}"]):
     '''
@@ -109,12 +113,7 @@ def iterate_over_books(ia, func, action, title, ptext, notptext,
         if convert:
             converted = convert_if_prefs(ia, convaction, metadata, converted)
 
-        if action:
-            done = func(ia, metadata, action)
-        else:
-            done = func(ia, metadata)
-
-        if done:
+        if func(metadata):
             processed.append(metadata.info)
         else:
             not_processed.append(metadata.info)
