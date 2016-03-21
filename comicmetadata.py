@@ -47,6 +47,9 @@ class ComicMetadata:
         if self.calibre_metadata.series:
             self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index) + self.info
 
+    def __del__(self):
+        delete_temp_file(self.file)
+
     def get_comic_metadata_from_file(self):
         if self.checked_for_metadata:
             return
@@ -252,9 +255,6 @@ class ComicMetadata:
     def make_temp_cbz_file(self):
         if not self.file and self.format == "cbz":
             self.file = self.db.format(self.book_id, "cbz", as_path=True)
-
-    def delete_temp_cbz_file(self):
-        delete_temp_file(self.file)
 
     def convert_to_cbz(self):
         '''

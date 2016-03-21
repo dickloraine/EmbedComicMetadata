@@ -110,9 +110,6 @@ def iterate_over_books(ia, func, title, ptext, notptext,
         else:
             not_processed.append(metadata.info)
 
-        # clean up
-        metadata.delete_temp_cbz_file()
-
     # show a completion message
     show_msg(ia, title, ptext, convtext, notptext, processed, converted, not_processed)
 
