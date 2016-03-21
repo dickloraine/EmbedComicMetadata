@@ -111,7 +111,7 @@ def iterate_over_books(ia, func, title, ptext, notptext,
             not_processed.append(metadata.info)
 
     # show a completion message
-    show_msg(ia, title, ptext, convtext, notptext, processed, converted, not_processed)
+    show_msg(ia, title, ptext, convert, convtext, notptext, processed, converted, not_processed)
 
 
 def get_selected_books(ia):
@@ -124,7 +124,7 @@ def get_selected_books(ia):
     return list(map(ia.gui.library_view.model().id, rows))
 
 
-def show_msg(ia, title, ptext, convtext, notptext, processed, converted, not_processed):
+def show_msg(ia, title, ptext, convert, convtext, notptext, processed, converted, not_processed):
     msg = ptext.format(len(processed))
     if convert and len(converted) > 0:
         msg += '\n' + convtext.format(lst2string(converted))
