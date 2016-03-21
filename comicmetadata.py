@@ -43,9 +43,9 @@ class ComicMetadata:
             self.format = None
 
         # generate a string with the books info, to show in the completion dialog
+        self.info = "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
         if self.calibre_metadata.series:
-            self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index)
-        self.info += "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
+            self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index) + self.info
 
     def get_comic_metadata_from_file(self):
         if self.checked_for_metadata:
