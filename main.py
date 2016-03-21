@@ -123,9 +123,9 @@ def iterate_over_books(ia, func, title, ptext, notptext,
 
     msg = ptext.format(len(processed))
     if convert and len(converted) > 0:
-        msg += '\n' + convtext.format(len(converted))
+        msg += '\n' + convtext.format(converted)
     if len(not_processed) > 0:
-        msg += '\n' + notptext.format(len(not_processed))
+        msg += '\n' + notptext.format(not_processed)
     info_dialog(ia.gui, title, msg, show=True)
 
 
