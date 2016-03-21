@@ -14,6 +14,10 @@ from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 
+class NoComicFormatError(Exception):
+    '''Raise this exception, if no valid comic format is found.'''
+
+
 class ComicMetadata:
     '''
     An object for calibre to interact with comic metadata.
@@ -43,9 +47,9 @@ class ComicMetadata:
             self.format = None
 
         # generate a string with the books info, to show in the completion dialog
+        self.info = "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
         if self.calibre_metadata.series:
-            self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index)
-        self.info += "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
+            self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index) + self.info
 
     def get_comic_metadata_from_file(self):
         if self.checked_for_metadata:
@@ -54,10 +58,15 @@ class ComicMetadata:
             self.get_comic_metadata_from_cbz()
         elif self.format == "cbr":
             self.get_comic_metadata_from_cbr()
+        else:
+            raise NoComicFormatError("{} has no valid comic format".format(self.info))
         self.checked_for_metadata = True
 
     def add_updated_comic_to_calibre(self):
-        self.db.add_format(self.book_id, "cbz", self.file)
+        try:
+            self.db.add_format(self.book_id, "cbz", self.file)
+        except:
+            raise NoComicFormatError("{} has no cbz format".format(self.info))
 
     def import_comic_metadata_to_calibre(self, comic_metadata):
         self.convert_comic_md_to_calibre_md(comic_metadata)
@@ -250,8 +259,12 @@ class ComicMetadata:
         self.comic_md_in_calibre_format = mi
 
     def make_temp_cbz_file(self):
-        if not self.file and self.format == "cbz":
+        if self.file:
+            return
+        elif self.format == "cbz":
             self.file = self.db.format(self.book_id, "cbz", as_path=True)
+        else:
+            raise NoComicFormatError("{} has no valid comic format".format(self.info))
 
     def delete_temp_cbz_file(self):
         delete_temp_file(self.file)
@@ -262,6 +275,9 @@ class ComicMetadata:
         '''
         from calibre.ptempfile import TemporaryFile, TemporaryDirectory
         from calibre.utils.unrar import RARFile, extract
+
+        if not self.format == "cbr":
+            raise NoComicFormatError("{} has no cbr format".format(self.info))
 
         with TemporaryDirectory('_cbr2cbz') as tdir:
             # extract the rar file
@@ -338,6 +354,9 @@ class ComicMetadata:
         and returns the metadata depending on do_action
         '''
         from calibre.utils.unrar import RARFile, extract_member, names
+
+        if not self.format == "cbr":
+            raise NoComicFormatError("{} has no cbr format".format(self.info))
 
         ffile = self.db.format(self.book_id, "cbr", as_path=True)
         with open(ffile, 'rb') as stream:
