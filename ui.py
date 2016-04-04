@@ -62,7 +62,7 @@ class EmbedComicMetadata(InterfaceAction):
         for item in config[CONFIG_MENU]["UI_Action_Items"]:
             if item[CONFIG_NAME] == "seperator":
                 self.menu.addSeparator()
-                return
+                continue
             elif item[CONFIG_TRIGGER_ARG]:
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
             else:
