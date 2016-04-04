@@ -21,6 +21,7 @@ CONFIG_COLUMN_TYPE = 3
 CONFIG_DESCRIPTION = 1
 CONFIG_TRIGGER_FUNC = 2
 CONFIG_TRIGGER_ARG = 3
+CONFIG_MENU = 4
 
 
 def get_configuration():
@@ -131,12 +132,3 @@ def get_configuration():
     ]
 
     return config
-
-
-def map_over_config_items(func, group_name, items_name="Items"):
-    config = get_configuration()
-
-    for group in config:
-        if group["Name"] == group_name:
-            for item in group[items_name]:
-                func(item)
