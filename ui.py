@@ -20,7 +20,7 @@ from calibre.gui2 import error_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-from calibre_plugins.EmbedComicMetadata.setup import *
+from calibre_plugins.EmbedComicMetadata.ini import *
 
 
 config = get_configuration()

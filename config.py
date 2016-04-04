@@ -11,7 +11,7 @@ except ImportError:
     from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
 
 from calibre.utils.config import JSONConfig
-from calibre_plugins.EmbedComicMetadata.setup import *
+from calibre_plugins.EmbedComicMetadata.ini import *
 
 
 # This is where all preferences for this plugin will be stored
