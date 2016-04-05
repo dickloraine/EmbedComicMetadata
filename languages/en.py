@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 en = {
     # CONFIG MENU
-    # custom columns (setup.py)
+    # custom columns (ini.py)
     'Artists Custom Columns:': 'Artists Custom Columns:',
     'Other Custom Columns:': 'Other Custom Columns:',
     'Penciller Column:': 'Penciller Column:',
@@ -19,7 +19,7 @@ en = {
     'Locations Column:': 'Locations Column:',
     'Volume Column:': 'Volume Column:',
     'Genre Column:': 'Genre Column:',
-    # options (setup.py)
+    # options (ini.py)
     "Options:": "Options:",
     'Write metadata in zip comment': 'Write metadata in zip comment',
     'Write metadata in ComicInfo.xml': 'Write metadata in ComicInfo.xml',
@@ -31,11 +31,11 @@ en = {
     'Swap names to "LN, FN" when importing metadata': 'Swap names to "LN, FN" when importing metadata',
     'Import tags from comic metadata': 'Import tags from comic metadata',
     'If checked, overwrites the tags in calibre.': 'If checked, overwrites the tags in calibre.',
-    # main_buton (setup.py)
+    # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Main Button Action (needs a calibre restart):",
     'Embed metadata': 'Embed metadata',
     'Import metadata': 'Import metadata',
-    # toolbar_buttons (setup.py)
+    # toolbar_buttons (ini.py)
     "Menu Buttons:": "Menu Buttons:",
     'Show embed both button': 'Show embed both button',
     'Show embed cbi button': 'Show embed cbi button',
@@ -47,7 +47,7 @@ en = {
     'Show embed cover button (experimental)': 'Show embed cover button (experimental)',
 
     # TOOLBAR MENU
-    # (setup.py)
+    # (ini.py)
     'Import Metadata from the comic archive into calibre': 'Import Metadata from the comic archive into calibre',
     "Import Comic Rack Metadata from the comic archive into calibre": "Import Comic Rack Metadata from the comic archive into calibre",
     "Import Comment Metadata from the comic archive into calibre": "Import Comment Metadata from the comic archive into calibre",

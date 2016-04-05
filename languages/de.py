@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 de = {
     # CONFIG MENU
-    # custom columns (setup.py)
+    # custom columns (ini.py)
     'Artists Custom Columns:': 'Eigene Spalten für Künstler:',
     'Other Custom Columns:': 'Andere Eigene Spalten:',
     'Penciller Column:': 'Zeichner:',
@@ -19,7 +19,7 @@ de = {
     'Locations Column:': 'Orte:',
     'Volume Column:': 'Band:',
     'Genre Column:': 'Genre:',
-    # options (setup.py)
+    # options (ini.py)
     "Options:": "Optionen:",
     'Write metadata in zip comment': 'Schreibe die Metadaten in den Zip-Kommentar',
     'Write metadata in ComicInfo.xml': 'Schreibe die Metadaten in die ComicInfo.xml Datei',
@@ -31,11 +31,11 @@ de = {
     'Swap names to "LN, FN" when importing metadata': 'Vertausche Vor- und Nachnamen beim Importieren',
     'Import tags from comic metadata': 'Importiere die Schlagwörter aus den Comic-Metadaten',
     'If checked, overwrites the tags in calibre.': 'Überschreibe die Schlagwörter in Calibre',
-    # main_buton (setup.py)
+    # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Haupt-Button Aktion (erfordert einen Neustart):",
     'Embed metadata': 'Bette Metadaten ein',
     'Import metadata': 'Importiere Metadaten',
-    # toolbar_buttons (setup.py)
+    # toolbar_buttons (ini.py)
     "Menu Buttons:": "Menü Buttons:",
     'Show embed both button': 'Zeige den Button um beide Metadaten einzubetten',
     'Show embed cbi button': 'Zeige den Button um cbi-Metadaten einzubetten',
@@ -47,7 +47,7 @@ de = {
     'Show embed cover button (experimental)': 'Zeige den Button zum einbetten des Covers (experimentell)',
 
     # TOOLBAR MENU
-    # (setup.py)
+    # (ini.py)
     'Import Metadata from the comic archive into calibre': 'Importiere die Metadaten aus dem Comic',
     "Import Comic Rack Metadata from the comic archive into calibre": "Importiere die Comic Rack Metadaten aus dem Comic",
     "Import Comment Metadata from the comic archive into calibre": "Importiere die Metadaten aus dem Kommentar des Comics",
