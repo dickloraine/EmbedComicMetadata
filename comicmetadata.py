@@ -1,3 +1,6 @@
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 __license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
@@ -17,11 +20,10 @@ class ComicMetadata:
     '''
 
     def __init__(self, book_id, ia):
+        # initialize the attributes
         self.book_id = book_id
         self.ia = ia
         self.db = ia.gui.current_db.new_api
-
-        # iniatialize the atributes
         self.calibre_metadata = self.db.get_metadata(book_id)
         self.cbi_metadata = None
         self.cix_metadata = None
@@ -41,10 +43,12 @@ class ComicMetadata:
             self.format = None
 
         # generate a string with the books info, to show in the completion dialog
-        self.info = str(self.calibre_metadata.title) + " - " + str(self.calibre_metadata.authors[0])
+        self.info = "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
         if self.calibre_metadata.series:
-            self.info = (str(self.calibre_metadata.series) + ": " + str(self.calibre_metadata.series_index) +
-                " - " + self.info)
+            self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index) + self.info
+
+    def __del__(self):
+        delete_temp_file(self.file)
 
     def get_comic_metadata_from_file(self):
         if self.checked_for_metadata:
@@ -62,50 +66,41 @@ class ComicMetadata:
         self.convert_comic_md_to_calibre_md(comic_metadata)
         self.db.set_metadata(self.book_id, self.comic_md_in_calibre_format)
 
+    def overlay_metadata(self, comic_metadata):
+        # make sure we have the metadata
+        self.get_comic_metadata_from_file()
+        # make the metadata generic, if none exists now
+        if comic_metadata is None:
+            comic_metadata = GenericMetadata()
+        self.convert_calibre_md_to_comic_md()
+        comic_metadata.overlay(self.calibre_md_in_comic_format)
+
     def embed_cix_metadata(self):
         '''
         Embeds the cix_metadata
         '''
+        self.overlay_metadata(self.cix_metadata)
+        cix_string = ComicInfoXml().stringFromMetadata(self.cix_metadata)
+
         # ensure we have a temp file
         self.make_temp_cbz_file()
-        # make sure we have the metadata
-        self.get_comic_metadata_from_file()
-        # open the zipfile with append option
         zf = ZipFile(self.file, "a")
-        # make the metadata generic, if none exists now
-        if self.cix_metadata is None:
-            self.cix_metadata = GenericMetadata()
-        # convert calibre metadata to comic format
-        self.convert_calibre_md_to_comic_md()
-        # now overlay the calibre metadata with the original metadata
-        self.cix_metadata.overlay(self.calibre_md_in_comic_format)
-        # transform the metadata back to string
-        cix_string = ComicInfoXml().stringFromMetadata(self.cix_metadata)
         # save the metadata in the file
         if self.zipinfo is not None:
             zf.replacestr(self.zipinfo, cix_string.decode('utf-8', 'ignore'))
         else:
             zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
-        # close the zipfile
         zf.close()
 
     def embed_cbi_metadata(self):
         '''
         Embeds the cbi_metadata
         '''
+        self.overlay_metadata(self.cbi_metadata)
+        cbi_string = ComicBookInfo().stringFromMetadata(self.cbi_metadata)
+
         # ensure we have a temp file
         self.make_temp_cbz_file()
-        # make sure we have the metadata
-        self.get_comic_metadata_from_file()
-        # make the metadata generic, if none exists now
-        if self.cbi_metadata is None:
-            self.cbi_metadata = GenericMetadata()
-        # convert calibre metadata to comic format
-        self.convert_calibre_md_to_comic_md()
-        # now overlay the calibre metadata with the original metadata
-        self.cbi_metadata.overlay(self.calibre_md_in_comic_format)
-        # transform the metadata back to string
-        cbi_string = ComicBookInfo().stringFromMetadata(self.cbi_metadata)
         # save the metadata in the comment
         writeZipComment(self.file, cbi_string)
 
@@ -276,6 +271,7 @@ class ComicMetadata:
             with open(ffile, 'rb') as stream:
                 zr = RARFile(stream, get_comment=True)
                 comment = zr.comment
+            delete_temp_file(ffile)
 
             # make the cbz file
             with TemporaryFile("comic.cbz") as tf:
@@ -290,14 +286,14 @@ class ComicMetadata:
                 self.format = "cbz"
 
     def update_cover(self):
-        self.make_temp_cbz_file()
-        # open the zipfile
-        zf = ZipFile(self.file, "a")
-
         # get the calibre cover
         cover_path = self.db.cover(self.book_id, as_path=True)
         fmt = cover_path.rpartition('.')[-1]
         new_cover_name = "00000000_cover." + fmt
+
+        # open the zipfile
+        self.make_temp_cbz_file()
+        zf = ZipFile(self.file, "a")
 
         # search for a previously embeded cover
         cover_info = ""
@@ -310,9 +306,8 @@ class ComicMetadata:
         if cover_info != "":
             zf.delete(cover_info)
         zf.write(cover_path, new_cover_name)
-
-        # close the zipfile
         zf.close()
+        delete_temp_file(cover_path)
 
     def get_comic_metadata_from_cbz(self):
         '''
@@ -360,6 +355,7 @@ class ComicMetadata:
             if ComicBookInfo().validateString(comment):
                 self.cbi_metadata = ComicBookInfo().metadataFromString(comment)
 
+        delete_temp_file(ffile)
         self._get_combined_metadata()
 
     def _get_combined_metadata(self):
@@ -457,6 +453,15 @@ def swap_author_names_back(author):
         surname = parts[0]
         return '%s %s' % (' '.join(parts[1:]), surname)
     return author
+
+
+def delete_temp_file(ffile):
+    try:
+        import os
+        if os.path.exists(ffile):
+            os.remove(ffile)
+    except:
+        pass
 
 
 def writeZipComment(filename, comment):

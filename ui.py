@@ -19,7 +19,11 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
-from calibre_plugins.EmbedComicMetadata.setup import CONFIG_NAME, CONFIG_DESCRIPTION, CONFIG_TRIGGER_FUNC, CONFIG_TRIGGER_ARG, map_over_config_items
+from calibre_plugins.EmbedComicMetadata.languages.lang import _L
+from calibre_plugins.EmbedComicMetadata.ini import *
+
+
+config = get_configuration()
 
 
 class EmbedComicMetadata(InterfaceAction):
@@ -28,11 +32,11 @@ class EmbedComicMetadata(InterfaceAction):
 
     # Declare the main action associated with this plugin
     if prefs["main_import"]:
-        action_spec = ('Import Comic Metadata', None,
-                'Imports the metadata from the comic to calibre', None)
+        action_spec = (_L['Import Comic Metadata'], None,
+                _L['Imports the metadata from the comic to calibre'], None)
     else:
-        action_spec = ('Embed Comic Metadata', None,
-                'Embeds calibres metadata into the comic', None)
+        action_spec = (_L['Embed Comic Metadata'], None,
+                _L['Embeds calibres metadata into the comic'], None)
 
     def genesis(self):
         # menu
@@ -49,27 +53,26 @@ class EmbedComicMetadata(InterfaceAction):
 
         # build menu
         self.menu.clear()
-        map_over_config_items(self.build_menu, "menu", "UI_Action_Items")
-        self.menu_action("configure", "Configure",
+        self.build_menu()
+        self.menu_action("configure", _L["Configure"],
             partial(self.interface_action_base_plugin.do_user_config, (self.gui)))
         self.toggle_menu_items()
 
-    def build_menu(self, item):
-        if item[CONFIG_NAME] == "seperator":
-            self.menu.addSeparator()
-        else:
-            if item[CONFIG_TRIGGER_ARG]:
+    def build_menu(self):
+        for item in config[CONFIG_MENU]["UI_Action_Items"]:
+            if item[CONFIG_NAME] == "seperator":
+                self.menu.addSeparator()
+                continue
+            elif item[CONFIG_TRIGGER_ARG]:
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
             else:
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
             self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
 
     def toggle_menu_items(self):
-        map_over_config_items(self._toggle_menu_items, "menu")
-
-    def _toggle_menu_items(self, item):
-        action = getattr(self, item[CONFIG_NAME])
-        action.setVisible(prefs[item[CONFIG_NAME]])
+        for item in config[CONFIG_MENU]["Items"]:
+            action = getattr(self, item[CONFIG_NAME])
+            action.setVisible(prefs[item[CONFIG_NAME]])
 
     def main_menu_triggered(self):
         from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre
@@ -82,8 +85,8 @@ class EmbedComicMetadata(InterfaceAction):
         elif (prefs['read_cix']) or (prefs['cix_embed']):
             action = "cix"
         else:
-            return error_dialog(self.gui, 'Cannot update metadata',
-                        'No embed format selected', show=True)
+            return error_dialog(self.gui, _L['Cannot update metadata'],
+                        _L['No embed format selected'], show=True)
 
         if prefs["main_import"]:
             import_to_calibre(self, action)

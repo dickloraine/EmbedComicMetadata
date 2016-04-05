@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -13,7 +11,7 @@ except ImportError:
     from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
 
 from calibre.utils.config import JSONConfig
-from calibre_plugins.EmbedComicMetadata.setup import get_configuration, CONFIG_NAME, CONFIG_TITLE, CONFIG_DEFAULT, CONFIG_COLUMN_TYPE
+from calibre_plugins.EmbedComicMetadata.ini import *
 
 
 # This is where all preferences for this plugin will be stored
@@ -70,7 +68,7 @@ class ConfigWidget(QWidget):
                 self.make_columnbox(item[CONFIG_NAME], item[CONFIG_TITLE],
                     prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
             # check for new row
-            if cfg["Type"] == "checkboxes" and k < cfg["Columns"]:
+            if cfg["Type"] == "checkboxes" and k < (cfg["Columns"] - 1):
                 k += 1
             elif cfg["Type"] == "columnboxes" and k < cfg["Columns"] / 2:
                 k += 2
