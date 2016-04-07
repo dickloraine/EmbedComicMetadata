@@ -79,9 +79,7 @@ class ComicMetadata:
         '''
         Embeds the cix_metadata
         '''
-        self.overlay_metadata()
         cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
-
         # ensure we have a temp file
         self.make_temp_cbz_file()
         zf = ZipFile(self.file, "a")
@@ -96,9 +94,7 @@ class ComicMetadata:
         '''
         Embeds the cbi_metadata
         '''
-        self.overlay_metadata()
         cbi_string = ComicBookInfo().stringFromMetadata(self.comic_metadata)
-
         # ensure we have a temp file
         self.make_temp_cbz_file()
         # save the metadata in the comment

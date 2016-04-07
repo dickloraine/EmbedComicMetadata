@@ -36,7 +36,7 @@ def embed_into_comic(ia, action):
     def _embed_into_comic(metadata):
         if metadata.format == "cbr":
             return False
-        metadata.get_comic_metadata_from_file()
+        metadata.overlay_metadata()
         if action == "both" or action == "cix":
             metadata.embed_cix_metadata()
         if action == "both" or action == "cbi":
