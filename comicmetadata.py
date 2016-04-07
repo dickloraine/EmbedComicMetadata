@@ -66,21 +66,21 @@ class ComicMetadata:
         self.convert_comic_md_to_calibre_md(comic_metadata)
         self.db.set_metadata(self.book_id, self.comic_md_in_calibre_format)
 
-    def overlay_metadata(self, comic_metadata):
+    def overlay_metadata(self):
         # make sure we have the metadata
         self.get_comic_metadata_from_file()
         # make the metadata generic, if none exists now
-        if comic_metadata is None:
-            comic_metadata = GenericMetadata()
+        if self.comic_metadata is None:
+            self.comic_metadata = GenericMetadata()
         self.convert_calibre_md_to_comic_md()
-        comic_metadata.overlay(self.calibre_md_in_comic_format)
+        self.comic_metadata.overlay(self.calibre_md_in_comic_format)
 
     def embed_cix_metadata(self):
         '''
         Embeds the cix_metadata
         '''
-        self.overlay_metadata(self.cix_metadata)
-        cix_string = ComicInfoXml().stringFromMetadata(self.cix_metadata)
+        self.overlay_metadata()
+        cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
 
         # ensure we have a temp file
         self.make_temp_cbz_file()
@@ -96,8 +96,8 @@ class ComicMetadata:
         '''
         Embeds the cbi_metadata
         '''
-        self.overlay_metadata(self.cbi_metadata)
-        cbi_string = ComicBookInfo().stringFromMetadata(self.cbi_metadata)
+        self.overlay_metadata()
+        cbi_string = ComicBookInfo().stringFromMetadata(self.comic_metadata)
 
         # ensure we have a temp file
         self.make_temp_cbz_file()
