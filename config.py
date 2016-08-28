@@ -6,9 +6,11 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-    from PyQt5.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
+    from PyQt5.Qt import (QWidget, QCheckBox, QGridLayout, QVBoxLayout,
+                          QGroupBox, QComboBox, QLabel, QButtonGroup)
 except ImportError:
-    from PyQt4.Qt import QWidget, QCheckBox, QGridLayout, QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup
+    from PyQt4.Qt import (QWidget, QCheckBox, QGridLayout,
+                          QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup)
 
 from calibre.utils.config import JSONConfig
 from calibre_plugins.EmbedComicMetadata.ini import *
@@ -24,9 +26,9 @@ prefs = JSONConfig('plugins/EmbedComicMetadata')
 config = get_configuration()
 
 # set defaults
-for group in config:
-    for item in group["Items"]:
-        prefs.defaults[item[CONFIG_NAME]] = item[CONFIG_DEFAULT]
+for agroup in config:
+    for aitem in agroup["Items"]:
+        prefs.defaults[aitem[CONFIG_NAME]] = aitem[CONFIG_DEFAULT]
 
 
 class ConfigWidget(QWidget):
@@ -63,10 +65,10 @@ class ConfigWidget(QWidget):
             # make the element
             if cfg["Type"] == "checkboxes":
                 self.make_checkbox(item[CONFIG_NAME], item[CONFIG_TITLE],
-                    prefs[item[CONFIG_NAME]], lo, i, k)
+                                   prefs[item[CONFIG_NAME]], lo, i, k)
             if cfg["Type"] == "columnboxes":
                 self.make_columnbox(item[CONFIG_NAME], item[CONFIG_TITLE],
-                    prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
+                                    prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
             # check for new row
             if cfg["Type"] == "checkboxes" and k < (cfg["Columns"] - 1):
                 k += 1
@@ -76,9 +78,9 @@ class ConfigWidget(QWidget):
                 k = 0
                 i += 1
 
-    def make_exclusive(self, name, list):
+    def make_exclusive(self, name, lst):
         name = QButtonGroup(self)
-        for item in list:
+        for item in lst:
             name.addButton(item)
 
     def make_groupbox(self, name, title, parent):
@@ -118,12 +120,8 @@ class ConfigWidget(QWidget):
         custom_columns = self.ia.gui.library_view.model().custom_columns
         available_columns = {}
         for key, column in custom_columns.iteritems():
-            if column["is_multiple"]:
-                is_multiple = True
-            else:
-                is_multiple = False
             if (column["datatype"] == column_type["datatype"] and
-                    is_multiple == column_type["is_multiple"] and
+                    column["is_multiple"] == column_type["is_multiple"] and
                     column['display'].get('is_names', False) == column_type['is_names']):
                 available_columns[key] = column
         return available_columns
