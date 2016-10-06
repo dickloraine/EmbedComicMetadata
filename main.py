@@ -1,10 +1,11 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-__license__ = 'GPL v3'
+__license__   = 'GPL v3'
 __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 from calibre.gui2 import error_dialog, info_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
@@ -29,7 +30,7 @@ def import_to_calibre(ia, action):
                        _L["Updated Calibre Metadata"],
                        _L['Updated calibre metadata for {} book(s)'],
                        _L['The following books had no metadata: {}'],
-                       True, "convert_reading")
+                       prefs['convert_reading'])
 
 
 def embed_into_comic(ia, action):
@@ -51,16 +52,7 @@ def embed_into_comic(ia, action):
 
 
 def convert(ia):
-    def _convert(metadata):
-        if metadata.format != "cbr":
-            return False
-        metadata.convert_to_cbz()
-        if prefs['delete_cbr']:
-            ia.gui.current_db.new_api.remove_formats(
-                {metadata.book_id: {'cbr'}})
-        return True
-
-    iterate_over_books(ia, _convert,
+    iterate_over_books(ia, partial(convert_to_cbz, ia),
                        _L["Converted files"],
                        _L['Converted {} book(s) to cbz'],
                        _L['The following books were not converted: {}'],
@@ -82,7 +74,7 @@ def embed_cover(ia):
 
 
 def iterate_over_books(ia, func, title, ptext, notptext,
-                       should_convert=True, convaction="convert_cbr",
+                       should_convert=prefs['convert_cbr'],
                        convtext=_L["The following comics were converted to cbz: {}"]):
     '''
     Iterates over all selected books. For each book, it checks if it should be
@@ -94,8 +86,7 @@ def iterate_over_books(ia, func, title, ptext, notptext,
     converted = []
 
     # iterate through the books
-    ids = get_selected_books(ia)
-    for book_id in ids:
+    for book_id in get_selected_books(ia):
         metadata = ComicMetadata(book_id, ia)
 
         # sanity check
@@ -103,8 +94,8 @@ def iterate_over_books(ia, func, title, ptext, notptext,
             not_processed.append(metadata.info)
             continue
 
-        if should_convert:
-            converted = convert_if_prefs(ia, convaction, metadata, converted)
+        if should_convert and convert_to_cbz(ia, metadata):
+            converted.append(metadata.info)
 
         if func(metadata):
             processed.append(metadata.info)
@@ -112,8 +103,12 @@ def iterate_over_books(ia, func, title, ptext, notptext,
             not_processed.append(metadata.info)
 
     # show a completion message
-    show_msg(ia, title, ptext, should_convert, convtext, notptext, processed,
-             converted, not_processed)
+    msg = ptext.format(len(processed))
+    if should_convert and len(converted) > 0:
+        msg += '\n' + convtext.format(lst2string(converted))
+    if len(not_processed) > 0:
+        msg += '\n' + notptext.format(lst2string(not_processed))
+    info_dialog(ia.gui, title, msg, show=True)
 
 
 def get_selected_books(ia):
@@ -123,17 +118,7 @@ def get_selected_books(ia):
         return error_dialog(ia.gui, _L['Cannot update metadata'],
                             _L['No books selected'], show=True)
     # Map the rows to book ids
-    return list(map(ia.gui.library_view.model().id, rows))
-
-
-def show_msg(ia, title, ptext, should_convert, convtext, notptext, processed,
-             converted, not_processed):
-    msg = ptext.format(len(processed))
-    if should_convert and len(converted) > 0:
-        msg += '\n' + convtext.format(lst2string(converted))
-    if len(not_processed) > 0:
-        msg += '\n' + notptext.format(lst2string(not_processed))
-    info_dialog(ia.gui, title, msg, show=True)
+    return map(ia.gui.library_view.model().id, rows)
 
 
 def lst2string(lst):
@@ -143,14 +128,10 @@ def lst2string(lst):
     return string
 
 
-def convert_if_prefs(ia, action, metadata, converted):
-    # check if we should convert
-    if metadata.format == "cbr" and (
-            (prefs['convert_cbr'] and action == "convert_cbr") or (
-            prefs['convert_reading'] and action == "convert_reading")):
-        metadata.convert_to_cbz()
-        converted.append(metadata.info)
-        if prefs['delete_cbr']:
-            ia.gui.current_db.new_api.remove_formats(
-                {metadata.book_id: {'cbr'}})
-    return converted
+def convert_to_cbz(ia, metadata):
+    if metadata.format != "cbr":
+        return False
+    metadata.convert_to_cbz()
+    if prefs['delete_cbr']:
+        ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
+    return True

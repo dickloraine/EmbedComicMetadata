@@ -54,8 +54,6 @@ class EmbedComicMetadata(InterfaceAction):
         # build menu
         self.menu.clear()
         self.build_menu()
-        self.menu_action("configure", _L["Configure"],
-            partial(self.interface_action_base_plugin.do_user_config, (self.gui)))
         self.toggle_menu_items()
 
     def build_menu(self):
@@ -67,7 +65,10 @@ class EmbedComicMetadata(InterfaceAction):
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
             else:
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
-            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
+            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)         
+        # add configuration entry
+        self.menu_action("configure", _L["Configure"],
+                         partial(self.interface_action_base_plugin.do_user_config, (self.gui)))
 
     def toggle_menu_items(self):
         for item in config[CONFIG_MENU]["Items"]:

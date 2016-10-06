@@ -6,7 +6,8 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
-from calibre.utils.zipfile import ZipFile
+from calibre.utils.zipfile import ZipFile, safe_replace
+from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
@@ -33,6 +34,7 @@ class ComicMetadata:
         self.checked_for_metadata = False
         self.file = None
         self.zipinfo = None
+        self.zipnamelist = []
 
         # get the comic formats
         if self.db.has_format(book_id, "cbz"):
@@ -82,12 +84,28 @@ class ComicMetadata:
         cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
         # ensure we have a temp file
         self.make_temp_cbz_file()
-        zf = ZipFile(self.file, "a")
-        # save the metadata in the file
+
+        # make a new cbz if a metadata file is already there, to prevent corruption
         if self.zipinfo is not None:
-            zf.replacestr(self.zipinfo, cix_string.decode('utf-8', 'ignore'))
-        else:
-            zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
+            with TemporaryDirectory('_cbz2cbz') as tdir:
+                # extract the cbz file
+                zf = ZipFile(self.file)
+                zf.extractall(tdir, self.zipnamelist)
+                # get the comment
+                comment = zf.comment
+                zf.close()
+
+                # make the new cbz file
+                zf = ZipFile(self.file, "w")
+                zf.add_dir(tdir)
+                zf.close()
+                # write comment
+                if comment:
+                    writeZipComment(self.file, comment)
+
+        # save the metadata in the file
+        zf = ZipFile(self.file, "a")
+        zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
         zf.close()
 
     def embed_cbi_metadata(self):
@@ -256,7 +274,6 @@ class ComicMetadata:
         '''
         Converts a cbr-comic to a cbz-comic
         '''
-        from calibre.ptempfile import TemporaryFile, TemporaryDirectory
         from calibre.utils.unrar import RARFile, extract
 
         with TemporaryDirectory('_cbr2cbz') as tdir:
@@ -318,7 +335,8 @@ class ComicMetadata:
             if name.lower() == "comicinfo.xml":
                 self.cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
                 self.zipinfo = zf.getinfo(name)
-                break
+            else:
+                self.zipnamelist.append(name)
 
         # get the cbi metadata
         if ComicBookInfo().validateString(zf.comment):
@@ -401,7 +419,6 @@ def get_role(role, credits):
     Gets a list of persons with the given role.
     First primary persons, then all others, alphabetically
     '''
-    from calibre_plugins.EmbedComicMetadata.config import prefs
 
     persons = []
     for credit in credits:
