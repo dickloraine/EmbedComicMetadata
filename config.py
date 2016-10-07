@@ -26,11 +26,8 @@ prefs = JSONConfig('plugins/EmbedComicMetadata')
 config = get_configuration()
 
 # set defaults
-for agroup in config:
-    for aitem in agroup["Items"]:
-        prefs.defaults[aitem[CONFIG_NAME]] = aitem[CONFIG_DEFAULT]
-# prefs.defaults = {item[CONFIG_NAME]: item[CONFIG_DEFAULT]
-#                   for group in config for item in group["Items"]}
+prefs.defaults = {item[CONFIG_NAME]: item[CONFIG_DEFAULT]
+                  for group in config for item in group["Items"]}
 
 
 class ConfigWidget(QWidget):
@@ -122,8 +119,12 @@ class ConfigWidget(QWidget):
         custom_columns = self.ia.gui.library_view.model().custom_columns
         available_columns = {}
         for key, column in custom_columns.iteritems():
+            if column["is_multiple"]:
+                is_multiple = True
+            else:
+                is_multiple = False
             if (column["datatype"] == column_type["datatype"] and
-                    column["is_multiple"] == column_type["is_multiple"] and
+                    is_multiple == column_type["is_multiple"] and
                     column['display'].get('is_names', False) == column_type['is_names']):
                 available_columns[key] = column
         return available_columns
