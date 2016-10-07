@@ -81,6 +81,7 @@ class ComicMetadata:
         Embeds the cix_metadata
         '''
         cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
+        
         # ensure we have a temp file
         self.make_temp_cbz_file()
 

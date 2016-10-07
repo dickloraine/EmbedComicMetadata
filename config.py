@@ -26,8 +26,11 @@ prefs = JSONConfig('plugins/EmbedComicMetadata')
 config = get_configuration()
 
 # set defaults
-prefs.defaults = {item[CONFIG_NAME]: item[CONFIG_DEFAULT]
-                  for group in config for item in group["Items"]}
+for agroup in config:
+    for aitem in agroup["Items"]:
+        prefs.defaults[aitem[CONFIG_NAME]] = aitem[CONFIG_DEFAULT]
+# prefs.defaults = {item[CONFIG_NAME]: item[CONFIG_DEFAULT]
+#                   for group in config for item in group["Items"]}
 
 
 class ConfigWidget(QWidget):
