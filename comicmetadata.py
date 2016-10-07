@@ -34,7 +34,6 @@ class ComicMetadata:
         self.checked_for_metadata = False
         self.file = None
         self.zipinfo = None
-        self.zipnamelist = []
 
         # get the comic formats
         if self.db.has_format(book_id, "cbz"):
@@ -87,21 +86,7 @@ class ComicMetadata:
 
         # make a new cbz if a metadata file is already there, to prevent corruption
         if self.zipinfo is not None:
-            with TemporaryDirectory('_cbz2cbz') as tdir:
-                # extract the cbz file
-                zf = ZipFile(self.file)
-                zf.extractall(tdir, self.zipnamelist)
-                # get the comment
-                comment = zf.comment
-                zf.close()
-
-                # make the new cbz file
-                zf = ZipFile(self.file, "w")
-                zf.add_dir(tdir)
-                zf.close()
-                # write comment
-                if comment:
-                    writeZipComment(self.file, comment)
+            delete_file_from_cbz(self.file, self.zipinfo)
 
         # save the metadata in the file
         zf = ZipFile(self.file, "a")
@@ -304,20 +289,22 @@ class ComicMetadata:
         fmt = cover_path.rpartition('.')[-1]
         new_cover_name = "00000000_cover." + fmt
 
-        # open the zipfile
         self.make_temp_cbz_file()
-        zf = ZipFile(self.file, "a")
 
         # search for a previously embeded cover
+        zf = ZipFile(self.file)
         cover_info = ""
         for name in zf.namelist():
             if name.rsplit(".", 1)[0] == "00000000_cover":
                 cover_info = name
                 break
 
-        # save the metadata in the file
+        # delete previous cover
         if cover_info != "":
-            zf.delete(cover_info)
+            delete_file_from_cbz(self.file, cover_info)
+
+        # save the cover in the file
+        zf = ZipFile(self.file, "a")
         zf.write(cover_path, new_cover_name)
         zf.close()
         delete_temp_file(cover_path)
@@ -334,9 +321,8 @@ class ComicMetadata:
         for name in zf.namelist():
             if name.lower() == "comicinfo.xml":
                 self.cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
-                self.zipinfo = zf.getinfo(name)
-            else:
-                self.zipnamelist.append(name)
+                self.zipinfo = name
+                break
 
         # get the cbi metadata
         if ComicBookInfo().validateString(zf.comment):
@@ -419,14 +405,13 @@ def get_role(role, credits):
     Gets a list of persons with the given role.
     First primary persons, then all others, alphabetically
     '''
+    from calibre.ebooks.metadata import author_to_author_sort
 
-    persons = []
-    for credit in credits:
-        if credit['role'].lower() in role:
-            persons.append(credit['person'])
-    if persons and len(persons) > 0 and prefs['swap_names']:
-        persons = swap_authors_names(persons)
-    return persons
+    if prefs['swap_names']:
+        return [author_to_author_sort(credit['person']) for credit in credits 
+                if credit['role'].lower() in role]
+    return [credit['person'] for credit in credits 
+            if credit['role'].lower() in role]
 
 
 def set_role(role, persons, credits):
@@ -440,20 +425,6 @@ def set_role(role, persons, credits):
             credit['person'] = person
             credit['role'] = role
             credits.append(credit)
-
-
-def swap_authors_names(authors):
-    '''
-    Swaps the names of all names in authors to "LN, FN"
-    '''
-    from calibre.ebooks.metadata import author_to_author_sort
-
-    swaped_authors = []
-    for author in authors:
-        if ',' not in author:
-            author = author_to_author_sort(author)
-        swaped_authors.append(author)
-    return swaped_authors
 
 
 def swap_author_names_back(author):
@@ -475,6 +446,25 @@ def delete_temp_file(ffile):
             os.remove(ffile)
     except:
         pass
+
+
+def delete_file_from_cbz(cbz_file, filename):
+    with TemporaryDirectory('_cbz2cbz') as tdir:
+        # extract the cbz file
+        zf = ZipFile(cbz_file)
+        zipnamelist = [name for name in zf.namelist() if name != filename]
+        zf.extractall(tdir, zipnamelist)
+        # get the comment
+        comment = zf.comment
+        zf.close()
+
+        # make the new cbz file
+        zf = ZipFile(cbz_file, "w")
+        zf.add_dir(tdir)
+        zf.close()
+        # write comment
+        if comment:
+            writeZipComment(cbz_file, comment)
 
 
 def writeZipComment(filename, comment):
