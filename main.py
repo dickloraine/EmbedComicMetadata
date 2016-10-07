@@ -74,7 +74,7 @@ def embed_cover(ia):
 
 
 def iterate_over_books(ia, func, title, ptext, notptext,
-                       should_convert=prefs['convert_cbr'],
+                       should_convert=None,
                        convtext=_L["The following comics were converted to cbz: {}"]):
     '''
     Iterates over all selected books. For each book, it checks if it should be
@@ -84,6 +84,9 @@ def iterate_over_books(ia, func, title, ptext, notptext,
     processed = []
     not_processed = []
     converted = []
+
+    if should_convert is None:
+        should_convert=prefs["convert_cbr"]
 
     # iterate through the books
     for book_id in get_selected_books(ia):
