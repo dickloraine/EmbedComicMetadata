@@ -80,12 +80,8 @@ class ComicMetadata:
         '''
         Embeds the cix_metadata
         '''
-<<<<<<< HEAD
         from io import StringIO
 
-=======
-        self.overlay_metadata()
->>>>>>> refs/remotes/origin/master
         cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
 
         # ensure we have a temp file
@@ -106,13 +102,8 @@ class ComicMetadata:
         '''
         Embeds the cbi_metadata
         '''
-<<<<<<< HEAD
-        cbi_string = ComicBookInfo().stringFromMetadata(self.comic_metadata)
-=======
-        self.overlay_metadata()
         cbi_string = ComicBookInfo().stringFromMetadata(self.comic_metadata)
 
->>>>>>> refs/remotes/origin/master
         # ensure we have a temp file
         self.make_temp_cbz_file()
         # save the metadata in the comment
