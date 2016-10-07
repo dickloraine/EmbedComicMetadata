@@ -86,7 +86,7 @@ def iterate_over_books(ia, func, title, ptext, notptext,
     converted = []
 
     if should_convert is None:
-        should_convert=prefs["convert_cbr"]
+        should_convert = prefs["convert_cbr"]
 
     # iterate through the books
     for book_id in get_selected_books(ia):
