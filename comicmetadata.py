@@ -80,19 +80,23 @@ class ComicMetadata:
         '''
         Embeds the cix_metadata
         '''
+        from io import StringIO
+
         cix_string = ComicInfoXml().stringFromMetadata(self.comic_metadata)
-        
+
         # ensure we have a temp file
         self.make_temp_cbz_file()
 
         # make a new cbz if a metadata file is already there, to prevent corruption
         if self.zipinfo is not None:
-            delete_file_from_cbz(self.file, self.zipinfo)
+            with open(self.file, 'r+b') as zf:
+                safe_replace(zf, self.zipinfo, StringIO(cix_string.decode('utf-8', 'ignore')))
 
-        # save the metadata in the file
-        zf = ZipFile(self.file, "a")
-        zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
-        zf.close()
+        else:
+            # save the metadata in the file
+            zf = ZipFile(self.file, "a")
+            zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
+            zf.close()
 
     def embed_cbi_metadata(self):
         '''
@@ -302,12 +306,15 @@ class ComicMetadata:
 
         # delete previous cover
         if cover_info != "":
-            delete_file_from_cbz(self.file, cover_info)
+            with open(self.file, 'r+b') as zf, open(cover_path, 'r+b') as cp:
+                safe_replace(zf, cover_info, cp)
 
         # save the cover in the file
-        zf = ZipFile(self.file, "a")
-        zf.write(cover_path, new_cover_name)
-        zf.close()
+        else:
+            zf = ZipFile(self.file, "a")
+            zf.write(cover_path, new_cover_name)
+            zf.close()
+
         delete_temp_file(cover_path)
 
     def get_comic_metadata_from_cbz(self):
@@ -409,9 +416,9 @@ def get_role(role, credits):
     from calibre.ebooks.metadata import author_to_author_sort
 
     if prefs['swap_names']:
-        return [author_to_author_sort(credit['person']) for credit in credits 
+        return [author_to_author_sort(credit['person']) for credit in credits
                 if credit['role'].lower() in role]
-    return [credit['person'] for credit in credits 
+    return [credit['person'] for credit in credits
             if credit['role'].lower() in role]
 
 
@@ -447,25 +454,6 @@ def delete_temp_file(ffile):
             os.remove(ffile)
     except:
         pass
-
-
-def delete_file_from_cbz(cbz_file, filename):
-    with TemporaryDirectory('_cbz2cbz') as tdir:
-        # extract the cbz file
-        zf = ZipFile(cbz_file)
-        zipnamelist = [name for name in zf.namelist() if name != filename]
-        zf.extractall(tdir, zipnamelist)
-        # get the comment
-        comment = zf.comment
-        zf.close()
-
-        # make the new cbz file
-        zf = ZipFile(cbz_file, "w")
-        zf.add_dir(tdir)
-        zf.close()
-        # write comment
-        if comment:
-            writeZipComment(cbz_file, comment)
 
 
 def writeZipComment(filename, comment):
