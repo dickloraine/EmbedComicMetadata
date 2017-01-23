@@ -11,6 +11,8 @@ PERSON_TYPE = {"is_multiple": True, "is_names": True, "datatype": "text"}
 TAG_TYPE    = {"is_multiple": True, "is_names": False, "datatype": "text"}
 SINGLE_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
 FLOAT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "float"}
+INT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "int"}
+COMMENT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "comments"}
 SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
 
 # Some constants for ease of reading
@@ -54,12 +56,12 @@ def get_configuration():
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
-                ["penciller_column", _L['Penciller Column:'], None, PERSON_TYPE],
-                ["inker_column", _L['Inker Column:'], None, PERSON_TYPE],
-                ["colorist_column", _L['Colorist Column:'], None, PERSON_TYPE],
-                ["letterer_column", _L['Letterer Column:'], None, PERSON_TYPE],
-                ["cover_artist_column", _L['Cover Artist Column:'], None, PERSON_TYPE],
-                ["editor_column", _L['Editor Column:'], None, PERSON_TYPE]
+                ["penciller_column", _L['Penciller:'], None, PERSON_TYPE],
+                ["inker_column", _L['Inker:'], None, PERSON_TYPE],
+                ["colorist_column", _L['Colorist:'], None, PERSON_TYPE],
+                ["letterer_column", _L['Letterer:'], None, PERSON_TYPE],
+                ["cover_artist_column", _L['Cover Artist:'], None, PERSON_TYPE],
+                ["editor_column", _L['Editor:'], None, PERSON_TYPE]
             ]
         },
         {
@@ -68,12 +70,14 @@ def get_configuration():
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
-                ["storyarc_column", _L['Story Arc Column:'], None, SINGLE_TYPE],
-                ["characters_column", _L['Characters Column:'], None, TAG_TYPE],
-                ["teams_column", _L['Teams Column:'], None, TAG_TYPE],
-                ["locations_column", _L['Locations Column:'], None, TAG_TYPE],
-                ["volume_column", _L['Volume Column:'], None, SINGLE_TYPE],
-                ["genre_column", _L['Genre Column:'], None, TAG_TYPE]
+                ["storyarc_column", _L['Story Arc:'], None, SINGLE_TYPE],
+                ["characters_column", _L['Characters:'], None, TAG_TYPE],
+                ["teams_column", _L['Teams:'], None, TAG_TYPE],
+                ["locations_column", _L['Locations:'], None, TAG_TYPE],
+                ["volume_column", _L['Volume:'], None, SINGLE_TYPE],
+                ["genre_column", _L['Genre:'], None, TAG_TYPE],
+                ["count_column", _L['Number of issues:'], None, INT_TYPE],
+                ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE]
             ]
         },
         {

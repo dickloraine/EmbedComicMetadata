@@ -166,6 +166,8 @@ class ComicMetadata:
         update_field("locations", field(prefs['locations_column']))
         update_field("volume", field(prefs['volume_column']))
         update_field("genre", field(prefs['genre_column']))
+        update_field("issueCount", field(prefs['count_column']))
+        update_field("webLink", get_link(field(prefs['comicvine_column'])))
 
     def convert_comic_md_to_calibre_md(self, comic_metadata):
         '''
@@ -258,6 +260,8 @@ class ComicMetadata:
         update_column(prefs['locations_column'], co.locations)
         update_column(prefs['volume_column'], co.volume)
         update_column(prefs['genre_column'], co.genre)
+        update_column(prefs['count_column'], co.issueCount)
+        update_column(prefs['comicvine_column'], '<a href="{}">{}</a>'.format(co.webLink, co.webLink))
 
         self.comic_md_in_calibre_format = mi
 
@@ -469,6 +473,16 @@ def delete_temp_file(ffile):
             os.remove(ffile)
     except:
         pass
+
+
+def get_link(text):
+    import re
+
+    if text:
+        link = re.findall('<a href="?\'?([^"\'>]*)', text)
+        if link:
+            return link[0]
+    return ""
 
 
 def writeZipComment(filename, comment):
