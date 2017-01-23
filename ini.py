@@ -87,6 +87,7 @@ def get_configuration():
                 ["read_cbi", _L['Import metadata from zip comment'], True],
                 ["read_cix", _L['Import metadata from ComicInfo.xml'], True],
                 ["convert_cbr", _L['Auto convert cbr to cbz'], True],
+                ["convert_archives", _L['Also convert rar and zip to cbz'], True],
                 ["convert_reading", _L['Auto convert while importing to calibre'], False],
                 ["delete_cbr", _L['Delete cbr after conversion'], False],
                 ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],

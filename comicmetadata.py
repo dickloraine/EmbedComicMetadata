@@ -40,6 +40,10 @@ class ComicMetadata:
             self.format = "cbz"
         elif self.db.has_format(book_id, "cbr"):
             self.format = "cbr"
+        elif self.db.has_format(book_id, "zip"):
+            self.format = "zip"
+        elif self.db.has_format(book_id, "rar"):
+            self.format = "rar"
         else:
             self.format = None
 
@@ -261,15 +265,15 @@ class ComicMetadata:
         if not self.file and self.format == "cbz":
             self.file = self.db.format(self.book_id, "cbz", as_path=True)
 
-    def convert_to_cbz(self):
+    def convert_cbr_to_cbz(self):
         '''
-        Converts a cbr-comic to a cbz-comic
+        Converts a rar or cbr-comic to a cbz-comic
         '''
         from calibre.utils.unrar import RARFile, extract
 
         with TemporaryDirectory('_cbr2cbz') as tdir:
             # extract the rar file
-            ffile = self.db.format(self.book_id, "cbr", as_path=True)
+            ffile = self.db.format(self.book_id, self.format, as_path=True)
             extract(ffile, tdir)
             # get the comment
             with open(ffile, 'rb') as stream:
@@ -288,6 +292,16 @@ class ComicMetadata:
                 # add the cbz format to calibres library
                 self.db.add_format(self.book_id, "cbz", tf)
                 self.format = "cbz"
+
+    def convert_zip_to_cbz(self):
+        import os
+        
+        zf = self.db.format(self.book_id, "zip", as_path=True)
+        new_fname = os.path.splitext(zf)[0] + ".cbz"
+        os.rename(zf, new_fname)
+        self.db.add_format(self.book_id, "cbz", new_fname)
+        delete_temp_file(new_fname)
+        self.format = "cbz"
 
     def update_cover(self):
         # get the calibre cover

@@ -35,7 +35,7 @@ def import_to_calibre(ia, action):
 
 def embed_into_comic(ia, action):
     def _embed_into_comic(metadata):
-        if metadata.format == "cbr":
+        if metadata.format != "cbz":
             return False
         metadata.overlay_metadata()
         if action == "both" or action == "cix":
@@ -61,7 +61,7 @@ def convert(ia):
 
 def embed_cover(ia):
     def _embed_cover(metadata):
-        if metadata.format == "cbr":
+        if metadata.format != "cbz":
             return False
         metadata.update_cover()
         metadata.add_updated_comic_to_calibre()
@@ -125,13 +125,18 @@ def get_selected_books(ia):
 
 
 def lst2string(lst):
-    return "\n    ".join(item.encode('utf-8') for item in lst)
+    return "\n" + "\n    ".join(item.encode('utf-8') for item in lst)
 
 
 def convert_to_cbz(ia, metadata):
-    if metadata.format != "cbr":
-        return False
-    metadata.convert_to_cbz()
-    if prefs['delete_cbr']:
-        ia.gui.current_db.new_api.remove_formats({metadata.book_id: {'cbr'}})
-    return True
+    if metadata.format == "cbr" or (metadata.format == "rar" and prefs['convert_archives']):
+        metadata.convert_cbr_to_cbz()
+        if prefs['delete_cbr']:
+            ia.gui.current_db.new_api.remove_formats({metadata.book_id: {"cbr", "rar"}})
+        return True
+    elif metadata.format == "zip" and prefs['convert_archives']:
+        metadata.convert_zip_to_cbz()
+        if prefs['delete_cbr']:
+            ia.gui.current_db.new_api.remove_formats({metadata.book_id: {"zip"}})
+        return True
+    return False

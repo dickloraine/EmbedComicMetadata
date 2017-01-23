@@ -26,6 +26,7 @@ de = {
     'Import metadata from zip comment': 'Importiere die Metadaten aus dem Zip-Kommentar',
     'Import metadata from ComicInfo.xml': 'Importiere die Metadaten aus der ComicInfo.xml Datei',
     'Auto convert cbr to cbz': 'Konvertiere cbr Dateien automatisch zu cbz Dateien',
+    'Also convert rar and zip to cbz': 'Konvertiere auch rar und zip Dateien zu cbz Dateien',
     'Auto convert while importing to calibre': 'Konvertiere auch beim Importieren automatisch',
     'Delete cbr after conversion': 'Lösche die cbr Datei nach dem Konvertieren',
     'Swap names to "LN, FN" when importing metadata': 'Vertausche Vor- und Nachnamen beim Importieren',

@@ -65,7 +65,7 @@ class EmbedComicMetadata(InterfaceAction):
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self, item[CONFIG_TRIGGER_ARG])
             else:
                 triggerfunc = partial(item[CONFIG_TRIGGER_FUNC], self)
-            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)         
+            self.menu_action(item[CONFIG_NAME], item[CONFIG_DESCRIPTION], triggerfunc)
         # add configuration entry
         self.menu_action("configure", _L["Configure"],
                          partial(self.interface_action_base_plugin.do_user_config, (self.gui)))
