@@ -123,7 +123,7 @@ class ConfigWidget(QWidget):
                 is_multiple = True
             else:
                 is_multiple = False
-            if (column["datatype"] == column_type["datatype"] and
+            if (column["datatype"] in column_type["datatype"] and
                     is_multiple == column_type["is_multiple"] and
                     column['display'].get('is_names', False) == column_type['is_names']):
                 available_columns[key] = column

@@ -14,6 +14,7 @@ FLOAT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "float"}
 INT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "int"}
 COMMENT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "comments"}
 SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
+STORY_ARCH_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["series", "text"]}
 
 # Some constants for ease of reading
 CONFIG_NAME = 0
@@ -70,7 +71,7 @@ def get_configuration():
             "Type": "columnboxes",
             "Columns": 2,
             "Items": [
-                ["storyarc_column", _L['Story Arc:'], None, SINGLE_TYPE],
+                ["storyarc_column", _L['Story Arc:'], None, STORY_ARCH_TYPE],
                 ["characters_column", _L['Characters:'], None, TAG_TYPE],
                 ["teams_column", _L['Teams:'], None, TAG_TYPE],
                 ["locations_column", _L['Locations:'], None, TAG_TYPE],
