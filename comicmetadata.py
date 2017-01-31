@@ -261,7 +261,7 @@ class ComicMetadata:
         update_column(prefs['volume_column'], co.volume)
         update_column(prefs['genre_column'], co.genre)
         update_column(prefs['count_column'], co.issueCount)
-        update_column(prefs['comicvine_column'], '<a href="{}">{}</a>'.format(co.webLink, co.webLink))
+        update_column(prefs['comicvine_column'], '<a href="{}">Comic Vine</a>'.format(co.webLink))
 
         self.comic_md_in_calibre_format = mi
 
