@@ -15,6 +15,7 @@ INT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "int"}
 COMMENT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "comments"}
 SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
 STORY_ARCH_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["series", "text"]}
+NUMBER_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["int", "text"]}
 
 # Some constants for ease of reading
 CONFIG_NAME = 0
@@ -75,9 +76,9 @@ def get_configuration():
                 ["characters_column", _L['Characters:'], None, TAG_TYPE],
                 ["teams_column", _L['Teams:'], None, TAG_TYPE],
                 ["locations_column", _L['Locations:'], None, TAG_TYPE],
-                ["volume_column", _L['Volume:'], None, SINGLE_TYPE],
+                ["volume_column", _L['Volume:'], None, NUMBER_TYPE],
                 ["genre_column", _L['Genre:'], None, TAG_TYPE],
-                ["count_column", _L['Number of issues:'], None, INT_TYPE],
+                ["count_column", _L['Number of issues:'], None, NUMBER_TYPE],
                 ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE]
             ]
         },
@@ -92,7 +93,7 @@ def get_configuration():
                 ["read_cbi", _L['Import metadata from zip comment'], True],
                 ["read_cix", _L['Import metadata from ComicInfo.xml'], True],
                 ["convert_cbr", _L['Auto convert cbr to cbz'], True],
-                ["convert_archives", _L['Also convert rar and zip to cbz'], True],
+                ["convert_archives", _L['Also convert rar and zip to cbz'], False],
                 ["convert_reading", _L['Auto convert while importing to calibre'], False],
                 ["delete_cbr", _L['Delete cbr after conversion'], False],
                 ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],

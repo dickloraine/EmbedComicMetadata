@@ -7,7 +7,7 @@ Requires calibre version 1.0.0 or later.
 ## Main Features
 - Can embed the metadata to the zip comment or a ComicInfo.xml file inside the archives
 - Can read the above metadata formats and import them into calibre
-- Can write many additional metadata into custom columns Can automatically convert cbr files to cbz
+- Can write many additional metadata into custom columns Can automatically convert cbr/zip/rar files to cbz
 - Can embed the calibre cover into cbz comics (experimental)
 
 ## Usage
@@ -33,7 +33,16 @@ Penciller, Inker, Colorist, Letterer, Cover Artist, Editor
 Characters, Teams, Locations, Genre
 
 #### Text, column shown in the tag browser:
-Story Arc, Volume
+Story Arc, Volume, Number of Issues
+
+#### Integer:
+Number of Issues, Volume
+
+#### Series like:
+Story Arc
+
+#### Comment:
+Comic Vine Link
 
 ### Customizing the main menu:
 The menu in the toolbar can be custimized to your liking through the options in the configuration.
@@ -45,6 +54,7 @@ Use with care, just inserts the calibre cover as "00000000_cover" into the comic
 - **Write metadata in zip comment**: This format is used by calibre, if you import comic files and by ComicbookLovers (default: on)
 - **Write metadata in ComicInfo.xml**: This format is used by ComicRack and some other comic readers (default: on)
 - **Auto convert cbr to cbz**: If a comic has only the cbr format, convert it to store the metadata (default: on)
+- **Also convert rar and zip to cbz**: Expand the behaviour for cbr to rars and zips (default: off)
 - **Auto convert while importing to calibre**: As above, but even when importing metadata into calibre (default: off)
 - **Delete cbr after conversion**: Deletes the cbr format after the conversion (default: off)
 - **Swap names to "LN, FN" when importing metadata**: Does just what it says (default: off)
