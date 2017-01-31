@@ -57,7 +57,7 @@ en = {
     "Embed both Comic Metadata types": "Embed both Comic Metadata types",
     "Only embed Metadata in zip comment": "Only embed Metadata in zip comment",
     "Only embed Metadata in ComicInfo.xml": "Only embed Metadata in ComicInfo.xml",
-    "Only convert cbr to cbz": "Only convert cbr to cbz",
+    "Only convert to cbz": "Only convert to cbz",
     "Embed the calibre cover": "Embed the calibre cover",
     # main button (ui.py)
     'Import Comic Metadata': 'Import Comic Metadata',
