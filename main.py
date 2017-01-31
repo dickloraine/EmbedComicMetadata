@@ -125,7 +125,7 @@ def get_selected_books(ia):
 
 
 def lst2string(lst):
-    return "\n" + "\n    ".join(item.encode('utf-8') for item in lst)
+    return "\n    " + "\n    ".join(item.encode('utf-8') for item in lst)
 
 
 def convert_to_cbz(ia, metadata):
