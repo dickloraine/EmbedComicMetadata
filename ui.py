@@ -78,24 +78,24 @@ class EmbedComicMetadata(InterfaceAction):
     def main_menu_triggered(self):
         from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre
 
+        i = prefs["main_import"]
         # Check the preferences for what should be done
-        if (prefs['read_cbi'] and prefs['read_cix']) or (prefs['cbi_embed'] and prefs['cix_embed']):
+        if (i and prefs['read_cbi'] and prefs['read_cix']) or (not i and prefs['cbi_embed'] and prefs['cix_embed']):
             action = "both"
-        elif (prefs['read_cbi']) or (prefs['cbi_embed']):
+        elif (i and prefs['read_cbi']) or (not i and prefs['cbi_embed']):
             action = "cbi"
-        elif (prefs['read_cix']) or (prefs['cix_embed']):
+        elif (i and prefs['read_cix']) or (not i and prefs['cix_embed']):
             action = "cix"
         else:
             return error_dialog(self.gui, _L['Cannot update metadata'],
                         _L['No embed format selected'], show=True)
 
-        if prefs["main_import"]:
+        if i:
             import_to_calibre(self, action)
         else:
             embed_into_comic(self, action)
 
     def apply_settings(self):
-        from calibre_plugins.EmbedComicMetadata.config import prefs
         # In an actual non trivial plugin, you would probably need to
         # do something based on the settings in prefs
         prefs

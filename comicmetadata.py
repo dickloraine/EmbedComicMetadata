@@ -91,13 +91,12 @@ class ComicMetadata:
         # ensure we have a temp file
         self.make_temp_cbz_file()
 
-        # make a new cbz if a metadata file is already there, to prevent corruption
+        # use the safe_replace function from calibre to prevent coruption
         if self.zipinfo is not None:
             with open(self.file, 'r+b') as zf:
                 safe_replace(zf, self.zipinfo, StringIO(cix_string.decode('utf-8', 'ignore')))
-
+        # save the metadata in the file     
         else:
-            # save the metadata in the file
             zf = ZipFile(self.file, "a")
             zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
             zf.close()

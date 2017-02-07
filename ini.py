@@ -8,11 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 # Define some column types
 PERSON_TYPE = {"is_multiple": True, "is_names": True, "datatype": "text"}
-TAG_TYPE    = {"is_multiple": True, "is_names": False, "datatype": "text"}
+TAG_TYPE = {"is_multiple": True, "is_names": False, "datatype": "text"}
 SINGLE_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
-FLOAT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "float"}
-INT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "int"}
-COMMENT_TYPE  = {"is_multiple": False, "is_names": False, "datatype": "comments"}
+FLOAT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "float"}
+INT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "int"}
+COMMENT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "comments"}
 SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
 STORY_ARCH_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["series", "text"]}
 NUMBER_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["int", "text"]}
