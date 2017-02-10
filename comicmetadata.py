@@ -34,6 +34,7 @@ class ComicMetadata:
         self.checked_for_metadata = False
         self.file = None
         self.zipinfo = None
+        self.pages = 0
 
         # get the comic formats
         if self.db.has_format(book_id, "cbz"):
@@ -337,6 +338,20 @@ class ComicMetadata:
             zf.close()
 
         delete_temp_file(cover_path)
+
+    def count_pages(self):
+        self.make_temp_cbz_file()
+        # open the zipfile
+        zf = ZipFile(self.file)
+
+        # count the pages
+        for name in zf.namelist():
+            if name.rpartition('.')[-1] in ["jpg", "png", "jpeg"]:
+                self.pages += 1
+
+        update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
+                             self.db.field_metadata.custom_field_metadata())
+        self.db.set_metadata(self.book_id, self.calibre_metadata)
 
     def get_comic_metadata_from_cbz(self):
         '''

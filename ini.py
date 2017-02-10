@@ -48,7 +48,7 @@ def get_configuration():
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-    from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert
+    from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert, count_pages
 
     # configuration
     config = [
@@ -138,6 +138,7 @@ def get_configuration():
                 ["seperator"],
                 ["convert", _L["Only convert to cbz"], convert, None],
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
+                ["count_pages", _L["Count pages"], count_pages, None],
                 ["seperator"]
             ]
         }

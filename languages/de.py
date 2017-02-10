@@ -60,6 +60,7 @@ de = {
     "Only embed Metadata in ComicInfo.xml": "Bette die Metadaten nur in die ComicInfo.xml Datei ein",
     "Only convert to cbz": "Konvertiere die Dateien zu cbz Dateien",
     "Embed the calibre cover": "Bette das Calibre Cover ein",
+    "Count pages": "Zähle Seiten",
     # main button (ui.py)
     'Import Comic Metadata': 'Metadaten importieren',
     'Imports the metadata from the comic to calibre': 'Importiere die Metadaten aus dem Comic',
