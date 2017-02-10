@@ -125,7 +125,8 @@ def get_configuration():
                 ["import_cix", _L['Show import cix button'], False],
                 ["import_cbi", _L['Show import cbi button'], False],
                 ["convert", _L['Show convert button'], True],
-                ["cover", _L['Show embed cover button (experimental)'], False]
+                ["cover", _L['Show embed cover button (experimental)'], False],
+                ["count_pages", _L['Show count pages button'], False]
             ],
             "UI_Action_Items": [
                 ["read_both", _L['Import Metadata from the comic archive into calibre'], import_to_calibre, "both"],

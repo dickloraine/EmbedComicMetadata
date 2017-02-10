@@ -49,6 +49,7 @@ de = {
     'Show import cbi button': 'Zeige den Button um cbi-Metadaten zu importieren',
     'Show convert button': 'Zeige den Konvertierungs-Button',
     'Show embed cover button (experimental)': 'Zeige den Button zum einbetten des Covers (experimentell)',
+    'Show count pages button': 'Zeige den Button zum zählen der Seiten',
 
     # TOOLBAR MENU
     # (ini.py)
@@ -82,6 +83,9 @@ de = {
     "Updated Covers": "Die Cover wurden aktualisiert",
     'Embeded {} covers': '{} Cover wurden eingebettet',
     'The following covers were not embeded: {}': 'Die folgenden Cover wurden nicht eingebettet: {}',
+    "Counted pages": "Seiten gezählt",
+    'Counted pages in {} comics': 'Seiten in {} comics gezählt',
+    'The following comics were not counted: {}': 'Die folgenden Comics wurden nicht gezählt: {}',
     "The following comics were converted to cbz: {}": "Die folgenden Comics wurden in das cbz Format konvertiert: {}",
 
     # ERRORS

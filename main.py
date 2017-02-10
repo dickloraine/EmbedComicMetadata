@@ -81,9 +81,9 @@ def count_pages(ia):
         return True
 
     iterate_over_books(ia, _count_pages,
-                       _L["Updated Covers"],
-                       _L['Embeded {} covers'],
-                       _L['The following covers were not embeded: {}'])
+                       _L["Counted pages"],
+                       _L['Counted pages in {} comics'],
+                       _L['The following comics were not counted: {}'])
 
 
 def iterate_over_books(ia, func, title, ptext, notptext,
