@@ -142,6 +142,7 @@ class GenericMetadata:
         assign("locations",         new_md.locations)
         assign("comments",          new_md.comments)
         assign("notes",             new_md.notes)
+        assign("pageCount",         new_md.pageCount)
 
         assign("price",             new_md.price)
         assign("isVersionOf",       new_md.isVersionOf)
@@ -270,6 +271,7 @@ class GenericMetadata:
         add_attr_string("webLink")
         add_attr_string("format")
         add_attr_string("manga")
+        add_attr_string("pageCount")
 
         add_attr_string("price")
         add_attr_string("isVersionOf")

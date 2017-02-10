@@ -79,6 +79,7 @@ def get_configuration():
                 ["volume_column", _L['Volume:'], None, NUMBER_TYPE],
                 ["genre_column", _L['Genre:'], None, TAG_TYPE],
                 ["count_column", _L['Number of issues:'], None, NUMBER_TYPE],
+                ["pages_column", _L['Pages:'], None, NUMBER_TYPE],
                 ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE]
             ]
         },

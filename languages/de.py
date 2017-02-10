@@ -19,7 +19,8 @@ de = {
     'Locations:': 'Orte:',
     'Volume:': 'Band:',
     'Genre:': 'Genre:',
-    'Number of issues:': 'Anzahl der Ausgaben',
+    'Number of issues:': 'Anzahl der Ausgaben:',
+    'Pages:': 'Seiten:',
     'Comicvine link:': 'Comicvine link:',
     # options (ini.py)
     "Options:": "Optionen:",

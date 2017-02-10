@@ -20,6 +20,7 @@ en = {
     'Volume:': 'Volume:',
     'Genre:': 'Genre:',
     'Number of issues:': 'Number of issues:',
+    'Pages:': 'Pages:',
     'Comicvine link:': 'Comicvine link:',
     # options (ini.py)
     "Options:": "Options:",
