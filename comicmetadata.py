@@ -340,13 +340,16 @@ class ComicMetadata:
         delete_temp_file(cover_path)
 
     def count_pages(self):
+        # image file extensions
+        IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif"]
+
         self.make_temp_cbz_file()
         # open the zipfile
         zf = ZipFile(self.file)
 
         # count the pages
         for name in zf.namelist():
-            if name.rpartition('.')[-1] in ["jpg", "png", "jpeg"]:
+            if name.rpartition('.')[-1] in IMG_EXTENSIONS:
                 self.pages += 1
 
         update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
