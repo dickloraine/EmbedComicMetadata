@@ -349,7 +349,7 @@ class ComicMetadata:
 
         # count the pages
         for name in zf.namelist():
-            if name.rpartition('.')[-1] in IMG_EXTENSIONS:
+            if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
                 self.pages += 1
 
         update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
