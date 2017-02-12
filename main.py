@@ -77,8 +77,7 @@ def count_pages(ia):
     def _count_pages(metadata):
         if metadata.format != "cbz":
             return False
-        metadata.count_pages()
-        return True
+        return metadata.count_pages()
 
     iterate_over_books(ia, _count_pages,
                        _L["Counted pages"],

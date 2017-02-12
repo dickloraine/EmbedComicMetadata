@@ -250,8 +250,8 @@ class ComicMetadata:
                 pass
 
         # custom columns
-        custom_cols = self.db.field_metadata.custom_field_metadata()
-        update_column = partial(update_custom_column, calibre_metadata=mi, custom_cols=custom_cols)
+        update_column = partial(update_custom_column, calibre_metadata=mi,
+                                custom_cols=self.db.field_metadata.custom_field_metadata())
         # artists
         update_column(prefs['penciller_column'], role(PENCILLER))
         update_column(prefs['inker_column'], role(INKER))
@@ -309,7 +309,7 @@ class ComicMetadata:
 
     def convert_zip_to_cbz(self):
         import os
-        
+
         zf = self.db.format(self.book_id, "zip", as_path=True)
         new_fname = os.path.splitext(zf)[0] + ".cbz"
         os.rename(zf, new_fname)
@@ -355,10 +355,14 @@ class ComicMetadata:
         for name in zf.namelist():
             if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
                 self.pages += 1
+        
+        if self.pages == 0:
+            return False
 
         update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
                              self.db.field_metadata.custom_field_metadata())
         self.db.set_metadata(self.book_id, self.calibre_metadata)
+        return True
 
     def get_comic_metadata_from_cbz(self):
         '''
@@ -367,7 +371,7 @@ class ComicMetadata:
         self.make_temp_cbz_file()
         # open the zipfile
         zf = ZipFile(self.file)
-        
+
         # get cix metadata
         for name in zf.namelist():
             if name.lower() == "comicinfo.xml":
@@ -457,7 +461,6 @@ def update_custom_column(col_name, value, calibre_metadata, custom_cols):
 def get_role(role, credits):
     '''
     Gets a list of persons with the given role.
-    First primary persons, then all others, alphabetically
     '''
     from calibre.ebooks.metadata import author_to_author_sort
 
@@ -474,11 +477,8 @@ def set_role(role, persons, credits):
     '''
     if persons and len(persons) > 0:
         for person in persons:
-            credit = dict()
-            person = swap_author_names_back(person)
-            credit['person'] = person
-            credit['role'] = role
-            credits.append(credit)
+            credits.append({'person': swap_author_names_back(person),
+                            'role': role})
 
 
 def swap_author_names_back(author):

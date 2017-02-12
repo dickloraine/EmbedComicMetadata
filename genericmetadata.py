@@ -165,7 +165,7 @@ class GenericMetadata:
             assign("pages",           new_md.pages)
 
     # modified for calibre, deletes old writers
-    def overlayCredits(self, new_credits, overwrite):
+    def overlayCredits(self, new_credits, overwrite=True):
         # changed for the calibre plugin
         if overwrite:
             for c in new_credits:
@@ -228,7 +228,7 @@ class GenericMetadata:
         # look to see if it's not already there...
         found = False
         for c in self.credits:
-            if (c['person'].lower() == person.lower() and
+            if (c['person'].lower().strip() == person.lower().strip() and
                     c['role'].lower() == role.lower()):
                 # no need to add it. just adjust the "primary" flag as needed
                 c['primary'] = primary
