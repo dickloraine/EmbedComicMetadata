@@ -9,6 +9,7 @@ Requires calibre version 1.0.0 or later.
 - Can read the above metadata formats and import them into calibre
 - Can write many additional metadata into custom columns Can automatically convert cbr/zip/rar files to cbz
 - Can embed the calibre cover into cbz comics (experimental)
+- Can count the number of pages (image files) in a comic
 
 ## Usage
 ### To embed calibres metadata into the comic archive:
@@ -58,6 +59,7 @@ Use with care, just inserts the calibre cover as "00000000_cover" into the comic
 - **Auto convert while importing to calibre**: As above, but even when importing metadata into calibre (default: off)
 - **Delete cbr after conversion**: Deletes the cbr format after the conversion (default: off)
 - **Swap names to "LN, FN" when importing metadata**: Does just what it says (default: off)
+- **Auto count pages if importing**: Count pages automatically if importing metadata into calibre (default: off)
 - **Main Button Action**: You can set, what action should be performed if the big toolbar button is pressed. Needs a calibre restart (default: Embed metadata)
 - **Menu Buttons**: The dropdown menu on the icon in the toolbar can be custimized to your liking through these options
 
