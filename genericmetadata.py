@@ -142,6 +142,7 @@ class GenericMetadata:
         assign("locations",         new_md.locations)
         assign("comments",          new_md.comments)
         assign("notes",             new_md.notes)
+        assign("pageCount",         new_md.pageCount)
 
         assign("price",             new_md.price)
         assign("isVersionOf",       new_md.isVersionOf)
@@ -164,7 +165,7 @@ class GenericMetadata:
             assign("pages",           new_md.pages)
 
     # modified for calibre, deletes old writers
-    def overlayCredits(self, new_credits, overwrite):
+    def overlayCredits(self, new_credits, overwrite=True):
         # changed for the calibre plugin
         if overwrite:
             for c in new_credits:
@@ -227,7 +228,7 @@ class GenericMetadata:
         # look to see if it's not already there...
         found = False
         for c in self.credits:
-            if (c['person'].lower() == person.lower() and
+            if (c['person'].lower().strip() == person.lower().strip() and
                     c['role'].lower() == role.lower()):
                 # no need to add it. just adjust the "primary" flag as needed
                 c['primary'] = primary
@@ -270,6 +271,7 @@ class GenericMetadata:
         add_attr_string("webLink")
         add_attr_string("format")
         add_attr_string("manga")
+        add_attr_string("pageCount")
 
         add_attr_string("price")
         add_attr_string("isVersionOf")

@@ -15,6 +15,19 @@ from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 
+# synonyms for artists
+WRITER = ['writer', 'plotter', 'scripter']
+PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
+INKER = ['inker', 'artist', 'finishes']
+COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
+LETTERER = ['letterer']
+COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
+EDITOR = ['editor']
+
+# image file extensions
+IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif"]
+
+
 class ComicMetadata:
     '''
     An object for calibre to interact with comic metadata.
@@ -34,6 +47,7 @@ class ComicMetadata:
         self.checked_for_metadata = False
         self.file = None
         self.zipinfo = None
+        self.pages = 0
 
         # get the comic formats
         if self.db.has_format(book_id, "cbz"):
@@ -166,6 +180,7 @@ class ComicMetadata:
         update_field("volume", field(prefs['volume_column']))
         update_field("genre", field(prefs['genre_column']))
         update_field("issueCount", field(prefs['count_column']))
+        update_field("pageCount", field(prefs['pages_column']))
         update_field("webLink", get_link(field(prefs['comicvine_column'])))
 
     def convert_comic_md_to_calibre_md(self, comic_metadata):
@@ -180,15 +195,6 @@ class ComicMetadata:
 
         if self.comic_md_in_calibre_format:
             return
-
-        # synonyms for artists
-        WRITER = ['writer', 'plotter', 'scripter']
-        PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
-        INKER = ['inker', 'artist', 'finishes']
-        COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
-        LETTERER = ['letterer']
-        COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
-        EDITOR = ['editor']
 
         # start with a fresh calibre metadata
         mi = MetaInformation(None, None)
@@ -243,8 +249,8 @@ class ComicMetadata:
                 pass
 
         # custom columns
-        custom_cols = self.db.field_metadata.custom_field_metadata()
-        update_column = partial(update_custom_column, calibre_metadata=mi, custom_cols=custom_cols)
+        update_column = partial(update_custom_column, calibre_metadata=mi,
+                                custom_cols=self.db.field_metadata.custom_field_metadata())
         # artists
         update_column(prefs['penciller_column'], role(PENCILLER))
         update_column(prefs['inker_column'], role(INKER))
@@ -260,6 +266,10 @@ class ComicMetadata:
         update_column(prefs['volume_column'], co.volume)
         update_column(prefs['genre_column'], co.genre)
         update_column(prefs['count_column'], co.issueCount)
+        if prefs['auto_count_pages']:
+            update_column(prefs['pages_column'], self.pages)
+        else:
+            update_column(prefs['pages_column'], co.pageCount)
         update_column(prefs['comicvine_column'], '<a href="{}">Comic Vine</a>'.format(co.webLink))
 
         self.comic_md_in_calibre_format = mi
@@ -298,7 +308,7 @@ class ComicMetadata:
 
     def convert_zip_to_cbz(self):
         import os
-        
+
         zf = self.db.format(self.book_id, "zip", as_path=True)
         new_fname = os.path.splitext(zf)[0] + ".cbz"
         os.rename(zf, new_fname)
@@ -335,6 +345,24 @@ class ComicMetadata:
 
         delete_temp_file(cover_path)
 
+    def count_pages(self):
+        self.make_temp_cbz_file()
+        # open the zipfile
+        zf = ZipFile(self.file)
+
+        # count the pages
+        for name in zf.namelist():
+            if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
+                self.pages += 1
+        
+        if self.pages == 0:
+            return False
+
+        update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
+                             self.db.field_metadata.custom_field_metadata())
+        self.db.set_metadata(self.book_id, self.calibre_metadata)
+        return True
+
     def get_comic_metadata_from_cbz(self):
         '''
         Reads the comic metadata from the comic cbz file as comictagger metadata
@@ -348,7 +376,10 @@ class ComicMetadata:
             if name.lower() == "comicinfo.xml":
                 self.cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
                 self.zipinfo = name
-                break
+                if not prefs['auto_count_pages']:
+                    break
+            elif prefs['auto_count_pages'] and name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
+                self.pages += 1
 
         # get the cbi metadata
         if ComicBookInfo().validateString(zf.comment):
@@ -429,7 +460,6 @@ def update_custom_column(col_name, value, calibre_metadata, custom_cols):
 def get_role(role, credits):
     '''
     Gets a list of persons with the given role.
-    First primary persons, then all others, alphabetically
     '''
     from calibre.ebooks.metadata import author_to_author_sort
 
@@ -446,11 +476,8 @@ def set_role(role, persons, credits):
     '''
     if persons and len(persons) > 0:
         for person in persons:
-            credit = dict()
-            person = swap_author_names_back(person)
-            credit['person'] = person
-            credit['role'] = role
-            credits.append(credit)
+            credits.append({'person': swap_author_names_back(person),
+                            'role': role})
 
 
 def swap_author_names_back(author):

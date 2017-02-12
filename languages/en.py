@@ -20,6 +20,7 @@ en = {
     'Volume:': 'Volume:',
     'Genre:': 'Genre:',
     'Number of issues:': 'Number of issues:',
+    'Pages:': 'Pages:',
     'Comicvine link:': 'Comicvine link:',
     # options (ini.py)
     "Options:": "Options:",
@@ -34,6 +35,7 @@ en = {
     'Swap names to "LN, FN" when importing metadata': 'Swap names to "LN, FN" when importing metadata',
     'Import tags from comic metadata': 'Import tags from comic metadata',
     'If checked, overwrites the tags in calibre.': 'If checked, overwrites the tags in calibre.',
+    'Auto count pages if importing': 'Auto count pages if importing',
     # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Main Button Action (needs a calibre restart):",
     'Embed metadata': 'Embed metadata',
@@ -48,6 +50,7 @@ en = {
     'Show import cbi button': 'Show import cbi button',
     'Show convert button': 'Show convert button',
     'Show embed cover button (experimental)': 'Show embed cover button (experimental)',
+    'Show count pages button': 'Show count pages button',
 
     # TOOLBAR MENU
     # (ini.py)
@@ -59,6 +62,7 @@ en = {
     "Only embed Metadata in ComicInfo.xml": "Only embed Metadata in ComicInfo.xml",
     "Only convert to cbz": "Only convert to cbz",
     "Embed the calibre cover": "Embed the calibre cover",
+    "Count pages": "Count pages",
     # main button (ui.py)
     'Import Comic Metadata': 'Import Comic Metadata',
     'Imports the metadata from the comic to calibre': 'Imports the metadata from the comic to calibre',
@@ -80,6 +84,9 @@ en = {
     "Updated Covers": "Updated Covers",
     'Embeded {} covers': 'Embeded {} covers',
     'The following covers were not embeded: {}': 'The following covers were not embeded: {}',
+    "Counted pages": "Counted pages",
+    'Counted pages in {} comics': 'Counted pages in {} comics',
+    'The following comics were not counted: {}': 'The following comics were not counted: {}',
     "The following comics were converted to cbz: {}": "The following comics were converted to cbz: {}",
 
     # ERRORS

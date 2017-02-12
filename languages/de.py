@@ -19,7 +19,8 @@ de = {
     'Locations:': 'Orte:',
     'Volume:': 'Band:',
     'Genre:': 'Genre:',
-    'Number of issues:': 'Anzahl der Ausgaben',
+    'Number of issues:': 'Anzahl der Ausgaben:',
+    'Pages:': 'Seiten:',
     'Comicvine link:': 'Comicvine link:',
     # options (ini.py)
     "Options:": "Optionen:",
@@ -34,6 +35,7 @@ de = {
     'Swap names to "LN, FN" when importing metadata': 'Vertausche Vor- und Nachnamen beim Importieren',
     'Import tags from comic metadata': 'Importiere die Schlagwörter aus den Comic-Metadaten',
     'If checked, overwrites the tags in calibre.': 'Überschreibe die Schlagwörter in Calibre',
+    'Auto count pages if importing': 'Zähle Seiten beim importieren',
     # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Haupt-Button Aktion (erfordert einen Neustart):",
     'Embed metadata': 'Bette Metadaten ein',
@@ -48,6 +50,7 @@ de = {
     'Show import cbi button': 'Zeige den Button um cbi-Metadaten zu importieren',
     'Show convert button': 'Zeige den Konvertierungs-Button',
     'Show embed cover button (experimental)': 'Zeige den Button zum einbetten des Covers (experimentell)',
+    'Show count pages button': 'Zeige den Button zum zählen der Seiten',
 
     # TOOLBAR MENU
     # (ini.py)
@@ -59,6 +62,7 @@ de = {
     "Only embed Metadata in ComicInfo.xml": "Bette die Metadaten nur in die ComicInfo.xml Datei ein",
     "Only convert to cbz": "Konvertiere die Dateien zu cbz Dateien",
     "Embed the calibre cover": "Bette das Calibre Cover ein",
+    "Count pages": "Zähle Seiten",
     # main button (ui.py)
     'Import Comic Metadata': 'Metadaten importieren',
     'Imports the metadata from the comic to calibre': 'Importiere die Metadaten aus dem Comic',
@@ -80,6 +84,9 @@ de = {
     "Updated Covers": "Die Cover wurden aktualisiert",
     'Embeded {} covers': '{} Cover wurden eingebettet',
     'The following covers were not embeded: {}': 'Die folgenden Cover wurden nicht eingebettet: {}',
+    "Counted pages": "Seiten gezählt",
+    'Counted pages in {} comics': 'Seiten in {} comics gezählt',
+    'The following comics were not counted: {}': 'Die folgenden Comics wurden nicht gezählt: {}',
     "The following comics were converted to cbz: {}": "Die folgenden Comics wurden in das cbz Format konvertiert: {}",
 
     # ERRORS

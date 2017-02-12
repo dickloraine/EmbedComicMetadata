@@ -48,7 +48,7 @@ def get_configuration():
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-    from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert
+    from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert, count_pages
 
     # configuration
     config = [
@@ -79,6 +79,7 @@ def get_configuration():
                 ["volume_column", _L['Volume:'], None, NUMBER_TYPE],
                 ["genre_column", _L['Genre:'], None, TAG_TYPE],
                 ["count_column", _L['Number of issues:'], None, NUMBER_TYPE],
+                ["pages_column", _L['Pages:'], None, NUMBER_TYPE],
                 ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE]
             ]
         },
@@ -98,7 +99,8 @@ def get_configuration():
                 ["delete_cbr", _L['Delete cbr after conversion'], False],
                 ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],
                 ["import_tags", _L['Import tags from comic metadata'], False],
-                ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False]
+                ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False],
+                ["auto_count_pages", _L['Auto count pages if importing'], False]
             ]
         },
         {
@@ -124,6 +126,7 @@ def get_configuration():
                 ["import_cix", _L['Show import cix button'], False],
                 ["import_cbi", _L['Show import cbi button'], False],
                 ["convert", _L['Show convert button'], True],
+                ["count_pages", _L['Show count pages button'], True],
                 ["cover", _L['Show embed cover button (experimental)'], False]
             ],
             "UI_Action_Items": [
@@ -137,6 +140,7 @@ def get_configuration():
                 ["seperator"],
                 ["convert", _L["Only convert to cbz"], convert, None],
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
+                ["count_pages", _L["Count pages"], count_pages, None],
                 ["seperator"]
             ]
         }

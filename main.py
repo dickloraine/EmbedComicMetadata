@@ -73,6 +73,18 @@ def embed_cover(ia):
                        _L['The following covers were not embeded: {}'])
 
 
+def count_pages(ia):
+    def _count_pages(metadata):
+        if metadata.format != "cbz":
+            return False
+        return metadata.count_pages()
+
+    iterate_over_books(ia, _count_pages,
+                       _L["Counted pages"],
+                       _L['Counted pages in {} comics'],
+                       _L['The following comics were not counted: {}'])
+
+
 def iterate_over_books(ia, func, title, ptext, notptext,
                        should_convert=None,
                        convtext=_L["The following comics were converted to cbz: {}"]):
