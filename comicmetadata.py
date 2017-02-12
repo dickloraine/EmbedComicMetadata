@@ -15,6 +15,19 @@ from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
 
+# synonyms for artists
+WRITER = ['writer', 'plotter', 'scripter']
+PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
+INKER = ['inker', 'artist', 'finishes']
+COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
+LETTERER = ['letterer']
+COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
+EDITOR = ['editor']
+
+# image file extensions
+IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif"]
+
+
 class ComicMetadata:
     '''
     An object for calibre to interact with comic metadata.
@@ -184,15 +197,6 @@ class ComicMetadata:
         if self.comic_md_in_calibre_format:
             return
 
-        # synonyms for artists
-        WRITER = ['writer', 'plotter', 'scripter']
-        PENCILLER = ['artist', 'penciller', 'penciler', 'breakdowns']
-        INKER = ['inker', 'artist', 'finishes']
-        COLORIST = ['colorist', 'colourist', 'colorer', 'colourer']
-        LETTERER = ['letterer']
-        COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
-        EDITOR = ['editor']
-
         # start with a fresh calibre metadata
         mi = MetaInformation(None, None)
         co = comic_metadata
@@ -263,7 +267,10 @@ class ComicMetadata:
         update_column(prefs['volume_column'], co.volume)
         update_column(prefs['genre_column'], co.genre)
         update_column(prefs['count_column'], co.issueCount)
-        update_column(prefs['pages_column'], co.pageCount)
+        if prefs['auto_count_pages']:
+            update_column(prefs['pages_column'], self.pages)
+        else:
+            update_column(prefs['pages_column'], co.pageCount)
         update_column(prefs['comicvine_column'], '<a href="{}">Comic Vine</a>'.format(co.webLink))
 
         self.comic_md_in_calibre_format = mi
@@ -340,9 +347,6 @@ class ComicMetadata:
         delete_temp_file(cover_path)
 
     def count_pages(self):
-        # image file extensions
-        IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif"]
-
         self.make_temp_cbz_file()
         # open the zipfile
         zf = ZipFile(self.file)
@@ -363,13 +367,16 @@ class ComicMetadata:
         self.make_temp_cbz_file()
         # open the zipfile
         zf = ZipFile(self.file)
-
+        
         # get cix metadata
         for name in zf.namelist():
             if name.lower() == "comicinfo.xml":
                 self.cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
                 self.zipinfo = name
-                break
+                if not prefs['auto_count_pages']:
+                    break
+            elif prefs['auto_count_pages'] and name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
+                self.pages += 1
 
         # get the cbi metadata
         if ComicBookInfo().validateString(zf.comment):

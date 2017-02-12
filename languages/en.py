@@ -35,6 +35,7 @@ en = {
     'Swap names to "LN, FN" when importing metadata': 'Swap names to "LN, FN" when importing metadata',
     'Import tags from comic metadata': 'Import tags from comic metadata',
     'If checked, overwrites the tags in calibre.': 'If checked, overwrites the tags in calibre.',
+    'Auto count pages if importing': 'Auto count pages if importing',
     # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Main Button Action (needs a calibre restart):",
     'Embed metadata': 'Embed metadata',

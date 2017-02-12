@@ -99,7 +99,8 @@ def get_configuration():
                 ["delete_cbr", _L['Delete cbr after conversion'], False],
                 ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],
                 ["import_tags", _L['Import tags from comic metadata'], False],
-                ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False]
+                ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False],
+                ["auto_count_pages", _L['Auto count pages if importing'], False]
             ]
         },
         {
