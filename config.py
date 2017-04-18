@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 try:
     from PyQt5.Qt import (QWidget, QCheckBox, QGridLayout, QVBoxLayout,
-                          QGroupBox, QComboBox, QLabel, QButtonGroup)
+                          QGroupBox, QComboBox, QLabel, QButtonGroup, QScrollArea)
 except ImportError:
-    from PyQt4.Qt import (QWidget, QCheckBox, QGridLayout,
+    from PyQt4.Qt import (QWidget, QCheckBox, QGridLayout, QScrollArea,
                           QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup)
 
 from calibre.utils.config import JSONConfig
@@ -35,15 +35,25 @@ class ConfigWidget(QWidget):
     def __init__(self, ia):
         QWidget.__init__(self)
         self.ia = ia
-        self.l = QVBoxLayout()
-        self.setLayout(self.l)
 
-        # make the config menu
+        # make the config menu as a widget
+        self.config_menu = QWidget()
+        self.l = QVBoxLayout()
+        self.config_menu.setLayout(self.l)
+        # add the menu items
         for group in config:
             self.make_submenu(group)
-
         # make menu button choices exclusive
         self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
+
+        # make a scroll area to hold the menu
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(self.config_menu)
+
+        # make the main layout and add the scrollarea
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.scroll)
+        self.setLayout(self.layout)
 
     def save_settings(self):
         for group in config:
