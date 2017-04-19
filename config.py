@@ -35,40 +35,42 @@ class ConfigWidget(QWidget):
     def __init__(self, ia):
         QWidget.__init__(self)
         self.ia = ia
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
 
         # make the config menu as a widget
-        self.config_menu = QWidget()
-        self.l = QVBoxLayout()
-        self.config_menu.setLayout(self.l)
-        # add the menu items
-        for group in config:
-            self.make_submenu(group)
-        # make menu button choices exclusive
-        self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
+        self.config_menu = self.make_menu()
 
-        # make a scroll area to hold the menu
+        # make a scroll area to hold the menu and add it to the layout
         self.scroll = QScrollArea()
         self.scroll.setWidget(self.config_menu)
-
-        # make the main layout and add the scrollarea
-        self.layout = QVBoxLayout()
         self.layout.addWidget(self.scroll)
-        self.setLayout(self.layout)
 
     def save_settings(self):
         for group in config:
             if group["Type"] == "columnboxes":
                 func = self.CustomColumnComboBox.get_selected_column
-            if group["Type"] == "checkboxes":
+            else:
                 func = QCheckBox.isChecked
             for item in group["Items"]:
-                action = getattr(self, item[CONFIG_NAME])
-                prefs[item[CONFIG_NAME]] = func(action)
+                name = getattr(self, item[CONFIG_NAME])
+                prefs[item[CONFIG_NAME]] = func(name)
         # rebuild the menu
         self.ia.toggle_menu_items()
 
-    def make_submenu(self, cfg):
-        lo = self.make_groupbox(cfg["Name"] + "_box", cfg["Title"], self.l)
+    def make_menu(self):
+        config_menu = QWidget()
+        self.l = QVBoxLayout()
+        config_menu.setLayout(self.l)
+        # add the menu items
+        for group in config:
+            self.make_submenu(group, self.l)
+        # make menu button choices exclusive
+        self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
+        return config_menu
+
+    def make_submenu(self, cfg, parent):
+        lo = self.make_groupbox(cfg["Name"] + "_box", cfg["Title"], parent)
         i, k = 1, 0
         for item in cfg["Items"]:
             # make the element
@@ -129,12 +131,8 @@ class ConfigWidget(QWidget):
         custom_columns = self.ia.gui.library_view.model().custom_columns
         available_columns = {}
         for key, column in custom_columns.iteritems():
-            if column["is_multiple"]:
-                is_multiple = True
-            else:
-                is_multiple = False
             if (column["datatype"] in column_type["datatype"] and
-                    is_multiple == column_type["is_multiple"] and
+                    bool(column["is_multiple"]) == column_type["is_multiple"] and
                     column['display'].get('is_names', False) == column_type['is_names']):
                 available_columns[key] = column
         return available_columns
