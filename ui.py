@@ -8,13 +8,12 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 try:
-    from PyQt5.Qt import QMenu
+    from PyQt5.Qt import QMenu, QIcon, QPixmap
 except ImportError:
-    from PyQt4.Qt import QMenu
+    from PyQt4.Qt import QMenu, QIcon, QPixmap
 
 from functools import partial
 
-# The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog
 
@@ -42,8 +41,8 @@ class EmbedComicMetadata(InterfaceAction):
         # menu
         self.menu = QMenu(self.gui)
 
-        # Set the icon for this interface action
-        icon = get_icons('images/icon.png')  # need to import this?
+        # Get the icon for this interface action
+        icon = self.get_icon('images/embed_comic_metadata.png')
 
         # The qaction is automatically created from the action_spec defined
         # above
@@ -105,3 +104,19 @@ class EmbedComicMetadata(InterfaceAction):
             shortcut=None, description=None, triggered=triggerfunc,
             shortcut_name=None)
         setattr(self, name, action)
+
+    def get_icon(self, icon_name):
+        import os
+        from calibre.utils.config import config_dir
+
+        # Check to see whether the icon exists as a Calibre resource
+        # This will enable skinning if the user stores icons within a folder like:
+        # ...\AppData\Roaming\calibre\resources\images\Plugin Name\
+        icon_path = os.path.join(config_dir, 'resources', 'images', self.name, 
+                                 icon_name.replace('images/', ''))
+        if os.path.exists(icon_path):
+            pixmap = QPixmap()
+            pixmap.load(icon_path)
+            return QIcon(pixmap)
+        # As we did not find an icon elsewhere, look within our zip resources
+        return get_icons(icon_name)
