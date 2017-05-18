@@ -70,34 +70,34 @@ class ConfigWidget(QWidget):
             self.make_submenu(group, self.l)
 
         # make menu button choices exclusive
-        self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
+        self.make_exclusive(self.main_embed, self.main_import)
         return config_menu
 
-    def make_submenu(self, cfg, parent):
-        lo = self.make_groupbox(cfg, parent)
+    def make_submenu(self, group, parent):
+        lo = self.make_groupbox(group, parent)
 
         # get the right builder function for the group type
-        if cfg["Type"] == "checkboxes":
-            func = partial(self.make_checkbox, lo, cfg["Columns"])
+        if group["Type"] == "checkboxes":
+            func = partial(self.make_checkbox, lo, group["Columns"])
         else:
-            func = partial(self.make_columnbox, lo, cfg["Columns"])
+            func = partial(self.make_columnbox, lo, group["Columns"])
 
         # loop through the items and build the entries
         i, k = 1, 0
-        for item in cfg["Items"]:
+        for item in group["Items"]:
             i, k = func(item, i, k)
 
-    def make_exclusive(self, name, lst):
-        name = QButtonGroup(self)
-        for item in lst:
-            name.addButton(item)
+    def make_exclusive(self, *args):
+        excl_group = QButtonGroup(self)
+        for item in args:
+            excl_group.addButton(item)
 
-    def make_groupbox(self, cfg, parent):
-        groupbox = QGroupBox(cfg["Title"], self)
-        setattr(self, cfg["Name"] + "_box", groupbox)
+    def make_groupbox(self, group, parent):
+        groupbox = QGroupBox(group["Title"], self)
+        setattr(self, group["Name"] + "_box", groupbox)
         parent.addWidget(groupbox)
         groupbox_layout = QGridLayout()
-        setattr(self, cfg["Name"] + "_layout", groupbox_layout)
+        setattr(self, group["Name"] + "_layout", groupbox_layout)
         groupbox.setLayout(groupbox_layout)
         return groupbox_layout
 
