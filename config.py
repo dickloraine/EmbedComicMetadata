@@ -12,6 +12,8 @@ except ImportError:
     from PyQt4.Qt import (QWidget, QCheckBox, QGridLayout, QScrollArea,
                           QVBoxLayout, QGroupBox, QComboBox, QLabel, QButtonGroup)
 
+from functools import partial
+
 from calibre.utils.config import JSONConfig
 from calibre_plugins.EmbedComicMetadata.ini import *
 
@@ -62,67 +64,73 @@ class ConfigWidget(QWidget):
         config_menu = QWidget()
         self.l = QVBoxLayout()
         config_menu.setLayout(self.l)
+
         # add the menu items
         for group in config:
             self.make_submenu(group, self.l)
+
         # make menu button choices exclusive
         self.make_exclusive("mbutton_excl_group", [self.main_embed, self.main_import])
         return config_menu
 
     def make_submenu(self, cfg, parent):
-        lo = self.make_groupbox(cfg["Name"] + "_box", cfg["Title"], parent)
+        lo = self.make_groupbox(cfg, parent)
+
+        # get the right builder function for the group type
+        if cfg["Type"] == "checkboxes":
+            func = partial(self.make_checkbox, lo, cfg["Columns"])
+        else:
+            func = partial(self.make_columnbox, lo, cfg["Columns"])
+
+        # loop through the items and build the entries
         i, k = 1, 0
         for item in cfg["Items"]:
-            # make the element
-            if cfg["Type"] == "checkboxes":
-                self.make_checkbox(item[CONFIG_NAME], item[CONFIG_TITLE],
-                                   prefs[item[CONFIG_NAME]], lo, i, k)
-            if cfg["Type"] == "columnboxes":
-                self.make_columnbox(item[CONFIG_NAME], item[CONFIG_TITLE],
-                                    prefs[item[CONFIG_NAME]], item[CONFIG_COLUMN_TYPE], lo, i, k)
-            # check for new row
-            if cfg["Type"] == "checkboxes" and k < (cfg["Columns"] - 1):
-                k += 1
-            elif cfg["Type"] == "columnboxes" and k < cfg["Columns"] / 2:
-                k += 2
-            else:
-                k = 0
-                i += 1
+            i, k = func(item, i, k)
 
     def make_exclusive(self, name, lst):
         name = QButtonGroup(self)
         for item in lst:
             name.addButton(item)
 
-    def make_groupbox(self, name, title, parent):
-        groupbox = QGroupBox(title, self)
-        setattr(self, name, groupbox)
+    def make_groupbox(self, cfg, parent):
+        groupbox = QGroupBox(cfg["Title"], self)
+        setattr(self, cfg["Name"] + "_box", groupbox)
         parent.addWidget(groupbox)
         groupbox_layout = QGridLayout()
-        setattr(self, name + "_layout", groupbox_layout)
+        setattr(self, cfg["Name"] + "_layout", groupbox_layout)
         groupbox.setLayout(groupbox_layout)
         return groupbox_layout
 
-    def make_checkbox(self, name, title, pref, parent, grid_row, grid_column):
-        checkbox = QCheckBox(title, self)
-        setattr(self, name, checkbox)
-        checkbox.setChecked(pref)
+    def make_checkbox(self, parent, columns, item, grid_row, grid_column):
+        checkbox = QCheckBox(item[CONFIG_TITLE], self)
+        setattr(self, item[CONFIG_NAME], checkbox)
+        checkbox.setChecked(prefs[item[CONFIG_NAME]])
         parent.addWidget(checkbox, grid_row, grid_column)
 
-    def make_columnbox(self, name, label_text, pref, column_type, parent, grid_row, grid_column):
+        # check for new row
+        if grid_column < columns - 1:
+            return grid_row, grid_column + 1
+        return grid_row + 1, 0
+
+    def make_columnbox(self, parent, columns, item, grid_row, grid_column):
         # label
-        column_label = QLabel(label_text, self)
-        setattr(self, name + "label", column_label)
+        column_label = QLabel(item[CONFIG_TITLE], self)
+        setattr(self, item[CONFIG_NAME] + "label", column_label)
 
         # columnbox
-        available_columns = self.get_custom_columns(column_type)
-        column_box = self.CustomColumnComboBox(self, available_columns, pref)
-        setattr(self, name, column_box)
+        available_columns = self.get_custom_columns(item[CONFIG_COLUMN_TYPE])
+        column_box = self.CustomColumnComboBox(self, available_columns, prefs[item[CONFIG_NAME]])
+        setattr(self, item[CONFIG_NAME], column_box)
 
         # put together and add
         column_label.setBuddy(column_box)
         parent.addWidget(column_label, grid_row, grid_column)
         parent.addWidget(column_box, grid_row, grid_column + 1)
+
+        # check for new row
+        if grid_column < columns / 2:
+            return grid_row, grid_column + 2
+        return grid_row + 1, 0
 
     def get_custom_columns(self, column_type):
         '''
