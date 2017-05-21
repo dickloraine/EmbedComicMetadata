@@ -69,8 +69,6 @@ class ConfigWidget(QWidget):
         for group in config:
             self.make_submenu(group, self.l)
 
-        # make menu button choices exclusive
-        self.make_exclusive(self.main_embed, self.main_import)
         return config_menu
 
     def make_submenu(self, group, parent):
@@ -83,13 +81,19 @@ class ConfigWidget(QWidget):
             func = partial(self.make_columnbox, lo, group["Columns"])
 
         # loop through the items and build the entries
-        i, k = 1, 0
+        grid_row, grid_column = 1, 0
         for item in group["Items"]:
-            i, k = func(item, i, k)
+            grid_row, grid_column = func(item, grid_row, grid_column)
 
-    def make_exclusive(self, *args):
+        # make buttons exclusive
+        if "Exclusive_Items" in group:
+            for item_list in group["Exclusive_Items"]:
+                self.make_exclusive(item_list)
+
+    def make_exclusive(self, item_list):
         excl_group = QButtonGroup(self)
-        for item in args:
+        for item in item_list:
+            item = getattr(self, item)
             excl_group.addButton(item)
 
     def make_groupbox(self, group, parent):

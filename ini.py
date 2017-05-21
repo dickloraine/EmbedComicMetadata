@@ -111,6 +111,9 @@ def get_configuration():
             "Items": [
                 ["main_embed", _L['Embed metadata'], True],
                 ["main_import", _L['Import metadata'], False],
+            ],
+            "Exclusive_Items": [
+                ["main_embed", "main_import"]
             ]
         },
         {
