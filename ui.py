@@ -19,7 +19,9 @@ from calibre.gui2 import error_dialog
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-from calibre_plugins.EmbedComicMetadata.ini import *
+from calibre_plugins.EmbedComicMetadata.ini import (
+    get_configuration, CONFIG_NAME, CONFIG_DESCRIPTION, CONFIG_TRIGGER_FUNC,
+    CONFIG_TRIGGER_ARG, CONFIG_MENU)
 
 
 config = get_configuration()
@@ -32,10 +34,10 @@ class EmbedComicMetadata(InterfaceAction):
     # Declare the main action associated with this plugin
     if prefs["main_import"]:
         action_spec = (_L['Import Comic Metadata'], None,
-                _L['Imports the metadata from the comic to calibre'], None)
+                       _L['Imports the metadata from the comic to calibre'], None)
     else:
         action_spec = (_L['Embed Comic Metadata'], None,
-                _L['Embeds calibres metadata into the comic'], None)
+                       _L['Embeds calibres metadata into the comic'], None)
 
     def genesis(self):
         # menu
@@ -79,7 +81,8 @@ class EmbedComicMetadata(InterfaceAction):
 
         i = prefs["main_import"]
         # Check the preferences for what should be done
-        if (i and prefs['read_cbi'] and prefs['read_cix']) or (not i and prefs['cbi_embed'] and prefs['cix_embed']):
+        if (i and prefs['read_cbi'] and prefs['read_cix']) or (
+                not i and prefs['cbi_embed'] and prefs['cix_embed']):
             action = "both"
         elif (i and prefs['read_cbi']) or (not i and prefs['cbi_embed']):
             action = "cbi"
@@ -87,7 +90,7 @@ class EmbedComicMetadata(InterfaceAction):
             action = "cix"
         else:
             return error_dialog(self.gui, _L['Cannot update metadata'],
-                        _L['No embed format selected'], show=True)
+                                _L['No embed format selected'], show=True)
 
         if i:
             import_to_calibre(self, action)
@@ -101,8 +104,8 @@ class EmbedComicMetadata(InterfaceAction):
 
     def menu_action(self, name, title, triggerfunc):
         action = self.create_menu_action(self.menu, name, title, icon=None,
-            shortcut=None, description=None, triggered=triggerfunc,
-            shortcut_name=None)
+                                         shortcut=None, description=None,
+                                         triggered=triggerfunc, shortcut_name=None)
         setattr(self, name, action)
 
     def get_icon(self, icon_name):
@@ -112,7 +115,7 @@ class EmbedComicMetadata(InterfaceAction):
         # Check to see whether the icon exists as a Calibre resource
         # This will enable skinning if the user stores icons within a folder like:
         # ...\AppData\Roaming\calibre\resources\images\Plugin Name\
-        icon_path = os.path.join(config_dir, 'resources', 'images', self.name, 
+        icon_path = os.path.join(config_dir, 'resources', 'images', self.name,
                                  icon_name.replace('images/', ''))
         if os.path.exists(icon_path):
             pixmap = QPixmap()

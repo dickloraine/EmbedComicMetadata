@@ -48,7 +48,8 @@ def get_configuration():
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-    from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, embed_cover, convert, count_pages
+    from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic,
+        import_to_calibre, embed_cover, convert, count_pages)
 
     # configuration
     config = [

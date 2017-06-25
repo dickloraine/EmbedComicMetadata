@@ -15,7 +15,8 @@ except ImportError:
 from functools import partial
 
 from calibre.utils.config import JSONConfig
-from calibre_plugins.EmbedComicMetadata.ini import *
+from calibre_plugins.EmbedComicMetadata.ini import (
+    get_configuration, CONFIG_NAME, CONFIG_TITLE, CONFIG_DEFAULT, CONFIG_COLUMN_TYPE)
 
 
 # This is where all preferences for this plugin will be stored

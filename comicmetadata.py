@@ -282,16 +282,13 @@ class ComicMetadata:
         '''
         Converts a rar or cbr-comic to a cbz-comic
         '''
-        from calibre.utils.unrar import RARFile, extract
+        from calibre.utils.unrar import extract, comment
 
         with TemporaryDirectory('_cbr2cbz') as tdir:
             # extract the rar file
             ffile = self.db.format(self.book_id, self.format, as_path=True)
             extract(ffile, tdir)
-            # get the comment
-            with open(ffile, 'rb') as stream:
-                zr = RARFile(stream, get_comment=True)
-                comment = zr.comment
+            comments = comment(ffile)
             delete_temp_file(ffile)
 
             # make the cbz file
@@ -300,8 +297,8 @@ class ComicMetadata:
                 zf.add_dir(tdir)
                 zf.close()
                 # write comment
-                if comment:
-                    writeZipComment(tf, comment)
+                if comments:
+                    writeZipComment(tf, comments)
                 # add the cbz format to calibres library
                 self.db.add_format(self.book_id, "cbz", tf)
                 self.format = "cbz"
@@ -354,7 +351,7 @@ class ComicMetadata:
         for name in zf.namelist():
             if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
                 self.pages += 1
-        
+
         if self.pages == 0:
             return False
 
@@ -394,7 +391,7 @@ class ComicMetadata:
         Reads the comic metadata from the comic cbr file as comictagger metadata
         and returns the metadata depending on do_action
         '''
-        from calibre.utils.unrar import RARFile, extract_member, names
+        from calibre.utils.unrar import extract_member, names, comment
 
         ffile = self.db.format(self.book_id, "cbr", as_path=True)
         with open(ffile, 'rb') as stream:
@@ -407,10 +404,9 @@ class ComicMetadata:
                     break
 
             # get the cbi metadata
-            zr = RARFile(stream, get_comment=True)
-            comment = zr.comment
-            if ComicBookInfo().validateString(comment):
-                self.cbi_metadata = ComicBookInfo().metadataFromString(comment)
+            comments = comment(ffile)
+            if ComicBookInfo().validateString(comments):
+                self.cbi_metadata = ComicBookInfo().metadataFromString(comments)
 
         delete_temp_file(ffile)
         self._get_combined_metadata()
