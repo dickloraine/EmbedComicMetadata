@@ -25,7 +25,8 @@ COVER_ARTIST = ['cover', 'covers', 'coverartist', 'cover artist']
 EDITOR = ['editor']
 
 # image file extensions
-IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif"]
+IMG_EXTENSIONS = ["jpg", "png", "jpeg", "gif", "bmp", "tiff", "tif", "webp",
+                  "svg", "bpg", "psd"]
 
 
 class ComicMetadata:
