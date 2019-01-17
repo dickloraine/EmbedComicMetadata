@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 # Define some column types
 PERSON_TYPE = {"is_multiple": True, "is_names": True, "datatype": "text"}
 TAG_TYPE = {"is_multiple": True, "is_names": False, "datatype": "text"}
-SINGLE_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
 FLOAT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "float"}
 INT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "int"}
 COMMENT_TYPE = {"is_multiple": False, "is_names": False, "datatype": "comments"}
@@ -49,7 +48,7 @@ def get_configuration():
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
     from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic,
-        import_to_calibre, embed_cover, convert, count_pages)
+        import_to_calibre, embed_cover, convert, count_pages, get_image_size)
 
     # configuration
     config = [
@@ -81,6 +80,7 @@ def get_configuration():
                 ["genre_column", _L['Genre:'], None, TAG_TYPE],
                 ["count_column", _L['Number of issues:'], None, NUMBER_TYPE],
                 ["pages_column", _L['Pages:'], None, NUMBER_TYPE],
+                ["image_size_column", _L['Image size:'], None, FLOAT_TYPE],
                 ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE]
             ]
         },
@@ -101,7 +101,8 @@ def get_configuration():
                 ["swap_names", _L['Swap names to "LN, FN" when importing metadata'], False],
                 ["import_tags", _L['Import tags from comic metadata'], False],
                 ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False],
-                ["auto_count_pages", _L['Auto count pages if importing'], False]
+                ["auto_count_pages", _L['Auto count pages if importing'], False],
+                ["get_image_sizes", _L['Get the image size if importing'], False]
             ]
         },
         {
@@ -131,6 +132,7 @@ def get_configuration():
                 ["import_cbi", _L['Show import cbi button'], False],
                 ["convert", _L['Show convert button'], True],
                 ["count_pages", _L['Show count pages button'], True],
+                ["image_size", _L['Show get image size button'], False],
                 ["cover", _L['Show embed cover button (experimental)'], False]
             ],
             "UI_Action_Items": [
@@ -145,6 +147,7 @@ def get_configuration():
                 ["convert", _L["Only convert to cbz"], convert, None],
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
                 ["count_pages", _L["Count pages"], count_pages, None],
+                ["image_size", _L["Get image size"], get_image_size, None],
                 ["seperator"]
             ]
         }

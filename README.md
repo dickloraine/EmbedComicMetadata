@@ -13,6 +13,7 @@ Requires calibre version 1.0.0 or later.
 - Can write many additional metadata into custom columns Can automatically convert cbr/zip/rar files to cbz
 - Can embed the calibre cover into cbz comics (experimental)
 - Can count the number of pages (image files) in a comic
+- Can get the size of the images in the comic file
 
 ## Usage
 
@@ -50,6 +51,10 @@ Story Arc, Volume, Number of Issues
 
 Number of Issues, Volume
 
+#### Float:
+
+Image Size
+
 #### Series like:
 
 Story Arc
@@ -66,6 +71,10 @@ The menu in the toolbar can be custimized to your liking through the options in 
 
 Use with care, just inserts the calibre cover as "00000000_cover" into the comic archive (previously inserted calibre covers are overwritten).
 
+### Get image size
+
+Tries to get the size of the first non cover and non landscape (in case there are double pages, after 9 pages, take that value) image in the comic file in megapixels.
+
 ## Configuration
 
 - **Write metadata in zip comment**: This format is used by calibre, if you import comic files and by ComicbookLovers (default: on)
@@ -76,6 +85,7 @@ Use with care, just inserts the calibre cover as "00000000_cover" into the comic
 - **Delete cbr after conversion**: Deletes the cbr format after the conversion (default: off)
 - **Swap names to "LN, FN" when importing metadata**: Does just what it says (default: off)
 - **Auto count pages if importing**: Count pages automatically if importing metadata into calibre (default: off)
+- **Get the image size if importing**: Get the image size automatically if importing metadata into calibre (default: off)
 - **Main Button Action**: You can set, what action should be performed if the big toolbar button is pressed. Needs a calibre restart (default: Embed metadata)
 - **Menu Buttons**: The dropdown menu on the icon in the toolbar can be custimized to your liking through these options
 

@@ -21,6 +21,7 @@ en = {
     'Genre:': 'Genre:',
     'Number of issues:': 'Number of issues:',
     'Pages:': 'Pages:',
+    'Image size:': 'Image size:',
     'Comicvine link:': 'Comicvine link:',
     # options (ini.py)
     "Options:": "Options:",
@@ -36,6 +37,7 @@ en = {
     'Import tags from comic metadata': 'Import tags from comic metadata',
     'If checked, overwrites the tags in calibre.': 'If checked, overwrites the tags in calibre.',
     'Auto count pages if importing': 'Auto count pages if importing',
+    'Get the image size if importing': 'Get the image size if importing',
     # main_buton (ini.py)
     "Main Button Action (needs a calibre restart):": "Main Button Action (needs a calibre restart):",
     'Embed metadata': 'Embed metadata',
@@ -51,6 +53,7 @@ en = {
     'Show convert button': 'Show convert button',
     'Show embed cover button (experimental)': 'Show embed cover button (experimental)',
     'Show count pages button': 'Show count pages button',
+    'Show get image size button': 'Show get image size button',
 
     # TOOLBAR MENU
     # (ini.py)
@@ -63,6 +66,7 @@ en = {
     "Only convert to cbz": "Only convert to cbz",
     "Embed the calibre cover": "Embed the calibre cover",
     "Count pages": "Count pages",
+    "Get image size": "Get image size",
     # main button (ui.py)
     'Import Comic Metadata': 'Import Comic Metadata',
     'Imports the metadata from the comic to calibre': 'Imports the metadata from the comic to calibre',

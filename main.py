@@ -77,12 +77,24 @@ def count_pages(ia):
     def _count_pages(metadata):
         if metadata.format != "cbz":
             return False
-        return metadata.count_pages()
+        return metadata.action_count_pages()
 
     iterate_over_books(ia, _count_pages,
                        _L["Counted pages"],
                        _L['Counted pages in {} comics'],
                        _L['The following comics were not counted: {}'])
+
+
+def get_image_size(ia):
+    def _get_image_size(metadata):
+        if metadata.format != "cbz":
+            return False
+        return metadata.action_picture_size()
+
+    iterate_over_books(ia, _get_image_size,
+                       _L["Updated Calibre Metadata"],
+                       _L['Updated calibre metadata for {} book(s)'],
+                       _L['The following books were not updated: {}'])
 
 
 def iterate_over_books(ia, func, title, ptext, notptext,

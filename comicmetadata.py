@@ -48,7 +48,6 @@ class ComicMetadata:
         self.checked_for_metadata = False
         self.file = None
         self.zipinfo = None
-        self.pages = 0
 
         # get the comic formats
         if self.db.has_format(book_id, "cbz"):
@@ -110,7 +109,7 @@ class ComicMetadata:
         if self.zipinfo is not None:
             with open(self.file, 'r+b') as zf:
                 safe_replace(zf, self.zipinfo, StringIO(cix_string.decode('utf-8', 'ignore')))
-        # save the metadata in the file     
+        # save the metadata in the file
         else:
             zf = ZipFile(self.file, "a")
             zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
@@ -234,10 +233,13 @@ class ComicMetadata:
             update_field("comments", co.comments.strip())
         # issue
         if co.issue:
-            if isinstance(co.issue, unicode):
-                mi.series_index = unicodedata.numeric(co.issue)
-            else:
-                mi.series_index = float(co.issue)
+            try:
+                if isinstance(co.issue, unicode):
+                    mi.series_index = unicodedata.numeric(co.issue)
+                else:
+                    mi.series_index = float(co.issue)
+            except ValueError:
+                pass
         # pub date
         puby = co.year
         pubm = co.month
@@ -264,13 +266,15 @@ class ComicMetadata:
         update_column(prefs['characters_column'], co.characters)
         update_column(prefs['teams_column'], co.teams)
         update_column(prefs['locations_column'], co.locations)
-        update_column(prefs['volume_column'], co.volume)
         update_column(prefs['genre_column'], co.genre)
-        update_column(prefs['count_column'], co.issueCount)
+        ensure_int(co.issueCount, update_column, prefs['count_column'], co.issueCount)
+        ensure_int(co.volume, update_column, prefs['volume_column'], co.volume)
         if prefs['auto_count_pages']:
-            update_column(prefs['pages_column'], self.pages)
+            update_column(prefs['pages_column'], self.count_pages())
         else:
             update_column(prefs['pages_column'], co.pageCount)
+        if prefs['get_image_sizes']:
+            update_column(prefs['image_size_column'], self.get_picture_size())
         update_column(prefs['comicvine_column'], '<a href="{}">Comic Vine</a>'.format(co.webLink))
 
         self.comic_md_in_calibre_format = mi
@@ -345,18 +349,52 @@ class ComicMetadata:
 
     def count_pages(self):
         self.make_temp_cbz_file()
-        # open the zipfile
         zf = ZipFile(self.file)
-
-        # count the pages
+        pages = 0
         for name in zf.namelist():
             if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
-                self.pages += 1
+                pages += 1
+        return pages
 
-        if self.pages == 0:
+    def action_count_pages(self):
+        pages = self.count_pages()
+        if pages == 0:
             return False
+        update_custom_column(prefs['pages_column'], pages, self.calibre_metadata,
+                             self.db.field_metadata.custom_field_metadata())
+        self.db.set_metadata(self.book_id, self.calibre_metadata)
+        return True
 
-        update_custom_column(prefs['pages_column'], self.pages, self.calibre_metadata,
+    def get_picture_size(self):
+        from calibre.utils.magick import Image
+
+        self.make_temp_cbz_file()
+        zf = ZipFile(self.file)
+        files = zf.namelist()
+
+        size_x, size_y = 0, 0
+        index = 1
+        while index < 10 and index < len(files):
+            fname = files[index]
+            if fname.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
+                with zf.open(fname) as ffile:
+                    img = Image()
+                    try:
+                        img.open(ffile)
+                        size_x, size_y = img.size
+                    except:
+                        pass
+                if size_x < size_y:
+                    break
+            index += 1
+        size = round(size_x * size_y / 1000000, 2)
+        return size
+
+    def action_picture_size(self):
+        size = self.get_picture_size()
+        if not size:
+            return False
+        update_custom_column(prefs['image_size_column'], size, self.calibre_metadata,
                              self.db.field_metadata.custom_field_metadata())
         self.db.set_metadata(self.book_id, self.calibre_metadata)
         return True
@@ -374,10 +412,7 @@ class ComicMetadata:
             if name.lower() == "comicinfo.xml":
                 self.cix_metadata = ComicInfoXml().metadataFromString(zf.read(name))
                 self.zipinfo = name
-                if not prefs['auto_count_pages']:
-                    break
-            elif prefs['auto_count_pages'] and name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
-                self.pages += 1
+                break
 
         # get the cbi metadata
         if ComicBookInfo().validateString(zf.comment):
@@ -506,6 +541,14 @@ def get_link(text):
         if link:
             return link[0]
     return ""
+
+
+def ensure_int(value, func, *args):
+    try:
+        _ = int(value)
+        func(*args)
+    except (ValueError, TypeError):
+        pass
 
 
 def writeZipComment(filename, comment):
