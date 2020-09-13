@@ -22,6 +22,14 @@ from pprint import pprint
 import xml.etree.ElementTree as ET
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 
+import sys
+
+if sys.version_info[0] > 2:
+    python3 = True
+    unicode = str
+else:
+    python3 = False
+
 
 class ComicInfoXml:
 
@@ -54,6 +62,8 @@ class ComicInfoXml:
         header = '<?xml version="1.0"?>\n'
 
         tree = self.convertMetadataToXML(self, metadata)
+        if python3:
+            return header + ET.tostring(tree.getroot(), "unicode")
         return header + ET.tostring(tree.getroot())
 
     def indent(self, elem, level=0):

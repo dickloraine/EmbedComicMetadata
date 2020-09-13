@@ -174,7 +174,7 @@ class GenericMetadata:
                         self.credits.remove(r)
 
         for c in new_credits:
-            if c.has_key('primary') and c['primary']:
+            if 'primary' in c and c['primary']:
                 primary = True
             else:
                 primary = False
@@ -295,7 +295,7 @@ class GenericMetadata:
 
         for c in self.credits:
             primary = ""
-            if c.has_key('primary') and c['primary']:
+            if 'primary' in c and c['primary']:
                 primary = " [P]"
             add_string("credit",  c['role'] + ": " + c['person'] + primary)
 

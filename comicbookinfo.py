@@ -22,6 +22,11 @@ from datetime import datetime
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, lang_as_iso639_1
 from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 
+import sys
+
+if sys.version_info[0] > 2:
+    unicode = str
+
 
 class ComicBookInfo:
 

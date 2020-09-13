@@ -14,6 +14,10 @@ from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
+import sys
+
+python3 = sys.version_info[0] > 2
+
 
 # synonyms for artists
 WRITER = ['writer', 'plotter', 'scripter']
@@ -105,14 +109,16 @@ class ComicMetadata:
         # ensure we have a temp file
         self.make_temp_cbz_file()
 
+        if not python3:
+            cix_string = cix_string.decode('utf-8', 'ignore')
         # use the safe_replace function from calibre to prevent coruption
         if self.zipinfo is not None:
             with open(self.file, 'r+b') as zf:
-                safe_replace(zf, self.zipinfo, StringIO(cix_string.decode('utf-8', 'ignore')))
+                safe_replace(zf, self.zipinfo, StringIO(cix_string))
         # save the metadata in the file
         else:
             zf = ZipFile(self.file, "a")
-            zf.writestr("ComicInfo.xml", cix_string.decode('utf-8', 'ignore'))
+            zf.writestr("ComicInfo.xml", cix_string)
             zf.close()
 
     def embed_cbi_metadata(self):
@@ -124,7 +130,10 @@ class ComicMetadata:
         # ensure we have a temp file
         self.make_temp_cbz_file()
         # save the metadata in the comment
-        writeZipComment(self.file, cbi_string)
+        zf = ZipFile(self.file, 'a')
+        zf.comment = cbi_string.encode("utf-8")
+        zf._didModify = True
+        zf.close()
 
     def convert_calibre_md_to_comic_md(self):
         '''
@@ -234,7 +243,7 @@ class ComicMetadata:
         # issue
         if co.issue:
             try:
-                if isinstance(co.issue, unicode):
+                if not python3 and isinstance(co.issue, unicode):
                     mi.series_index = unicodedata.numeric(co.issue)
                 else:
                     mi.series_index = float(co.issue)
@@ -300,10 +309,9 @@ class ComicMetadata:
             with TemporaryFile("comic.cbz") as tf:
                 zf = ZipFile(tf, "w")
                 zf.add_dir(tdir)
-                zf.close()
-                # write comment
                 if comments:
-                    writeZipComment(tf, comments)
+                    zf.comment = comment.encode("utf-8")
+                zf.close()
                 # add the cbz format to calibres library
                 self.db.add_format(self.book_id, "cbz", tf)
                 self.format = "cbz"
@@ -333,6 +341,7 @@ class ComicMetadata:
             if name.rsplit(".", 1)[0] == "00000000_cover":
                 cover_info = name
                 break
+        zf.close()
 
         # delete previous cover
         if cover_info != "":
@@ -354,13 +363,14 @@ class ComicMetadata:
         for name in zf.namelist():
             if name.lower().rpartition('.')[-1] in IMG_EXTENSIONS:
                 pages += 1
+        zf.close()
         return pages
 
     def action_count_pages(self):
         pages = self.count_pages()
         if pages == 0:
             return False
-        update_custom_column(prefs['pages_column'], pages, self.calibre_metadata,
+        update_custom_column(prefs['pages_column'], str(pages), self.calibre_metadata,
                              self.db.field_metadata.custom_field_metadata())
         self.db.set_metadata(self.book_id, self.calibre_metadata)
         return True
@@ -387,6 +397,7 @@ class ComicMetadata:
                 if size_x < size_y:
                     break
             index += 1
+        zf.close()
         size = round(size_x * size_y / 1000000, 2)
         return size
 
@@ -549,69 +560,3 @@ def ensure_int(value, func, *args):
         func(*args)
     except (ValueError, TypeError):
         pass
-
-
-def writeZipComment(filename, comment):
-    '''
-    This is a custom function for writing a comment to a zip file,
-    since the built-in one doesn't seem to work on Windows and Mac OS/X
-
-    Fortunately, the zip comment is at the end of the file, and it's
-    easy to manipulate.  See this website for more info:
-    see: http://en.wikipedia.org/wiki/Zip_(file_format)#Structure
-    '''
-    from os import stat
-    from struct import pack
-
-    # get file size
-    statinfo = stat(filename)
-    file_length = statinfo.st_size
-
-    try:
-        fo = open(filename, "r+b")
-
-        # the starting position, relative to EOF
-        pos = -4
-
-        found = False
-        value = bytearray()
-
-        # walk backwards to find the "End of Central Directory" record
-        while (not found) and (-pos != file_length):
-            # seek, relative to EOF
-            fo.seek(pos, 2)
-
-            value = fo.read(4)
-
-            # look for the end of central directory signature
-            if bytearray(value) == bytearray([0x50, 0x4b, 0x05, 0x06]):
-                found = True
-            else:
-                # not found, step back another byte
-                pos = pos - 1
-            # print pos,"{1} int: {0:x}".format(bytearray(value)[0], value)
-
-        if found:
-
-            # now skip forward 20 bytes to the comment length word
-            pos += 20
-            fo.seek(pos, 2)
-
-            # Pack the length of the comment string
-            format = "H"                   # one 2-byte integer
-            comment_length = pack(format, len(comment))  # pack integer in a binary string
-
-            # write out the length
-            fo.write(comment_length)
-            fo.seek(pos + 2, 2)
-
-            # write out the comment itself
-            fo.write(comment)
-            fo.truncate()
-            fo.close()
-        else:
-            raise Exception('Failed to write comment to zip file!')
-    except:
-        return False
-    else:
-        return True

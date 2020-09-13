@@ -18,6 +18,16 @@ from calibre.utils.config import JSONConfig
 from calibre_plugins.EmbedComicMetadata.ini import (
     get_configuration, CONFIG_NAME, CONFIG_TITLE, CONFIG_DEFAULT, CONFIG_COLUMN_TYPE)
 
+import sys
+
+python3 = sys.version_info[0] > 2
+
+# python 2/3 compatibility
+def iteritems(d):
+    if python3:
+        return iter(d.items())
+    return iter(d.iteritems())
+
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/interface_demo) is also
@@ -143,7 +153,7 @@ class ConfigWidget(QWidget):
         '''
         custom_columns = self.ia.gui.library_view.model().custom_columns
         available_columns = {}
-        for key, column in custom_columns.iteritems():
+        for key, column in iteritems(custom_columns):
             if (column["datatype"] in column_type["datatype"] and
                     bool(column["is_multiple"]) == column_type["is_multiple"] and
                     column['display'].get('is_names', False) == column_type['is_names']):
