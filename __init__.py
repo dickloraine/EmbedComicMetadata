@@ -20,7 +20,8 @@ class EmbedComicMetadataBase(InterfaceActionBase):
     calibre utilities to run without needing to load the GUI libraries.
     '''
     name                = 'Embed Comic Metadata'
-    description         = 'Embeds calibres metadata into cbz comic archieves'
+    description         = 'Embeds calibre metadata into comic archives and imports \
+                           metadata from comic archives into calibre.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'dloraine'
     version             = (1, 5, 0)
