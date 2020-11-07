@@ -12,6 +12,7 @@ from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.languages.lang import _L
 from calibre_plugins.EmbedComicMetadata.comicmetadata import ComicMetadata
 
+python3 = sys.version_info[0] > 2
 
 def import_to_calibre(ia, action):
     def _import_to_calibre(metadata):
@@ -149,7 +150,9 @@ def get_selected_books(ia):
 
 
 def lst2string(lst):
-    return "\n    " + "\n    ".join(lst)
+    if python3:
+        return "\n    " + "\n    ".join(lst)
+    return "\n    " + "\n    ".join(item.encode('utf-8') for item in lst)
 
 
 def convert_to_cbz(ia, metadata):
