@@ -12,6 +12,8 @@ from calibre_plugins.EmbedComicMetadata.config import prefs
 from calibre_plugins.EmbedComicMetadata.languages.lang import _L
 from calibre_plugins.EmbedComicMetadata.comicmetadata import ComicMetadata
 
+import sys
+
 python3 = sys.version_info[0] > 2
 
 def import_to_calibre(ia, action):
