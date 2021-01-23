@@ -23,6 +23,7 @@ de = {
     'Pages:': 'Seiten:',
     'Image size:': 'Bildgröße:',
     'Comicvine link:': 'Comicvine link:',
+    'Manga:': 'Manga:',
     # options (ini.py)
     "Options:": "Optionen:",
     'Write metadata in zip comment': 'Schreibe die Metadaten in den Zip-Kommentar',

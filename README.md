@@ -47,6 +47,12 @@ Characters, Teams, Locations, Genre
 
 Story Arc, Volume, Number of Issues
 
+#### Text, but with a fixed set of permitted values:
+
+* Manga
+  * Values: No,Yes,YesAndRightToLeft
+  * Default Value: No
+
 #### Integer:
 
 Number of Issues, Volume
