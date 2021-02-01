@@ -191,6 +191,7 @@ class ComicMetadata:
         update_field("issueCount", field(prefs['count_column']))
         update_field("pageCount", field(prefs['pages_column']))
         update_field("webLink", get_link(field(prefs['comicvine_column'])))
+        update_field("manga", field(prefs['manga_column']))
 
     def convert_comic_md_to_calibre_md(self, comic_metadata):
         '''
@@ -285,6 +286,7 @@ class ComicMetadata:
         if prefs['get_image_sizes']:
             update_column(prefs['image_size_column'], self.get_picture_size())
         update_column(prefs['comicvine_column'], '<a href="{}">Comic Vine</a>'.format(co.webLink))
+        update_column(prefs['manga_column'], co.manga)
 
         self.comic_md_in_calibre_format = mi
 
