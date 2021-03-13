@@ -312,7 +312,7 @@ class ComicMetadata:
                 zf = ZipFile(tf, "w")
                 zf.add_dir(tdir)
                 if comments:
-                    zf.comment = comment.encode("utf-8")
+                    zf.comment = comments.encode("utf-8")
                 zf.close()
                 # add the cbz format to calibres library
                 self.db.add_format(self.book_id, "cbz", tf)
