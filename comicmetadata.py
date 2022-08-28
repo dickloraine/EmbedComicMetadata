@@ -6,7 +6,8 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
-from calibre.utils.zipfile import ZipFile, safe_replace
+from zipfile import ZipFile
+from calibre.utils.zipfile import safe_replace
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
