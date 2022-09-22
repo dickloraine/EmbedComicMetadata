@@ -15,6 +15,7 @@ from calibre_plugins.EmbedComicMetadata.genericmetadata import GenericMetadata
 from calibre_plugins.EmbedComicMetadata.comicinfoxml import ComicInfoXml
 from calibre_plugins.EmbedComicMetadata.comicbookinfo import ComicBookInfo
 
+import os
 import sys
 
 python3 = sys.version_info[0] > 2
@@ -311,7 +312,7 @@ class ComicMetadata:
             # make the cbz file
             with TemporaryFile("comic.cbz") as tf:
                 zf = ZipFile(tf, "w")
-                zf.add_dir(tdir)
+                add_dir_to_zipfile(zf, tdir)
                 if comments:
                     zf.comment = comments.encode("utf-8")
                 zf.close()
@@ -563,3 +564,20 @@ def ensure_int(value, func, *args):
         func(*args)
     except (ValueError, TypeError):
         pass
+
+
+# from calibres zipfile utility
+def add_dir_to_zipfile(zf, path, prefix=''):
+    '''
+    Add a directory recursively to the zip file with an optional prefix.
+    '''
+    if prefix:
+        zf.writestr(prefix+'/', b'', 0o755)
+    fp = (prefix + ('/' if prefix else '')).replace('//', '/')
+    for f in os.listdir(path):
+        arcname = fp + f
+        f = os.path.join(path, f)
+        if os.path.isdir(f):
+            zf.add_dir(f, prefix=arcname)
+        else:
+            zf.write(f, arcname)
