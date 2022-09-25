@@ -572,12 +572,12 @@ def add_dir_to_zipfile(zf, path, prefix=''):
     Add a directory recursively to the zip file with an optional prefix.
     '''
     if prefix:
-        zf.writestr(prefix+'/', b'', 0o755)
+        zf.writestr(prefix+'/', b'')
     fp = (prefix + ('/' if prefix else '')).replace('//', '/')
     for f in os.listdir(path):
         arcname = fp + f
         f = os.path.join(path, f)
         if os.path.isdir(f):
-            zf.add_dir(f, prefix=arcname)
+            add_dir_to_zipfile(zf, f, prefix=arcname)
         else:
             zf.write(f, arcname)
