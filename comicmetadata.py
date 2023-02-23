@@ -255,9 +255,14 @@ class ComicMetadata:
         # pub date
         puby = co.year
         pubm = co.month
+        pubd = co.day
         if puby is not None:
             try:
-                dt = date(int(puby), 6 if pubm is None else int(pubm), 15)
+                dt = date(
+                    int(puby),
+                    6 if pubm is None else int(pubm),
+                    15 if pubd is None else int(pubd)
+                )
                 dt = parse_only_date(str(dt))
                 mi.pubdate = dt
             except:
