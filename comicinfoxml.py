@@ -181,10 +181,13 @@ class ComicInfoXml:
         md.teams = tuple_to_string(md.teams)
         md.locations = tuple_to_string(md.locations)
         md.genre = tuple_to_string(md.genre)
+        md.tags = tuple_to_string(md.tags)
 
         assign('Publisher', md.publisher)
         assign('Imprint', md.imprint)
         assign('Genre', md.genre)
+        if md.tags:
+            assign('Tags', md.tags)
         assign('Web', md.webLink)
         assign('PageCount', md.pageCount)
         assign('LanguageISO', md.language)
@@ -280,6 +283,11 @@ class ComicInfoXml:
                 if n.text is not None:
                     for name in n.text.split(','):
                         metadata.addCredit(name.strip(), "Cover")
+
+        # Tags
+        tags = xlate('Tags')
+        if tags is not None:
+            md.tags = [t for t in tags.split(", ")]
 
         # parse page data now
         pages_node = root.find("Pages")
