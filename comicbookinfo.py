@@ -62,6 +62,7 @@ class ComicBookInfo:
         metadata.country = xlate('country')
         metadata.criticalRating = xlate('rating')
         metadata.tags = xlate('tags')
+        metadata.gtin = xlate('GTIN')
 
         # make sure credits and tags are at least empty lists and not None
         if metadata.credits is None:
@@ -132,5 +133,9 @@ class ComicBookInfo:
         assign('rating', metadata.criticalRating)
         assign('credits', metadata.credits)
         assign('tags', metadata.tags)
+
+        # check for isbn in identifiers
+        if 'isbn' in metadata.identifier:
+            assign('GTIN', metadata.identifier['isbn'])
 
         return cbi_container
