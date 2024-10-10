@@ -6,7 +6,8 @@ __copyright__ = '2015, dloraine'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
-from calibre.utils.zipfile import ZipFile, safe_replace
+from zipfile import ZipFile
+from calibre.utils.zipfile import ZipFile as ZFile, safe_replace
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
@@ -637,10 +638,10 @@ def safe_delete(zipstream, name):
     from calibre.ptempfile import SpooledTemporaryFile
     import shutil
 
-    z = ZipFile(zipstream, 'r')
+    z = ZFile(zipstream, 'r')
 
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
-        ztemp = ZipFile(temp, 'a')
+        ztemp = ZFile(temp, 'a')
         for obj in z.infolist():
             if isinstance(obj.filename, str):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
