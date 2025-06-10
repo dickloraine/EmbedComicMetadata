@@ -58,7 +58,9 @@ class EmbedComicMetadata(InterfaceAction):
         self.toggle_menu_items()
 
     def build_menu(self):
-        for item in config[CONFIG_MENU]["UI_Action_Items"]:
+        from calibre_plugins.EmbedComicMetadata.ini import get_ui_action_items_config
+        menu_config = get_ui_action_items_config()
+        for item in menu_config["UI_Action_Items"]:
             if item[CONFIG_NAME] == "seperator":
                 self.menu.addSeparator()
                 continue

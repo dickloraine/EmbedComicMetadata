@@ -24,7 +24,7 @@ class EmbedComicMetadataBase(InterfaceActionBase):
                            metadata from comic archives into calibre.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'dloraine'
-    version             = (1, 6, 6)
+    version             = (1, 6, 7)
     minimum_calibre_version = (3, 1, 1)
 
     #: This field defines the GUI plugin class that contains all the code
@@ -77,3 +77,17 @@ class EmbedComicMetadataBase(InterfaceActionBase):
         ac = self.actual_plugin_
         if ac is not None:
             ac.apply_settings()
+
+    def cli_main(self, args):
+        from calibre.utils.config import prefs
+        from calibre.library import db
+        from calibre_plugins.EmbedComicMetadata.cli import embed_and_maybe_convert
+
+        library_path = prefs['library_path']
+        print("Loading library from: ", library_path)
+        db = db(library_path).new_api
+
+        ids_string = args[1]
+        ids = [int(s) for s in ids_string.split(",")]
+        print("ids of the books to process: ", ids)
+        embed_and_maybe_convert(db, ids, "both", True, True, True )

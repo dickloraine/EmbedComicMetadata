@@ -40,11 +40,10 @@ class ComicMetadata:
     An object for calibre to interact with comic metadata.
     '''
 
-    def __init__(self, book_id, ia):
+    def __init__(self, book_id, db):
         # initialize the attributes
         self.book_id = book_id
-        self.ia = ia
-        self.db = ia.gui.current_db.new_api
+        self.db = db
         self.calibre_metadata = self.db.get_metadata(book_id)
         self.cbi_metadata = None
         self.cix_metadata = None
@@ -67,8 +66,11 @@ class ComicMetadata:
         else:
             self.format = None
 
+        author="Unknown"
+        if len(self.calibre_metadata.authors) > 0:
+            author = self.calibre_metadata.authors[0]
         # generate a string with the books info, to show in the completion dialog
-        self.info = "{} - {}".format(self.calibre_metadata.title, self.calibre_metadata.authors[0])
+        self.info = "{} - {}".format(self.calibre_metadata.title, author)
         if self.calibre_metadata.series:
             self.info = "{}: {} - ".format(self.calibre_metadata.series, self.calibre_metadata.series_index) + self.info
 

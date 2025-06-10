@@ -141,3 +141,11 @@ cython_debug/
 
 EmbedComicMetadata.zip
 build.bat
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/EmbedComicMetadata.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/codeStyles/Project.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
+/.idea/.gitignore

@@ -48,8 +48,6 @@ def get_configuration():
            [name, displayed_text, triggerfunc, triggerfunc_arg]
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
-    from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic,
-        import_to_calibre, embed_cover, convert, count_pages, get_image_size)
 
     # configuration
     config = [
@@ -136,23 +134,31 @@ def get_configuration():
                 ["count_pages", _L['Show count pages button'], True],
                 ["image_size", _L['Show get image size button'], False],
                 ["cover", _L['Show embed cover button (experimental)'], False]
-            ],
-            "UI_Action_Items": [
-                ["read_both", _L['Import Metadata from the comic archive into calibre'], import_to_calibre, "both"],
-                ["import_cix", _L["Import Comic Rack Metadata from the comic archive into calibre"], import_to_calibre, "cix"],
-                ["import_cbi", _L["Import Comment Metadata from the comic archive into calibre"], import_to_calibre, "cbi"],
-                ["seperator"],
-                ["embed", _L["Embed both Comic Metadata types"], embed_into_comic, "both"],
-                ["embedcbi", _L["Only embed Metadata in zip comment"], embed_into_comic, "cbi"],
-                ["embedcix", _L["Only embed Metadata in ComicInfo.xml"], embed_into_comic, "cix"],
-                ["seperator"],
-                ["convert", _L["Only convert to cbz"], convert, None],
-                ["cover", _L["Embed the calibre cover"], embed_cover, None],
-                ["count_pages", _L["Count pages"], count_pages, None],
-                ["image_size", _L["Get image size"], get_image_size, None],
-                ["seperator"]
             ]
         }
     ]
 
+    return config
+
+def get_ui_action_items_config():
+    from calibre_plugins.EmbedComicMetadata.languages.lang import _L
+    from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic, import_to_calibre, embed_cover, convert, count_pages, get_image_size)
+
+    config = {
+        "UI_Action_Items": [
+            ["read_both", _L['Import Metadata from the comic archive into calibre'], import_to_calibre, "both"],
+            ["import_cix", _L["Import Comic Rack Metadata from the comic archive into calibre"], import_to_calibre, "cix"],
+            ["import_cbi", _L["Import Comment Metadata from the comic archive into calibre"], import_to_calibre, "cbi"],
+            ["seperator"],
+            ["embed", _L["Embed both Comic Metadata types"], embed_into_comic, "both"],
+            ["embedcbi", _L["Only embed Metadata in zip comment"], embed_into_comic, "cbi"],
+            ["embedcix", _L["Only embed Metadata in ComicInfo.xml"], embed_into_comic, "cix"],
+            ["seperator"],
+            ["convert", _L["Only convert to cbz"], convert, None],
+            ["cover", _L["Embed the calibre cover"], embed_cover, None],
+            ["count_pages", _L["Count pages"], count_pages, None],
+            ["image_size", _L["Get image size"], get_image_size, None],
+            ["seperator"]
+        ]
+    }
     return config

@@ -111,20 +111,21 @@ def iterate_over_books(ia, func, title, ptext, notptext,
     processed = []
     not_processed = []
     converted = []
+    db = ia.gui.current_db.new_api
 
     if should_convert is None:
         should_convert = prefs["convert_cbr"]
 
     # iterate through the books
     for book_id in get_selected_books(ia):
-        metadata = ComicMetadata(book_id, ia)
+        metadata = ComicMetadata(book_id, db)
 
         # sanity check
         if metadata.format is None:
             not_processed.append(metadata.info)
             continue
 
-        if should_convert and convert_to_cbz(ia, metadata):
+        if should_convert and convert_to_cbz(db, metadata):
             converted.append(metadata.info)
 
         if func(metadata):
@@ -157,15 +158,15 @@ def lst2string(lst):
     return "\n    " + "\n    ".join(item.encode('utf-8') for item in lst)
 
 
-def convert_to_cbz(ia, metadata):
+def convert_to_cbz(db, metadata):
     if metadata.format == "cbr" or (metadata.format == "rar" and prefs['convert_archives']):
         metadata.convert_cbr_to_cbz()
         if prefs['delete_cbr']:
-            ia.gui.current_db.new_api.remove_formats({metadata.book_id: {"cbr", "rar"}})
+            db.remove_formats({metadata.book_id: {"cbr", "rar"}})
         return True
     elif metadata.format == "zip" and prefs['convert_archives']:
         metadata.convert_zip_to_cbz()
         if prefs['delete_cbr']:
-            ia.gui.current_db.new_api.remove_formats({metadata.book_id: {"zip"}})
+            db.remove_formats({metadata.book_id: {"zip"}})
         return True
     return False
