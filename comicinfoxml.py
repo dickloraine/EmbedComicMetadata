@@ -200,6 +200,7 @@ class ComicInfoXml:
         assign('Teams', md.teams)
         assign('Locations', md.locations)
         assign('ScanInformation', md.scanInfo)
+        assign('GTIN', md.gtin)
 
         #  loop and add the page entries under pages node
         if len(md.pages) > 0:

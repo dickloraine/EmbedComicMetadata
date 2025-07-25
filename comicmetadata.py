@@ -173,6 +173,10 @@ class ComicMetadata:
             update_field("month", mi.pubdate.month)
             update_field("day", mi.pubdate.day)
 
+        # check for isbn in identifiers
+        if 'isbn' in mi.identifiers:
+            update_field("gtin", mi.identifiers['isbn'])
+
         # custom columns
         field = partial(self.db.field_for, book_id=self.book_id)
 
