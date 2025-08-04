@@ -1,0 +1,93 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "kill-calibre",
+            "type": "shell",
+            "command": "pkill -KILL -f vscode-calibre-task && exit 0",
+            "presentation": {
+                "reveal": "never"
+            },
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            }
+        },
+        {
+            "label": "save-library",
+            "type": "shell",
+            "command": "rm -rf ./test-library ./test-config && cp -r ~/'Calibre Library' ./test-library && cp -r ~/.config/calibre ./test-config && rm -rf ./test-library/.caltrash ./test-library/metadata_db_prefs_backup.json test-config/plugins/'Embed Comic Metadata.zip'",
+            "presentation": {
+                "reveal": "never"
+            },
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "reset-library",
+            "type": "shell",
+            "command": "rm -rf ~/'Calibre Library' ~/.config/calibre && cp -r ./test-library ~/'Calibre Library' && cp -r ./test-config ~/.config/calibre",
+            "presentation": {
+                "reveal": "never"
+            },
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "calibre",
+            "type": "shell",
+            "command": "exec -a vscode-calibre-task bash -c 'calibre-debug -s; calibre-customize -b .; calibre'",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never"
+            },
+            "runOptions": {
+                "instanceLimit": 999
+            },
+            "dependsOn": [
+                "kill-calibre"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "calibre-reset",
+            "type": "shell",
+            "command": "exec -a vscode-calibre-task bash -c 'calibre-debug -s; calibre-customize -b .; calibre'",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never"
+            },
+            "runOptions": {
+                "instanceLimit": 999
+            },
+            "dependsOn": [
+                "kill-calibre",
+                "reset-library"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "rm EmbedComicMetadata.zip && zip EmbedComicMetadata.zip images/ languages/ *.py *.md *.txt",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never"
+            },
+            "runOptions": {
+                "instanceLimit": 999
+            }
+        }
+    ]
+}

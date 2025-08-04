@@ -1,0 +1,387 @@
+{
+  "action-layout-toolbar": [
+    "Add Books",
+    "Edit Metadata",
+    null,
+    "Convert Books",
+    "View",
+    null,
+    "Store",
+    "Donate",
+    "Fetch News",
+    "Help",
+    null,
+    "Preferences",
+    "Remove Books",
+    "Choose Library",
+    "Save To Disk",
+    "Connect Share",
+    "Tweak ePub",
+    "Embed Comic Metadata"
+  ],
+  "basic_metadata_widget_splitter_state": {
+    "__class__": "bytearray",
+    "__value__": "AAAA/wAAAAEAAAADAAAA9wAAAXoAAAEKAf////8BAAAAAQA="
+  },
+  "book_list_pin_splitter_state": {
+    "__class__": "bytearray",
+    "__value__": "AAAA/wAAAAEAAAACAAABAAAAAEYA/////wEAAAABAA=="
+  },
+  "cover_grid_background": {
+    "dark": [
+      45,
+      45,
+      45
+    ],
+    "dark_texture": null,
+    "light": [
+      80,
+      80,
+      80
+    ],
+    "light_texture": null,
+    "migrated": true
+  },
+  "custom_colors_for_color_dialog": [
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      255
+    ]
+  ],
+  "geometry-of-calibre_main_window_geometry": {
+    "frame_geometry": {
+      "height": 1032,
+      "width": 1920,
+      "x": -3,
+      "y": -30
+    },
+    "full_screened": false,
+    "geometry": {
+      "height": 999,
+      "width": 1914,
+      "x": 0,
+      "y": 0
+    },
+    "maximized": true,
+    "normal_geometry": {
+      "height": 999,
+      "width": 1914,
+      "x": 0,
+      "y": 0
+    },
+    "qt": {
+      "__class__": "bytearray",
+      "__value__": "AdnQywADAAD////9////4gAAB3wAAAPpAAAAAAAAAAAAAAd5AAAD5gAAAAACAAAAB4AAAAAAAAAAAAAAB3kAAAPm"
+    },
+    "screen": {
+      "depth": 32,
+      "device_pixel_ratio": 1.0,
+      "geometry_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      "index_in_screens_list": 0,
+      "manufacturer": "weston",
+      "model": "rdp",
+      "name": "rdp-0",
+      "serial": "",
+      "size_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "virtual_geometry": {
+        "height": 1080,
+        "width": 3840,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "geometry-of-metasingle_window_geometry3": {
+    "frame_geometry": {
+      "height": 1063,
+      "width": 1856,
+      "x": -3,
+      "y": -30
+    },
+    "full_screened": false,
+    "geometry": {
+      "height": 1030,
+      "width": 1850,
+      "x": 0,
+      "y": 0
+    },
+    "maximized": false,
+    "normal_geometry": {
+      "height": 1030,
+      "width": 1850,
+      "x": 0,
+      "y": 0
+    },
+    "qt": {
+      "__class__": "bytearray",
+      "__value__": "AdnQywADAAD////9////4gAABzwAAAQIAAAAAAAAAAAAAAc5AAAEBQAAAAAAAAAAB4AAAAAAAAAAAAAABzkAAAQF"
+    },
+    "screen": {
+      "depth": 32,
+      "device_pixel_ratio": 1.0,
+      "geometry_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      "index_in_screens_list": 0,
+      "manufacturer": "weston",
+      "model": "rdp",
+      "name": "rdp-0",
+      "serial": "",
+      "size_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "virtual_geometry": {
+        "height": 1080,
+        "width": 3840,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "geometry-of-plugin config dialog:User interface action:Embed Comic Metadata": {
+    "frame_geometry": {
+      "height": 465,
+      "width": 766,
+      "x": -3,
+      "y": -30
+    },
+    "full_screened": false,
+    "geometry": {
+      "height": 432,
+      "width": 760,
+      "x": 0,
+      "y": 0
+    },
+    "maximized": false,
+    "normal_geometry": {
+      "height": 432,
+      "width": 760,
+      "x": 0,
+      "y": 0
+    },
+    "qt": {
+      "__class__": "bytearray",
+      "__value__": "AdnQywADAAD////9////4gAAAvoAAAGyAAAAAAAAAAAAAAL3AAABrwAAAAAAAAAAB4AAAAAAAAAAAAAAAvcAAAGv"
+    },
+    "screen": {
+      "depth": 32,
+      "device_pixel_ratio": 1.0,
+      "geometry_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      "index_in_screens_list": 0,
+      "manufacturer": "weston",
+      "model": "rdp",
+      "name": "rdp-0",
+      "serial": "",
+      "size_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "virtual_geometry": {
+        "height": 1080,
+        "width": 3840,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "geometry-of-preferences dialog geometry": {
+    "frame_geometry": {
+      "height": 753,
+      "width": 936,
+      "x": 486,
+      "y": 79
+    },
+    "full_screened": false,
+    "geometry": {
+      "height": 720,
+      "width": 930,
+      "x": 489,
+      "y": 109
+    },
+    "maximized": false,
+    "normal_geometry": {
+      "height": 720,
+      "width": 930,
+      "x": 489,
+      "y": 109
+    },
+    "qt": {
+      "__class__": "bytearray",
+      "__value__": "AdnQywADAAAAAAHmAAAATwAABY0AAAM/AAAB6QAAAG0AAAWKAAADPAAAAAAAAAAAB4AAAAHpAAAAbQAABYoAAAM8"
+    },
+    "screen": {
+      "depth": 32,
+      "device_pixel_ratio": 1.0,
+      "geometry_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      "index_in_screens_list": 0,
+      "manufacturer": "weston",
+      "model": "rdp",
+      "name": "rdp-0",
+      "serial": "",
+      "size_in_logical_pixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "virtual_geometry": {
+        "height": 1080,
+        "width": 3840,
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "grid view visible": false,
+  "library_usage_stats": {
+    "/root/Calibre Library": 12
+  },
+  "main_window_central_widget_state": {
+    "layout": "wide",
+    "narrow_desires": {
+      "book_details_height": 0.23042505592841164,
+      "cover_browser_width": 0.34953538241601145,
+      "quick_view_height": 0.25615212527964204,
+      "tag_browser_width": 0.2494639027877055
+    },
+    "narrow_visibility": {
+      "book_details": true,
+      "book_list": true,
+      "cover_browser": false,
+      "quick_view": false,
+      "tag_browser": true
+    },
+    "wide_desires": {
+      "book_details_width": 0.18084345961401,
+      "cover_browser_height": 0.28556593977154726,
+      "quick_view_height": 0.23779854620976115,
+      "tag_browser_width": 0.1501072194424589
+    },
+    "wide_visibility": {
+      "book_details": true,
+      "book_list": true,
+      "cover_browser": false,
+      "quick_view": false,
+      "tag_browser": true
+    }
+  },
+  "quick_start_guide_added": true,
+  "qv_open_at_shutdown": false,
+  "recently_used_languages": [
+    "English"
+  ],
+  "search bar visible": true,
+  "tag browser search box visible": false
+}

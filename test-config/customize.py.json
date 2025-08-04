@@ -1,0 +1,15 @@
+{
+  "disabled_plugins": {
+    "__class__": "set",
+    "__value__": []
+  },
+  "enabled_plugins": {
+    "__class__": "set",
+    "__value__": []
+  },
+  "filetype_mapping": {},
+  "plugin_customization": {},
+  "plugins": {
+    "Embed Comic Metadata": "/root/.config/calibre/plugins/Embed Comic Metadata.zip"
+  }
+}
