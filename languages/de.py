@@ -55,7 +55,7 @@ de = {
     'Show embed cover button (experimental)': 'Zeige den Button zum einbetten des Covers (experimentell)',
     'Show count pages button': 'Zeige den Button zum zählen der Seiten',
     'Show get image size button': 'Zeige den Button zur Bestimmung der Bildgröße',
-    'Show remove metadata button': 'Show remove metadata button',
+    'Show remove metadata button': 'Zeige den Button zur Entfernung von Metadaten',
 
     # TOOLBAR MENU
     # (ini.py)
@@ -68,7 +68,7 @@ de = {
     'Only convert to cbz': 'Konvertiere die Dateien zu cbz Dateien',
     'Embed the calibre cover': 'Bette das Calibre Cover ein',
     'Count pages': 'Zähle Seiten',
-    'Remove metadata': 'Remove metadata',
+    'Remove metadata': 'Entferne Metadaten',
     'Get image size': 'Bestimme die Bildgröße',
     # main button (ui.py)
     'Import Comic Metadata': 'Metadaten importieren',
@@ -95,7 +95,7 @@ de = {
     'Counted pages in {} comics': 'Seiten in {} comics gezählt',
     'The following comics were not counted: {}': 'Die folgenden Comics wurden nicht gezählt: {}',
     'The following comics were converted to cbz: {}': 'Die folgenden Comics wurden in das cbz Format konvertiert: {}',
-    'Removed metadata': 'Removed metadata',
+    'Removed metadata': 'Metadaten wurden entfernt',
     'Removed metadata in {} comics': 'Removed metadata in {} comics',
     'The following comics did not have metadata removed: {}': 'The following comics did not have metadata removed: {}',
 
