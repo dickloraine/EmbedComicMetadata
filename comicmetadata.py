@@ -173,8 +173,11 @@ class ComicMetadata:
             update_field("month", mi.pubdate.month)
             update_field("day", mi.pubdate.day)
 
-        # check for isbn in identifiers
-        if 'isbn' in mi.identifiers:
+        # check for gtin in identifiers
+        if 'gtin' in mi.identifiers:
+            update_field("gtin", mi.identifiers['gtin'])
+        # if no gtin use isbn
+        elif 'isbn' in mi.identifiers:
             update_field("gtin", mi.identifiers['isbn'])
 
         # custom columns
@@ -271,7 +274,10 @@ class ComicMetadata:
                 mi.pubdate = dt
             except:
                 pass
-
+        # gtin
+        if co.gtin:
+            mi.set_identifiers({"gtin": co.gtin})
+			
         # custom columns
         update_column = partial(update_custom_column, calibre_metadata=mi,
                                 custom_cols=self.db.field_metadata.custom_field_metadata())
