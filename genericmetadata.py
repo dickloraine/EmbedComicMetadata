@@ -95,6 +95,9 @@ class GenericMetadata:
         self.lastMark        = None
         self.coverImage      = None
 
+        # Anansi Project extensions
+        self.gtin            = None
+
     def overlay(self, new_md, overwrite=True):  # changed for the calibre plugin
         # Overlay a metadata object on this one
         # that is, when the new object has non-None
@@ -149,6 +152,7 @@ class GenericMetadata:
         assign("rights",            new_md.rights)
         assign("identifier",        new_md.identifier)
         assign("lastMark",          new_md.lastMark)
+        assign("gtin",              new_md.gtin)
 
         self.overlayCredits(new_md.credits, overwrite)
         # TODO
