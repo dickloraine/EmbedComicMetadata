@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 from zipfile import ZipFile
-from calibre.utils.zipfile import safe_replace
+from calibre.utils.zipfile import ZipFile as ZFile, safe_replace
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
 from calibre_plugins.EmbedComicMetadata.config import prefs
@@ -429,6 +429,42 @@ class ComicMetadata:
         self.db.set_metadata(self.book_id, self.calibre_metadata)
         return True
 
+    def remove_embedded_metadata(self):
+        # Ensure we have a temp file
+        self.make_temp_cbz_file()
+
+        '''
+        Remove the cix_metadata
+        '''
+        # search for ComicInfo.xml
+        zf = ZipFile(self.file)
+        cix_name = None
+        for name in zf.namelist():
+            if name.lower() == "comicinfo.xml":
+                cix_name = name
+                break
+        zf.close()
+
+        # Remove ComicInfo.xml from the file
+        if cix_name is not None:
+            with open(self.file, 'r+b') as zf:
+                safe_delete(zf, cix_name)
+
+        '''
+        Removes the cbi_metadata
+        '''
+        # open the zipfile
+        zf = ZipFile(self.file, 'a')
+
+        # Remove the metadata from the comment
+        cbi_string = ''
+
+        zf.comment = cbi_string.encode("utf-8")
+        zf._didModify = True
+        zf.close()
+
+        return True
+
     def get_comic_metadata_from_cbz(self):
         '''
         Reads the comic metadata from the comic cbz file as comictagger metadata
@@ -596,3 +632,36 @@ def add_dir_to_zipfile(zf, path, prefix=''):
             add_dir_to_zipfile(zf, f, prefix=arcname)
         else:
             zf.write(f, arcname)
+
+
+def safe_delete(zipstream, name):
+    '''
+    Delete a file in a zip file in a safe manner. This proceeds by extracting
+    and re-creating the zipfile. This is necessary because :method:`ZipFile.delete`
+    sometimes created corrupted zip files.
+
+
+    :param zipstream:  Stream from a zip file
+    :param name:       The name of the file to delete
+
+    '''
+    from calibre.ptempfile import SpooledTemporaryFile
+    import shutil
+
+    z = ZFile(zipstream, 'r')
+
+    with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
+        ztemp = ZFile(temp, 'a')
+        for obj in z.infolist():
+            if isinstance(obj.filename, str):
+                obj.flag_bits |= 0x16  # Set isUTF-8 bit
+            # Write all files to new zipfile except the deleted file
+            if obj.filename != name:
+                ztemp.writestr(obj, z.read_raw(obj), raw_bytes=True)
+        ztemp.close()
+        z.close()
+        temp.seek(0)
+        zipstream.seek(0)
+        zipstream.truncate()
+        shutil.copyfileobj(temp, zipstream)
+        zipstream.flush()

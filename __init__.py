@@ -24,7 +24,7 @@ class EmbedComicMetadataBase(InterfaceActionBase):
                            metadata from comic archives into calibre.'
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'dloraine'
-    version             = (1, 6, 6)
+    version             = (1, 6, 7)
     minimum_calibre_version = (3, 1, 1)
 
     #: This field defines the GUI plugin class that contains all the code

@@ -88,6 +88,20 @@ def count_pages(ia):
                        _L['The following comics were not counted: {}'])
 
 
+def remove_metadata(ia):
+    def _remove_metadata(metadata):
+        if metadata.format != "cbz":
+            return False
+        metadata.remove_embedded_metadata()
+        metadata.add_updated_comic_to_calibre()
+        return True
+
+    iterate_over_books(ia, _remove_metadata,
+                        _L["Removed metadata"],
+                        _L['Removed metadata in {} comics'],
+                        _L['The following comics did not have metadata removed: {}'])
+
+
 def get_image_size(ia):
     def _get_image_size(metadata):
         if metadata.format != "cbz":

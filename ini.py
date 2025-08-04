@@ -49,7 +49,7 @@ def get_configuration():
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
     from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic,
-        import_to_calibre, embed_cover, convert, count_pages, get_image_size)
+        import_to_calibre, embed_cover, convert, count_pages, get_image_size, remove_metadata)
 
     # configuration
     config = [
@@ -135,6 +135,7 @@ def get_configuration():
                 ["convert", _L['Show convert button'], True],
                 ["count_pages", _L['Show count pages button'], True],
                 ["image_size", _L['Show get image size button'], False],
+                ["remove_metadata", _L['Show remove metadata button'], False],
                 ["cover", _L['Show embed cover button (experimental)'], False]
             ],
             "UI_Action_Items": [
@@ -150,6 +151,7 @@ def get_configuration():
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
                 ["count_pages", _L["Count pages"], count_pages, None],
                 ["image_size", _L["Get image size"], get_image_size, None],
+                ["remove_metadata", _L["Remove metadata"], remove_metadata, None],
                 ["seperator"]
             ]
         }
