@@ -96,8 +96,8 @@ de = {
     'The following comics were not counted: {}': 'Die folgenden Comics wurden nicht gezählt: {}',
     'The following comics were converted to cbz: {}': 'Die folgenden Comics wurden in das cbz Format konvertiert: {}',
     'Removed metadata': 'Metadaten wurden entfernt',
-    'Removed metadata in {} comics': 'Removed metadata in {} comics',
-    'The following comics did not have metadata removed: {}': 'The following comics did not have metadata removed: {}',
+    'Removed metadata in {} comics': 'Metadaten aus {} Comics entfernt',
+    'The following comics did not have metadata removed: {}': 'Aus den folgenden Comics wurden die Metadaten nicht entfernt: {}',
 
     # ERRORS
     # (ui.py)
