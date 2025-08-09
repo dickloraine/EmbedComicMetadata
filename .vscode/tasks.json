@@ -80,7 +80,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "rm EmbedComicMetadata.zip && zip EmbedComicMetadata.zip images/ languages/ *.py *.md *.txt",
+            "command": "rm EmbedComicMetadata.zip && zip EmbedComicMetadata.zip images/*.* languages/*.* *.py *.md *.txt",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "never"
