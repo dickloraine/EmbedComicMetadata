@@ -97,6 +97,20 @@ class ComicInfoXml:
             if md_entry is not None:
                 ET.SubElement(root, cix_entry).text = u"{0}".format(md_entry)
 
+        def clean_tags(tag_list):
+            # Remove Goodreads tags
+            gr_tags = [
+                'gr-read',
+                'gr-want-to-read',
+                'gr-reading'
+            ]
+
+            for t in gr_tags:
+                if t in tag_list:
+                    tag_list.remove(t)
+
+            return tag_list
+
         assign('Title', md.title)
         assign('Series', md.series)
         assign('Number', md.issue)
@@ -181,7 +195,7 @@ class ComicInfoXml:
         md.teams = tuple_to_string(md.teams)
         md.locations = tuple_to_string(md.locations)
         md.genre = tuple_to_string(md.genre)
-        md.tags = tuple_to_string(md.tags)
+        md.tags = tuple_to_string(clean_tags(md.tags))
 
         assign('Publisher', md.publisher)
         assign('Imprint', md.imprint)
