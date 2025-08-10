@@ -49,7 +49,9 @@ def get_configuration():
     '''
     from calibre_plugins.EmbedComicMetadata.languages.lang import _L
     from calibre_plugins.EmbedComicMetadata.main import (embed_into_comic,
-        import_to_calibre, embed_cover, convert, count_pages, get_image_size, remove_metadata)
+        import_to_calibre, embed_cover, convert, count_pages, get_image_size, remove_metadata,
+        mark_cbz, clean_cbz
+    )
 
     # configuration
     config = [
@@ -104,7 +106,9 @@ def get_configuration():
                 ["import_tags", _L['Import tags from comic metadata'], False],
                 ["overwrite_calibre_tags", _L['If checked, overwrites the tags in calibre.'], False],
                 ["auto_count_pages", _L['Auto count pages if importing'], False],
-                ["get_image_sizes", _L['Get the image size if importing'], False]
+                ["get_image_sizes", _L['Get the image size if importing'], False],
+                ["clean_cbz", _L['Clean up directory struture inside CBZ files'], False],
+                ["mark_cbz", _L['Mark CBZ files with improper file struture'], False]
             ]
         },
         {
@@ -115,9 +119,11 @@ def get_configuration():
             "Items": [
                 ["main_embed", _L['Embed metadata'], True],
                 ["main_import", _L['Import metadata'], False],
+                ["main_mark", _L['Mark dirty comics'], False],
+                ["main_clean", _L['Clean dirty comics'], False],
             ],
             "Exclusive_Items": [
-                ["main_embed", "main_import"]
+                ["main_embed", "main_import", "main_mark", "main_clean"]
             ]
         },
         {
@@ -134,6 +140,8 @@ def get_configuration():
                 ["import_cbi", _L['Show import cbi button'], False],
                 ["convert", _L['Show convert button'], True],
                 ["count_pages", _L['Show count pages button'], True],
+                ["mark_cbz", _L['Show mark CBZ button'], True],
+                ["clean_cbz", _L['Show clean CBZ button'], True],
                 ["image_size", _L['Show get image size button'], False],
                 ["remove_metadata", _L['Show remove metadata button'], False],
                 ["cover", _L['Show embed cover button (experimental)'], False]
@@ -150,6 +158,8 @@ def get_configuration():
                 ["convert", _L["Only convert to cbz"], convert, None],
                 ["cover", _L["Embed the calibre cover"], embed_cover, None],
                 ["count_pages", _L["Count pages"], count_pages, None],
+                ["mark_cbz", _L["Mark dirty comics"], mark_cbz, None],
+                ["clean_cbz", _L["Clean dirty comics"], clean_cbz, None],
                 ["image_size", _L["Get image size"], get_image_size, None],
                 ["remove_metadata", _L["Remove metadata"], remove_metadata, None],
                 ["seperator"]

@@ -35,9 +35,15 @@ class EmbedComicMetadata(InterfaceAction):
     if prefs["main_import"]:
         action_spec = (_L['Import Comic Metadata'], None,
                        _L['Imports the metadata from the comic to calibre'], None)
-    else:
+    elif prefs["main_embed"]:
         action_spec = (_L['Embed Comic Metadata'], None,
                        _L['Embeds calibres metadata into the comic'], None)
+    elif prefs["main_mark"]:
+        action_spec = (_L['Mark Dirty Comics'], None,
+                       _L['Marks comics with dirty file structure'], None)
+    elif prefs["main_clean"]:
+        action_spec = (_L['Clean Dirty Comics'], None,
+                       _L['Cleans comics with dirty file structure'], None)
 
     def genesis(self):
         # menu
@@ -77,24 +83,32 @@ class EmbedComicMetadata(InterfaceAction):
             action.setVisible(prefs[item[CONFIG_NAME]])
 
     def main_menu_triggered(self):
-        from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre
+        from calibre_plugins.EmbedComicMetadata.main import embed_into_comic, import_to_calibre, mark_cbz, clean_cbz
 
-        i = prefs["main_import"]
+        if prefs["main_mark"]:
+            mark_cbz(self)
+            return
+        if prefs["main_clean"]:
+            clean_cbz(self)
+            return
+
+        action_i = prefs["main_import"]
+        action_e = prefs["main_embed"]
         # Check the preferences for what should be done
-        if (i and prefs['read_cbi'] and prefs['read_cix']) or (
-                not i and prefs['cbi_embed'] and prefs['cix_embed']):
+        if (action_i and prefs['read_cbi'] and prefs['read_cix']) or (
+                action_e and prefs['cbi_embed'] and prefs['cix_embed']):
             action = "both"
-        elif (i and prefs['read_cbi']) or (not i and prefs['cbi_embed']):
+        elif (action_i and prefs['read_cbi']) or (action_e and prefs['cbi_embed']):
             action = "cbi"
-        elif (i and prefs['read_cix']) or (not i and prefs['cix_embed']):
+        elif (action_i and prefs['read_cix']) or (action_e and prefs['cix_embed']):
             action = "cix"
         else:
             return error_dialog(self.gui, _L['Cannot update metadata'],
                                 _L['No embed format selected'], show=True)
 
-        if i:
+        if action_i:
             import_to_calibre(self, action)
-        else:
+        elif action_e:
             embed_into_comic(self, action)
 
     def apply_settings(self):
