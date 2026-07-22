@@ -16,6 +16,7 @@ SERIES_TYPE = {"is_multiple": False, "is_names": False, "datatype": "series"}
 STORY_ARCH_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["series", "text"]}
 NUMBER_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["int", "text"]}
 ENUM_TYPE = {"is_multiple": False, "is_names": False, "datatype": ["enumeration", "text"]}
+STRING_TYPE = {"is_multiple": False, "is_names": False, "datatype": "text"}
 
 # Some constants for ease of reading
 CONFIG_NAME = 0
@@ -83,7 +84,9 @@ def get_configuration():
                 ["pages_column", _L['Pages:'], None, NUMBER_TYPE],
                 ["image_size_column", _L['Image size:'], None, FLOAT_TYPE],
                 ["comicvine_column", _L['Comicvine link:'], None, COMMENT_TYPE],
-                ["manga_column", _L['Manga:'], None, ENUM_TYPE]
+                ["format_column", _L["Format:"], None, STRING_TYPE],
+                ["manga_column", _L['Manga:'], None, ENUM_TYPE],
+                ["maturity_column", _L['Age Rating:'], None, ENUM_TYPE]
             ]
         },
         {

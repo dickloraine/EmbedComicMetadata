@@ -45,13 +45,16 @@ Characters, Teams, Locations, Genre
 
 #### Text, column shown in the tag browser:
 
-Story Arc, Volume, Number of Issues
+Story Arc, Volume, Number of Issues, Format
 
 #### Text, but with a fixed set of permitted values:
 
 * Manga
   * Values: No,Yes,YesAndRightToLeft
   * Default Value: No
+* Age Rating
+  * Values: Unknown,Adults Only 18+,Early Childhood,Everyone,Everyone 10+,G,Kids to Adults,M,MA15+,Mature 17+,PG,R18+,Rating Pending,Teen,X18+
+  * Default Value: Unknown
 
 #### Integer:
 
