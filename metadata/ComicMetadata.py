@@ -274,6 +274,8 @@ class ComicMetadata(ABC):
         credit = dict()
         credit['person'] = person
         role = self.get_role_from_synonyms(role)
+        if role is None:
+            return
         credit['role'] = role
         if primary:
             credit['primary'] = primary
@@ -292,10 +294,13 @@ class ComicMetadata(ABC):
             self.credits.append(credit)
 
     def get_role_from_synonyms(self, role):
+        if not isinstance(role, str) or not role.strip():
+            return None
         for role_name, synonyms in self.credit_synonyms.items():
             if role.lower() in synonyms:
                 return role_name
-        return None
+        # Preserve source roles that are not in the synonym table.
+        return role
 
     def __str__(self):
         vals = []
